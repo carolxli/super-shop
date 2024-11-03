@@ -94,3 +94,19 @@ export const deleteProdutos = (req, res) => {
         return res.status(200).json("Produto deletado com sucesso");
     });
 };
+
+export const getProduto = (req, res) => {
+    const { idProduto } = req.params;
+    const query = 'SELECT * FROM "Produto" WHERE "idProduto" = $1';
+
+    db.query(query, [idProduto], (err, result) => {
+        if (err) {
+            return res.status(500).json(err);
+        }
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Produto não encontrado" });
+        }
+        return res.status(200).json(result.rows[0]);
+    });
+};
+

@@ -90,4 +90,4 @@ const ListarProdutos = () => {
     );
 };
 
-export default ListarProdutos;
+export default ListarProdutos;
