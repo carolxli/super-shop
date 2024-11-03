@@ -44,7 +44,7 @@ const EditarProduto = () => {
             try {
                 await axios.put(`http://localhost:8800/Produto/${idProduto}`, produto);
                 alert("Produto atualizado com sucesso!");
-                navigate("/listarProdutos.js"); // Redireciona após a edição
+                navigate("/listar-produtos"); // Redireciona após a edição
             } catch (error) {
                 console.error("Erro ao atualizar produto:", error);
             }

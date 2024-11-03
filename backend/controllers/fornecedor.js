@@ -1,24 +1,29 @@
-import {db} from "../db.js";
+import { db } from "../db.js";
 
-export const getFornecedor = async (_,res) => {
+// Obtém todos os fornecedores
+export const getFornecedor = async (_, res) => {
     const q = `SELECT * FROM "Fornecedor"`;
-    db.query(q,(err,data) => {
-        if(err) return res.json(err);
+    db.query(q, (err, data) => {
+        if (err) {
+            console.error("Erro ao buscar fornecedores:", err);
+            return res.status(500).json(err);
+        }
         return res.status(200).json(data);
     });
-}
+};
 
-export const getFornecedorPessoa = async (_,res) => {
-    const q = `SELECT *
-                FROM "Pessoa" p
-                JOIN "Fornecedor" f ON f."Pessoa_idPessoa" = p."idPessoa"`;
-    db.query(q,(err,data) => {
-        if(err) return res.json(err);
-        return res.status(200).json(data);
+export const getFornecedorById = async (req, res) => {
+    const idFornecedor = req.params.idFornecedor;
+    const q = `SELECT * FROM "Fornecedor" WHERE "idFornecedor" = $1`;
+    
+    db.query(q, [idFornecedor], (err, data) => {
+        if (err) return res.json(err);
+        return res.status(200).json(data.rows[0]); // Retornando apenas o fornecedor
     });
-}
+};
 
-export const postFornecedor = (req,res) => {
+// Adiciona um novo fornecedor
+export const postFornecedor = (req, res) => {
     const q = `INSERT INTO "Fornecedor" (
         "cnpj",
         "razao_social",
@@ -41,7 +46,7 @@ export const postFornecedor = (req,res) => {
 
     db.query(q, values, (insertErr) => {
         if (insertErr) {
-            console.error("Erro ao inserir Fornecedor", insertErr);
+            console.error("Erro ao inserir Fornecedor:", insertErr);
             return res.status(500).json("Erro ao inserir fornecedor");
         }
 
@@ -49,7 +54,8 @@ export const postFornecedor = (req,res) => {
     });
 };
 
-export const updateFornecedor = (req,res) => {
+// Atualiza um fornecedor existente
+export const updateFornecedor = (req, res) => {
     const q = `UPDATE "Fornecedor" SET
         "cnpj" = $1,
         "razao_social" = $2,
@@ -70,21 +76,23 @@ export const updateFornecedor = (req,res) => {
         req.body.Pessoa_idPessoa,
     ];
 
-    db.query(q,[...values, req.params.idFornecedor], (err) => {
+    db.query(q, [...values, req.params.idFornecedor], (err) => {
         if (err) {
-            console.error("Erro ao alterar Fornecedor", err);
-            return res.json(err);
+            console.error("Erro ao alterar Fornecedor:", err);
+            return res.status(500).json(err);
         }
         return res.status(200).json("Fornecedor atualizado com sucesso");
     });
 };
 
+// Deleta um fornecedor
 export const deleteFornecedor = (req, res) => {
-    const q = `DELETE FROM "Fornecedor" WHERE \"idFornecedor\" = $1`;
+    const q = `DELETE FROM "Fornecedor" WHERE "idFornecedor" = $1`;
 
     db.query(q, [req.params.idFornecedor], (err) => {
         if (err) {
-            return res.json(err);
+            console.error("Erro ao deletar fornecedor:", err);
+            return res.status(500).json(err);
         }
         return res.status(200).json("Fornecedor deletado com sucesso");
     });

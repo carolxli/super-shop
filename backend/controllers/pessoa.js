@@ -97,3 +97,11 @@ export const deletePessoa = (req, res) => {
         return res.status(200).json("Pessoa deletada com sucesso");
     });
 };
+
+export const getPessoaById = (req, res) => {
+    const q = `SELECT * FROM "Pessoa" WHERE "idPessoa" = $1`;
+    db.query(q, [req.params.idPessoa], (err, data) => {
+        if (err) return res.json(err);
+        return res.status(200).json(data.rows[0]); // Retorna apenas o primeiro registro
+    });
+};
