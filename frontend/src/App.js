@@ -3,9 +3,9 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/header.js';
 import Home from './pages/home.js';
-import Fornecedor from './pages/fornecedor.js'; // Página de cadastro de fornecedores
-import ListarFornecedores from './pages/ListarFornecedores.js'; // Importar a nova página para listar fornecedores
-import EditarFornecedor from './pages/EditarFornecedor.js'; // Importar a página de edição de fornecedores
+import Fornecedor from './pages/fornecedor.js';
+import ListarFornecedores from './pages/ListarFornecedores.js';
+import EditarFornecedor from './pages/EditarFornecedor.js';
 import Pessoa from './pages/pessoa.js';
 import Produto from './pages/produto.js';
 import ListarProdutos from './pages/ListarProdutos.js';
@@ -22,8 +22,8 @@ const App = () => {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/fornecedor" element={<Fornecedor />} />
-                <Route path="/listar-fornecedores" element={<ListarFornecedores />} /> {/* Rota para listar fornecedores */}
-                <Route path="/editarFornecedor/:idFornecedor" element={<EditarFornecedor />} /> {/* Rota para editar fornecedor */}
+                <Route path="/listar-fornecedores" element={<ListarFornecedores />} /> 
+                <Route path="/editarFornecedor/:idFornecedor" element={<EditarFornecedor />} />
                 <Route path="/pessoa" element={<Pessoa />} />
                 <Route path="/produto" element={<Produto />} />
                 <Route path="/listar-produtos" element={<ListarProdutos />} />

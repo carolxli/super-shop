@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
 
-const EditarFornecedor = () => {
-    const { idFornecedor } = useParams();
-    const navigate = useNavigate();
+const FormFornecedor = () => {
     const [fornecedor, setFornecedor] = useState({
         cnpj: '',
         razao_social: '',
@@ -15,23 +12,6 @@ const EditarFornecedor = () => {
         Pessoa_idPessoa: '',
     });
 
-    useEffect(() => {
-        const fetchFornecedor = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8800/fornecedor/${idFornecedor}`);
-                const fornecedorData = response.data;
-                setFornecedor({
-                    ...fornecedorData,
-                    dt_inicio_fornecimento: fornecedorData.dt_inicio_fornecimento.split('T')[0]
-                });
-            } catch (err) {
-                console.error(err);
-                alert('Erro ao buscar fornecedor');
-            }
-        };
-        fetchFornecedor();
-    }, [idFornecedor]);
-
     const handleChange = (e) => {
         setFornecedor({
             ...fornecedor,
@@ -41,25 +21,27 @@ const EditarFornecedor = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const confirmUpdate = window.confirm("Você tem certeza que deseja atualizar este fornecedor?");
-        if (!confirmUpdate) {
-            return;
-        }
-
         try {
-            await axios.put(`http://localhost:8800/fornecedor/${idFornecedor}`, fornecedor);
-            alert('Fornecedor atualizado com sucesso!');
-            navigate('/listar-fornecedores');
+            await axios.post('http://localhost:8800/fornecedor', fornecedor);
+            alert('Fornecedor cadastrado com sucesso!');
+            setFornecedor({
+                cnpj: '',
+                razao_social: '',
+                qtd_min_pedido: '',
+                prazo_entrega: '',
+                dt_inicio_fornecimento: '',
+                observacao: '',
+                Pessoa_idPessoa: '',
+            });
         } catch (err) {
             console.error(err);
-            alert('Erro ao atualizar fornecedor');
+            alert('Erro ao cadastrar fornecedor');
         }
     };
 
     return (
         <>
-            <h3>Editar Fornecedor</h3>
+            <h3>Cadastrar Fornecedor</h3>
             <form onSubmit={handleSubmit}>
                 <label>
                     CNPJ
@@ -95,16 +77,21 @@ const EditarFornecedor = () => {
                     Observação
                     <textarea name="observacao" value={fornecedor.observacao} onChange={handleChange} />
                 </label>
+
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '90px', marginLeft: '90px' }}>
-                    <button type="submit">Editar</button>
-                    <a href='/listar-fornecedores'>
+                    <button type="submit">Cadastrar</button>
+                    <a href='/'>
                         <button type="button">Cancelar</button>
                     </a>
                 </div>
             </form>
-
+            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px', marginLeft: '256px' }}>
+                <a href="/listar-fornecedores">
+                    <button>Listar Fornecedores Cadastradas</button>
+                </a>
+            </div>
         </>
     );
 };
 
-export default EditarFornecedor;
+export default FormFornecedor;

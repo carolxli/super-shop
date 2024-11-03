@@ -13,7 +13,7 @@ const ListarFornecedores = () => {
             try {
                 const response = await axios.get("http://localhost:8800/Fornecedor");
                 console.log("Resposta da API:", response.data);
-                setFornecedores(response.data.rows || response.data); // Ajuste baseado na estrutura da resposta
+                setFornecedores(response.data.rows || response.data);
                 setLoading(false);
             } catch (err) {
                 console.error("Erro ao buscar fornecedores", err);
@@ -47,7 +47,7 @@ const ListarFornecedores = () => {
     }
 
     return (
-        <div>
+        <>
             <h2>Lista de Fornecedores</h2>
             <table>
                 <thead>
@@ -86,7 +86,7 @@ const ListarFornecedores = () => {
                     )}
                 </tbody>
             </table>
-        </div>
+        </>
     );
 };
 

@@ -6,8 +6,12 @@ const Header = () => {
         <header>
             <nav>
                 <Link to="/">Home</Link>
-                <Link to="/fornecedor">Fornecedor</Link>
-                <Link to="/pessoa">Pessoa</Link>
+                <div className="dropdown">
+                    <Link to="/pessoa">Pessoa</Link>
+                    <div className="dropdown-content">
+                        <Link to="/fornecedor">Fornecedor</Link>
+                    </div>
+                </div>
                 <Link to="/produto">Produto</Link>
             </nav>
         </header>

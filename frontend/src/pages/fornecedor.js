@@ -1,62 +1,10 @@
-// src/pages/Fornecedor.js
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import FormFornecedor from '../components/FormFornecedor.js';
 
 const Fornecedor = () => {
-    const navigate = useNavigate();
-    const [fornecedor, setFornecedor] = useState({
-        cnpj: '',
-        razao_social: '',
-        qtd_min_pedido: '',
-        prazo_entrega: '',
-        dt_inicio_fornecimento: '',
-        observacao: '',
-        Pessoa_idPessoa: '', // ID da pessoa associada
-    });
-
-    const handleChange = (e) => {
-        setFornecedor({
-            ...fornecedor,
-            [e.target.name]: e.target.value,
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.post('http://localhost:8800/fornecedor', fornecedor);
-            alert('Fornecedor cadastrado com sucesso!');
-            // Limpa o formulário após o envio
-            setFornecedor({
-                cnpj: '',
-                razao_social: '',
-                qtd_min_pedido: '',
-                prazo_entrega: '',
-                dt_inicio_fornecimento: '',
-                observacao: '',
-                Pessoa_idPessoa: '',
-            });
-        } catch (err) {
-            console.error(err);
-            alert('Erro ao cadastrar fornecedor');
-        }
-    };
-
     return (
         <div>
-            <h2>Cadastrar Fornecedor</h2>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="cnpj" placeholder="CNPJ" value={fornecedor.cnpj} onChange={handleChange} required />
-                <input type="text" name="razao_social" placeholder="Razão Social" value={fornecedor.razao_social} onChange={handleChange} required />
-                <input type="number" name="qtd_min_pedido" placeholder="Quantidade Mínima de Pedido" value={fornecedor.qtd_min_pedido} onChange={handleChange} required />
-                <input type="number" name="prazo_entrega" placeholder="Prazo de Entrega (dias)" value={fornecedor.prazo_entrega} onChange={handleChange} required />
-                <input type="date" name="dt_inicio_fornecimento" placeholder="Data de Início" value={fornecedor.dt_inicio_fornecimento} onChange={handleChange} required />
-                <textarea name="observacao" placeholder="Observação" value={fornecedor.observacao} onChange={handleChange} />
-                <input type="number" name="Pessoa_idPessoa" placeholder="ID da Pessoa" value={fornecedor.Pessoa_idPessoa} onChange={handleChange} required />
-                <button type="submit">Cadastrar Fornecedor</button>
-            </form>
-            <button onClick={() => navigate('/listar-fornecedores')}>Listar Fornecedores</button> {/* Botão para listar fornecedores */}
+            <FormFornecedor />
         </div>
     );
 };

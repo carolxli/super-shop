@@ -44,7 +44,7 @@ const EditarProduto = () => {
             try {
                 await axios.put(`http://localhost:8800/Produto/${idProduto}`, produto);
                 alert("Produto atualizado com sucesso!");
-                navigate("/listar-produtos"); // Redireciona após a edição
+                navigate("/listar-produtos");
             } catch (error) {
                 console.error("Erro ao atualizar produto:", error);
             }
@@ -54,8 +54,8 @@ const EditarProduto = () => {
     if (loading) return <div>Carregando...</div>;
 
     return (
-        <div>
-            <h1>Editar Produto</h1>
+        <>
+            <h3>Editar Produto</h3>
             <form onSubmit={handleSubmit}>
                 <label>
                     SKU:
@@ -101,9 +101,14 @@ const EditarProduto = () => {
                     Categoria ID:
                     <input type="text" name="Categoria_idCategoria" value={produto.Categoria_idCategoria} onChange={handleChange} />
                 </label>
-                <button type="submit">Confirmar Edição</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', marginLeft: '315px' }}>
+                    <button type="submit">Editar</button>
+                    <a href='/listar-produtos'>
+                        <button type="button">Cancelar</button>
+                    </a>
+                </div>
             </form>
-        </div>
+        </>
     );
 };
 
