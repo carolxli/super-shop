@@ -1,5 +1,11 @@
 import express from "express";
-import { getFornecedor, getFornecedorById, postFornecedor, updateFornecedor, deleteFornecedor } from "../controllers/fornecedor.js";
+import {
+  getFornecedor,
+  getFornecedorById,
+  postFornecedor,
+  updateFornecedor,
+  deleteFornecedor,
+} from "../controllers/fornecedor.js";
 
 const routerForne = express.Router();
 
