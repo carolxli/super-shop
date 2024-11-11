@@ -7,7 +7,7 @@ import ListarFornecedores from "./pages/ListarFornecedores.js";
 import EditarFornecedor from "./pages/EditarFornecedor.js";
 import Pessoa from "./pages/pessoa.js";
 import Produto from "./pages/produto.js";
-import ListarProdutos from "./pages/listarProdutos.js";
+import ListarProdutos from "./pages/ListarProdutos.js";
 import EditarProduto from "./pages/EditarProduto.js";
 import ListarPessoas from "./pages/ListarPessoas.js";
 import GlobalStyle from "./styles/globalstyle.js";
