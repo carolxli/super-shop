@@ -110,3 +110,39 @@ export const getProduto = (req, res) => {
     });
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Novo controlador para buscar todos os fornecedores
+export const getFornecedores = (req, res) => {
+    const query = 'SELECT "idFornecedor", "razao_social" FROM "Fornecedor"';
+    db.query(query, (err, result) => {
+        if (err) {
+            return res.status(500).json(err);
+        }
+        return res.status(200).json(result.rows);
+    });
+};
+
+// Novo controlador para buscar todas as marcas de um fornecedor específico
+export const getMarcasByFornecedor = (req, res) => {
+    const { idFornecedor } = req.params;
+    const query = `SELECT "idMarca", "nome" FROM "Marca" WHERE "idMarca" IN 
+                   (SELECT "Marca_idMarca" FROM "Fornecedor" WHERE "idFornecedor" = $1)`;
+    db.query(query, [idFornecedor], (err, result) => {
+        if (err) {
+            return res.status(500).json(err);
+        }
+        return res.status(200).json(result.rows);
+    });
+};
+
+// Novo controlador para buscar todas as categorias
+export const getCategorias = (req, res) => {
+    const query = 'SELECT "idCategoria", "nome" FROM "Categoria"';
+    db.query(query, (err, result) => {
+        if (err) {
+            return res.status(500).json(err);
+        }
+        return res.status(200).json(result.rows);
+    });
+};
