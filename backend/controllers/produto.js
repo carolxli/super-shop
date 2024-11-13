@@ -1,7 +1,7 @@
 import {db} from "../db.js";
 
 export const getProdutos = async (_, res) => {
-    const q = `SELECT * FROM "Produto"`;
+    const q = `SELECT * FROM "SuperShop"."Produto"`;
     db.query(q, (err, data) => {
         if (err) return res.json(err);
         return res.status(200).json(data);
@@ -9,7 +9,7 @@ export const getProdutos = async (_, res) => {
 }
 
 export const postProdutos = (req, res) => {
-    const q = `INSERT INTO "Produto" (
+    const q = `INSERT INTO "SuperShop"."Produto" (
         "sku",
         "descricao",
         "valor_custo",
@@ -48,7 +48,7 @@ export const postProdutos = (req, res) => {
 };
 
 export const updateProdutos = (req, res) => {
-    const q = `UPDATE "Produto" SET 
+    const q = `UPDATE "SuperShop"."Produto" SET 
         "sku" = $1,
         "descricao" = $2,
         "valor_custo" = $3,
@@ -85,7 +85,7 @@ export const updateProdutos = (req, res) => {
 };
 
 export const deleteProdutos = (req, res) => {
-    const q = `DELETE FROM "Produto" WHERE \"idProduto\" = $1`;
+    const q = `DELETE FROM "SuperShop"."Produto" WHERE \"idProduto\" = $1`;
 
     db.query(q, [req.params.idProduto], (err) => {
         if (err) {
@@ -97,7 +97,7 @@ export const deleteProdutos = (req, res) => {
 
 export const getProduto = (req, res) => {
     const { idProduto } = req.params;
-    const query = 'SELECT * FROM "Produto" WHERE "idProduto" = $1';
+    const query = 'SELECT * FROM "SuperShop"."Produto" WHERE "idProduto" = $1';
 
     db.query(query, [idProduto], (err, result) => {
         if (err) {
@@ -114,7 +114,7 @@ export const getProduto = (req, res) => {
 
 // Novo controlador para buscar todos os fornecedores
 export const getFornecedores = (req, res) => {
-    const query = 'SELECT "idFornecedor", "razao_social" FROM "Fornecedor"';
+    const query = 'SELECT "idFornecedor", "razao_social" FROM "SuperShop"."Fornecedor"';
     db.query(query, (err, result) => {
         if (err) {
             return res.status(500).json(err);
@@ -126,8 +126,8 @@ export const getFornecedores = (req, res) => {
 // Novo controlador para buscar todas as marcas de um fornecedor específico
 export const getMarcasByFornecedor = (req, res) => {
     const { idFornecedor } = req.params;
-    const query = `SELECT "idMarca", "nome" FROM "Marca" WHERE "idMarca" IN 
-                   (SELECT "Marca_idMarca" FROM "Fornecedor" WHERE "idFornecedor" = $1)`;
+    const query = `SELECT "idMarca", "nome" FROM "SuperShop"."Marca" WHERE "idMarca" IN 
+                   (SELECT "Marca_idMarca" FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1)`;
     db.query(query, [idFornecedor], (err, result) => {
         if (err) {
             return res.status(500).json(err);
@@ -138,7 +138,7 @@ export const getMarcasByFornecedor = (req, res) => {
 
 // Novo controlador para buscar todas as categorias
 export const getCategorias = (req, res) => {
-    const query = 'SELECT "idCategoria", "nome" FROM "Categoria"';
+    const query = 'SELECT "idCategoria", "nome" FROM "SuperShop"."Categoria"';
     db.query(query, (err, result) => {
         if (err) {
             return res.status(500).json(err);

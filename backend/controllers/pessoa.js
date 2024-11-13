@@ -1,15 +1,26 @@
 import {db} from "../db.js";
 
-export const getPessoa = async (_,res) => {
-    const q = `SELECT * FROM "Pessoa"`;
-    db.query(q,(err,data) => {
-        if(err) return res.json(err);
-        return res.status(200).json(data);
-    });
-}
+export const getPessoa = async (req, res) => {
+    const { nome } = req.query;
+    let query = `SELECT * FROM "SuperShop"."Pessoa" ORDER BY "nome" ASC`;
+    let values = [];
+
+    if (nome) {
+        query = `SELECT * FROM "SuperShop"."Pessoa" WHERE "nome" ILIKE $1 ORDER BY "nome" ASC`;
+        values = [`%${nome}%`];
+    }
+
+    try {
+        const result = await db.query(query, values);
+        return res.status(200).json(result.rows);
+    } catch (err) {
+        return res.status(500).json({ error: "Erro ao buscar pessoas", details: err });
+    }
+};
+
 
 export const postPessoa = (req,res) =>{
-    const q = `INSERT INTO "Pessoa" (
+    const q = `INSERT INTO "SuperShop"."Pessoa" (
         "email",
         "nome",
         "end_rua",
@@ -49,7 +60,7 @@ export const postPessoa = (req,res) =>{
 };
 
 export const updatePessoa = (req,res) => {
-    const q = `UPDATE "Pessoa" SET
+    const q = `UPDATE "SuperShop"."Pessoa" SET
         "email" = $1,
         "nome" = $2,
         "end_rua" = $3,
@@ -88,7 +99,7 @@ export const updatePessoa = (req,res) => {
 }
 
 export const deletePessoa = (req, res) => {
-    const q = `DELETE FROM "Pessoa" WHERE \"idPessoa\" = $1`;
+    const q = `DELETE FROM "SuperShop"."Pessoa" WHERE \"idPessoa\" = $1`;
 
     db.query(q, [req.params.idPessoa], (err) => {
         if (err) {
@@ -99,9 +110,9 @@ export const deletePessoa = (req, res) => {
 };
 
 export const getPessoaById = (req, res) => {
-    const q = `SELECT * FROM "Pessoa" WHERE "idPessoa" = $1`;
+    const q = `SELECT * FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
     db.query(q, [req.params.idPessoa], (err, data) => {
         if (err) return res.json(err);
-        return res.status(200).json(data.rows[0]); // Retorna apenas o primeiro registro
+        return res.status(200).json(data.rows[0]);
     });
 };

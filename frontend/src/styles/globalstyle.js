@@ -46,7 +46,7 @@ const GlobalStyle = createGlobalStyle`
 
     /* Estilização do Formulário */
     form {
-        max-width: 810px;
+        max-width: 850px;
         margin: 20px auto;
         padding: 10px;
         background-color: #fff;
@@ -58,7 +58,7 @@ const GlobalStyle = createGlobalStyle`
     }
       
     label {
-        width: calc(25.15% - 10px);
+        width: calc(49.98% - 20px);
         display: flex;
         flex-direction: column;
         font-size: 12px;
@@ -73,6 +73,15 @@ const GlobalStyle = createGlobalStyle`
     textarea,
     select {
         width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+    
+    .input-mask{
+       width: 100%;
         padding: 8px;
         border: 1px solid #ddd;
         border-radius: 4px;
@@ -116,8 +125,8 @@ const GlobalStyle = createGlobalStyle`
     }
  /* Estilo para o Container da Tabela */
     table {
-        width: 98%;
-        margin: 30px auto;
+        width: 94%;
+        margin: 15px auto;
         border-collapse: collapse;
         background-color: #fff;
         border-radius: 8px;
@@ -129,7 +138,7 @@ const GlobalStyle = createGlobalStyle`
     th {
         background-color: #87CEEB; /* Cor do cabeçalho */
         color: #fff;
-        padding: 12px;
+        padding: 5px;
         text-align: left;
         font-weight: bold;
         font-size: 13px;

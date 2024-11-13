@@ -2,7 +2,7 @@ import { db } from "../db.js";
 
 // Obtém todas as categorias
 export const getCategorias = async (_, res) => {
-    const q = `SELECT * FROM "Categoria"`;
+    const q = `SELECT * FROM "SuperShop"."Categoria"`;
     db.query(q, (err, data) => {
         if (err) {
             console.error("Erro ao buscar categorias:", err);
@@ -15,7 +15,7 @@ export const getCategorias = async (_, res) => {
 // Obtém uma categoria específica por ID
 export const getCategoriaById = async (req, res) => {
     const idCategoria = req.params.idCategoria;
-    const q = `SELECT * FROM "Categoria" WHERE "idCategoria" = $1`;
+    const q = `SELECT * FROM "SuperShop"."Categoria" WHERE "idCategoria" = $1`;
     
     db.query(q, [idCategoria], (err, data) => {
         if (err) return res.json(err);
@@ -28,7 +28,7 @@ export const getCategoriaById = async (req, res) => {
 
 // Adiciona uma nova categoria
 export const postCategoria = (req, res) => {
-    const q = `INSERT INTO "Categoria" ("nome") VALUES($1)`;
+    const q = `INSERT INTO "SuperShop"."Categoria" ("nome") VALUES($1)`;
 
     const values = [req.body.nome];
 
@@ -44,7 +44,7 @@ export const postCategoria = (req, res) => {
 
 // Atualiza uma categoria existente
 export const updateCategoria = (req, res) => {
-    const q = `UPDATE "Categoria" SET "nome" = $1 WHERE "idCategoria" = $2`;
+    const q = `UPDATE "SuperShop"."Categoria" SET "nome" = $1 WHERE "idCategoria" = $2`;
 
     const values = [req.body.nome];
 
@@ -59,7 +59,7 @@ export const updateCategoria = (req, res) => {
 
 // Deleta uma categoria
 export const deleteCategoria = (req, res) => {
-    const q = `DELETE FROM "Categoria" WHERE "idCategoria" = $1`;
+    const q = `DELETE FROM "SuperShop"."Categoria" WHERE "idCategoria" = $1`;
 
     db.query(q, [req.params.idCategoria], (err) => {
         if (err) {

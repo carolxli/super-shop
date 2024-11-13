@@ -2,7 +2,7 @@ import { db } from "../db.js";
 
 // Obtém todos os fornecedores
 export const getFornecedor = async (_, res) => {
-    const q = `SELECT * FROM "Fornecedor"`;
+    const q = `SELECT * FROM "SuperShop"."Fornecedor"`;
     db.query(q, (err, data) => {
         if (err) {
             console.error("Erro ao buscar fornecedores:", err);
@@ -14,7 +14,7 @@ export const getFornecedor = async (_, res) => {
 
 export const getFornecedorById = async (req, res) => {
     const idFornecedor = req.params.idFornecedor;
-    const q = `SELECT * FROM "Fornecedor" WHERE "idFornecedor" = $1`;
+    const q = `SELECT * FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1`;
     
     db.query(q, [idFornecedor], (err, data) => {
         if (err) return res.json(err);
@@ -24,7 +24,7 @@ export const getFornecedorById = async (req, res) => {
 
 // Adiciona um novo fornecedor
 export const postFornecedor = (req, res) => {
-    const q = `INSERT INTO "Fornecedor" (
+    const q = `INSERT INTO "SuperShop"."Fornecedor" (
         "cnpj",
         "razao_social",
         "qtd_min_pedido",
@@ -56,7 +56,7 @@ export const postFornecedor = (req, res) => {
 
 // Atualiza um fornecedor existente
 export const updateFornecedor = (req, res) => {
-    const q = `UPDATE "Fornecedor" SET
+    const q = `UPDATE "SuperShop"."Fornecedor" SET
         "cnpj" = $1,
         "razao_social" = $2,
         "qtd_min_pedido" = $3,
@@ -87,7 +87,7 @@ export const updateFornecedor = (req, res) => {
 
 // Deleta um fornecedor
 export const deleteFornecedor = (req, res) => {
-    const q = `DELETE FROM "Fornecedor" WHERE "idFornecedor" = $1`;
+    const q = `DELETE FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1`;
 
     db.query(q, [req.params.idFornecedor], (err) => {
         if (err) {

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import InputMask from 'react-input-mask';
 
 const FormPessoa = () => {
     const [formData, setFormData] = useState({
@@ -21,7 +23,49 @@ const FormPessoa = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+
+        if (name === 'cep') {
+            const cleanedCep = value.replace(/\D/g, '');
+            if (cleanedCep.length === 8) {
+                fetchAddress(cleanedCep);
+            } else {
+
+                setFormData((prevData) => ({
+                    ...prevData,
+                    end_rua: '',
+                    end_bairro: '',
+                    cidade: '',
+                    estado: '',
+                }));
+            }
+        }
+    };
+
+    const fetchAddress = async (cep) => {
+        try {
+            const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+            if (response.data.erro) {
+                alert("CEP não encontrado.");
+                return;
+            }
+
+            const { logradouro: end_rua, bairro: end_bairro, localidade: cidade, uf: estado } = response.data;
+            setFormData((prevData) => ({
+                ...prevData,
+                end_rua,
+                end_bairro,
+                cidade,
+                estado,
+            }));
+        } catch (error) {
+            console.error("Erro ao buscar o CEP:", error);
+            alert("Erro ao buscar o CEP.");
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -61,53 +105,73 @@ const FormPessoa = () => {
                 </label>
 
                 <label>
-                    Rua
-                    <input type="text" name="end_rua" onChange={handleChange} required />
-                </label>
-
-                <label>
-                    Número
-                    <input type="text" name="end_numero" onChange={handleChange} required />
-                </label>
-
-                <label>
-                    Bairro
-                    <input type="text" name="end_bairro" onChange={handleChange} required />
-                </label>
-
-                <label>
-                    Complemento
-                    <input type="text" name="end_complemento" onChange={handleChange} />
-                </label>
-
-                <label>
-                    Cidade
-                    <input type="text" name="cidade" onChange={handleChange} required />
-                </label>
-
-                <label>
-                    Estado
-                    <input type="text" name="estado" onChange={handleChange} required />
-                </label>
-
-                <label>
-                    CEP
-                    <input type="text" name="cep" onChange={handleChange} required />
-                </label>
-
-                <label>
                     Telefone 1
-                    <input type="text" name="telefone_1" onChange={handleChange} required />
+                    <InputMask
+                        mask="(99) 99999-9999"
+                        name="telefone_1"
+                        value={formData.telefone_1}
+                        onChange={handleChange}
+                        required
+                         className="input-mask"
+                    />
                 </label>
 
                 <label>
                     Telefone 2
-                    <input type="text" name="telefone_2" onChange={handleChange} />
+                    <InputMask
+                        mask="(99) 99999-9999"
+                        name="telefone_2"
+                        value={formData.telefone_2}
+                        onChange={handleChange}
+                        className="input-mask"
+                    />
                 </label>
 
                 <label>
                     Data de Nascimento
                     <input type="date" name="data_nasc" onChange={handleChange} required />
+                </label>
+
+                <label>
+                    CEP
+                    <InputMask
+                        mask="99999-999"
+                        name="cep"
+                        value={formData.cep}
+                        onChange={handleChange}
+                        required
+                         className="input-mask"
+                    />
+                </label>
+
+                <label>
+                    Rua
+                    <input type="text" name="end_rua" value={formData.end_rua} onChange={handleChange} required readOnly />
+                </label>
+
+                <label>
+                    Número
+                    <input type="text" name="end_numero" onChange={handleChange} required/>
+                </label>
+
+                <label>
+                    Bairro
+                    <input type="text" name="end_bairro" value={formData.end_bairro} onChange={handleChange} required readOnly/>
+                </label>
+
+                <label>
+                    Complemento
+                    <input type="text" name="end_complemento" onChange={handleChange}/>
+                </label>
+
+                <label>
+                    Cidade
+                    <input type="text" name="cidade" value={formData.cidade} onChange={handleChange} required readOnly/>
+                </label>
+
+                <label>
+                    Estado
+                    <input type="text" name="estado" value={formData.estado} onChange={handleChange} required readOnly/>
                 </label>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginLeft: '315px' }}>

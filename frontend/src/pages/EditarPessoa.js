@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import InputMask from 'react-input-mask';
 
 const EditarPessoa = () => {
     const { idPessoa } = useParams();
@@ -23,6 +24,43 @@ const EditarPessoa = () => {
 
     const handleChange = (e) => {
         setPessoa({ ...pessoa, [e.target.name]: e.target.value });
+
+        if (e.target.name === 'cep') {
+            const cleanedCep = e.target.value.replace(/\D/g, '');
+            if (cleanedCep.length === 8) {
+                fetchAddress(cleanedCep);
+            } else {
+                setPessoa((prevData) => ({
+                    ...prevData,
+                    end_rua: '',
+                    end_bairro: '',
+                    cidade: '',
+                    estado: '',
+                }));
+            }
+        }
+    };
+
+    const fetchAddress = async (cep) => {
+        try {
+            const response = await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+            if (response.data.erro) {
+                alert("CEP não encontrado.");
+                return;
+            }
+
+            const { logradouro: end_rua, bairro: end_bairro, localidade: cidade, uf: estado } = response.data;
+            setPessoa((prevData) => ({
+                ...prevData,
+                end_rua,
+                end_bairro,
+                cidade,
+                estado,
+            }));
+        } catch (error) {
+            console.error("Erro ao buscar o CEP:", error);
+            alert("Erro ao buscar o CEP.");
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -53,18 +91,58 @@ const EditarPessoa = () => {
                 </label>
 
                 <label>
+                    Telefone 1
+                    <InputMask
+                        mask="(99) 99999-9999"
+                        name="telefone_1"
+                        value={pessoa.telefone_1 || ''}
+                        onChange={handleChange}
+                        required
+                        className="input-mask"
+                    />
+                </label>
+
+                <label>
+                    Telefone 2
+                    <InputMask
+                        mask="(99) 99999-9999"
+                        name="telefone_2"
+                        value={pessoa.telefone_2 || ''}
+                        onChange={handleChange}
+                        className="input-mask"
+                    />
+                </label>
+
+                <label>
+                    Data de Nascimento
+                    <input type="date" name="data_nasc" value={pessoa.data_nasc || ''} onChange={handleChange} required />
+                </label>
+
+                <label>
+                    CEP
+                    <InputMask
+                        mask="99999-999"
+                        name="cep"
+                        value={pessoa.cep || ''}
+                        onChange={handleChange}
+                        required
+                        className="input-mask"
+                    />
+                </label>
+
+                <label>
                     Rua
-                    <input type="text" name="end_rua" value={pessoa.end_rua || ''} onChange={handleChange} required />
+                    <input type="text" name="end_rua" value={pessoa.end_rua || ''} onChange={handleChange} required readOnly />
                 </label>
 
                 <label>
                     Número
-                    <input type="number" name="end_numero" value={pessoa.end_numero || ''} onChange={handleChange} required />
+                    <input type="text" name="end_numero" value={pessoa.end_numero || ''} onChange={handleChange} required />
                 </label>
 
                 <label>
                     Bairro
-                    <input type="text" name="end_bairro" value={pessoa.end_bairro || ''} onChange={handleChange} required />
+                    <input type="text" name="end_bairro" value={pessoa.end_bairro || ''} onChange={handleChange} required readOnly />
                 </label>
 
                 <label>
@@ -74,32 +152,12 @@ const EditarPessoa = () => {
 
                 <label>
                     Cidade
-                    <input type="text" name="cidade" value={pessoa.cidade || ''} onChange={handleChange} required />
+                    <input type="text" name="cidade" value={pessoa.cidade || ''} onChange={handleChange} required readOnly />
                 </label>
 
                 <label>
                     Estado
-                    <input type="text" name="estado" value={pessoa.estado || ''} onChange={handleChange} required />
-                </label>
-
-                <label>
-                    CEP
-                    <input type="text" name="cep" value={pessoa.cep || ''} onChange={handleChange} required />
-                </label>
-
-                <label>
-                    Telefone 1
-                    <input type="text" name="telefone_1" value={pessoa.telefone_1 || ''} onChange={handleChange} required />
-                </label>
-
-                <label>
-                    Telefone 2
-                    <input type="text" name="telefone_2" value={pessoa.telefone_2 || ''} onChange={handleChange} />
-                </label>
-
-                <label>
-                    Data de Nascimento
-                    <input type="date" name="data_nasc" value={pessoa.data_nasc || ''} onChange={handleChange} required />
+                    <input type="text" name="estado" value={pessoa.estado || ''} onChange={handleChange} required readOnly />
                 </label>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginLeft: '315px' }}>

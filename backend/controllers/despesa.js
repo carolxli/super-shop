@@ -2,7 +2,7 @@ import { db } from "../db.js";
 
 // Obtém todas as despesas
 export const getDespesa = async (_, res) => {
-  const q = `SELECT * FROM "Despesa"`;
+  const q = `SELECT * FROM "SuperShop"."Despesa"`;
   db.query(q, (err, data) => {
     if (err) {
       console.error("Erro ao buscar despesas:", err);
@@ -15,7 +15,7 @@ export const getDespesa = async (_, res) => {
 // Obtém uma despesa específica pelo ID
 export const getDespesaById = async (req, res) => {
   const idDespesa = req.params.idDespesa;
-  const q = `SELECT * FROM "Despesa" WHERE "idDespesa" = $1`;
+  const q = `SELECT * FROM "SuperShop"."Despesa" WHERE "idDespesa" = $1`;
 
   db.query(q, [idDespesa], (err, data) => {
     if (err) return res.json(err);
@@ -25,7 +25,7 @@ export const getDespesaById = async (req, res) => {
 
 // Adiciona uma nova despesa
 export const postDespesa = (req, res) => {
-  const q = `INSERT INTO "Despesa" (
+  const q = `INSERT INTO "SuperShop"."Despesa" (
     "dt_despesa",
     "dt_vencimento",
     "valor",
@@ -57,7 +57,7 @@ export const postDespesa = (req, res) => {
 
 // Atualiza uma despesa existente
 export const updateDespesa = (req, res) => {
-  const q = `UPDATE "Despesa" SET
+  const q = `UPDATE "SuperShop"."Despesa" SET
     "dt_despesa" = $1,
     "dt_vencimento" = $2,
     "valor" = $3,
@@ -89,7 +89,7 @@ export const updateDespesa = (req, res) => {
 
 // Deleta uma despesa
 export const deleteDespesa = (req, res) => {
-  const q = `DELETE FROM "Despesa" WHERE "idDespesa" = $1`;
+  const q = `DELETE FROM "SuperShop"."Despesa" WHERE "idDespesa" = $1`;
 
   db.query(q, [req.params.idDespesa], (err) => {
     if (err) {
