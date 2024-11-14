@@ -12,28 +12,42 @@ const FormProduto = () => {
         estoque_atual: '',
         status: '',
         Fornecedor_idFornecedor: '',
+        Fornecedor_Pessoa_idPessoa: '',
         Marca_idMarca: '',
-        Categoria_idCategoria: ''
+        Categoria_idCategoria: '',
     });
 
     const [fornecedores, setFornecedores] = useState([]);
     const [fornecedorNome, setFornecedorNome] = useState(''); // Nome do fornecedor para a busca
     const [autocompleteVisible, setAutocompleteVisible] = useState(false); // Controla a visibilidade do autocomplete
-    const [marcas, setMarcas] = useState([]); // Estado para armazenar marcas
-    const [categorias, setCategorias] = useState([]); // Estado para armazenar categorias
+    const [marcas, setMarcas] = useState([]);
+    const [categorias, setCategorias] = useState([]);
 
-    // Carregar marcas e categorias ao montar o componente
-    // useEffect(() => {
-    //     // Carregar marcas
-    //     axios.get('http://localhost:8800/marcas') // Ajuste a URL conforme necessário
-    //         .then(response => setMarcas(response.data))
-    //         .catch(error => console.error("Erro ao carregar marcas:", error));
+    useEffect(() => {
+        const fetchMarcas = async () => {
+            try {
+                const response = await axios.get('http://localhost:8800/marca');
+                setMarcas(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar marcas:", error);
+            }
+        };
 
-    //     // Carregar categorias
-    //     axios.get('http://localhost:8800/categorias') // Ajuste a URL conforme necessário
-    //         .then(response => setCategorias(response.data))
-    //         .catch(error => console.error("Erro ao carregar categorias:", error));
-    // }, []);
+        fetchMarcas();
+    }, []);
+
+    useEffect(() => {
+        const fetchCategorias = async () => {
+            try {
+                const response = await axios.get('http://localhost:8800/categoria');
+                setCategorias(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar marcas:", error);
+            }
+        };
+
+        fetchCategorias();
+    }, []);
 
     // Função para tratar mudanças no campo do fornecedor (busca com autocomplete)
     const handleFornecedorChange = async (e) => {
@@ -42,7 +56,7 @@ const FormProduto = () => {
 
         if (razao_social.length >= 2) {
             try {
-                const response = await axios.get(`http://localhost:8800/Fornecedor/${razao_social}`);
+                const response = await axios.get(`http://localhost:8800/fornecedor/${razao_social}`);
                 setFornecedores(response.data);
                 setAutocompleteVisible(true);
             } catch (error) {
@@ -54,23 +68,28 @@ const FormProduto = () => {
     };
 
     const handleFornecedorSelect = (fornecedor) => {
-        setFornecedorNome(fornecedor.razao_social); // Define o nome do fornecedor selecionado no campo
+        setFornecedorNome(fornecedor.razao_social);
         setProduto({
             ...produto,
-            Fornecedor_idFornecedor: fornecedor.idProduto, // Armazena o ID do fornecedor
+            Fornecedor_idFornecedor: fornecedor.idFornecedor, 
+            Fornecedor_Pessoa_idPessoa: fornecedor.Pessoa_idPessoa, // Armazena o ID da pessoa associada
         });
-        setAutocompleteVisible(false); // Fecha o autocomplete
+        setAutocompleteVisible(false);
     };
+    
 
     const handleChange = (e) => {
-        const { razao_social, value } = e.target;
-        setProduto({ ...produto, [razao_social]: value });
+        const { name, value } = e.target;
+        setProduto({
+            ...produto,
+            [name]: value,
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8800/Produto', produto);
+            const response = await axios.post('http://localhost:8800/produto', produto);
             alert(response.data);
             setProduto({
                 sku: '',
@@ -197,9 +216,12 @@ const FormProduto = () => {
 
                 <label>
                     Marca:
-                    <select name="Marca_idMarca" value={produto.Marca_idMarca} onChange={handleChange} required>
-                        <option value="">Selecione a Marca</option>
-                        {marcas.map(marca => (
+                    <select
+                        name="Marca_idMarca"
+                        value={fornecedores.Marca_idMarca}
+                        onChange={handleChange}>
+                        <option value="">Selecione uma marca</option>
+                        {marcas.map((marca) => (
                             <option key={marca.idMarca} value={marca.idMarca}>
                                 {marca.nome}
                             </option>
@@ -207,11 +229,15 @@ const FormProduto = () => {
                     </select>
                 </label>
 
+
                 <label>
                     Categoria:
-                    <select name="Categoria_idCategoria" value={produto.Categoria_idCategoria} onChange={handleChange} required>
-                        <option value="">Selecione a Categoria</option>
-                        {categorias.map(categoria => (
+                    <select
+                        name="Categoria_idCategoria"
+                        value={produto.Categoria_idCategoria}
+                        onChange={handleChange}>
+                        <option value="">Selecione uma categoria</option>
+                        {categorias.map((categoria) => (
                             <option key={categoria.idCategoria} value={categoria.idCategoria}>
                                 {categoria.nome}
                             </option>

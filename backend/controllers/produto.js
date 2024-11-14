@@ -9,6 +9,7 @@ export const getProdutos = async (_, res) => {
 }
 
 export const postProdutos = (req, res) => {
+    console.log("Dados recebidos:", req.body); // Adicione este log
     const q = `INSERT INTO "SuperShop"."Produto" (
         "sku",
         "descricao",
@@ -107,31 +108,5 @@ export const getProduto = (req, res) => {
             return res.status(404).json({ message: "Produto não encontrado" });
         }
         return res.status(200).json(result.rows[0]);
-    });
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// Novo controlador para buscar todas as marcas de um fornecedor específico
-export const getMarcasByFornecedor = (req, res) => {
-    const { idFornecedor } = req.params;
-    const query = `SELECT "idMarca", "nome" FROM "SuperShop"."Marca" WHERE "idMarca" IN 
-                   (SELECT "Marca_idMarca" FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1)`;
-    db.query(query, [idFornecedor], (err, result) => {
-        if (err) {
-            return res.status(500).json(err);
-        }
-        return res.status(200).json(result.rows);
-    });
-};
-
-// Novo controlador para buscar todas as categorias
-export const getCategorias = (req, res) => {
-    const query = 'SELECT "idCategoria", "nome" FROM "SuperShop"."Categoria"';
-    db.query(query, (err, result) => {
-        if (err) {
-            return res.status(500).json(err);
-        }
-        return res.status(200).json(result.rows);
     });
 };
