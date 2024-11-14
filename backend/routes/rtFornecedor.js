@@ -5,7 +5,7 @@ import {
   postFornecedor,
   updateFornecedor,
   deleteFornecedor, 
-  getFornecedores
+  getFornecedores,
 } from "../controllers/fornecedor.js";
 
 const routerForne = express.Router();
