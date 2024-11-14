@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import axios from 'axios';
 import { NumericFormat } from 'react-number-format';
 
@@ -17,52 +17,54 @@ const FormProduto = () => {
     });
 
     const [fornecedores, setFornecedores] = useState([]);
-    const [marcas, setMarcas] = useState([]);
-    const [categorias, setCategorias] = useState([]);
+    const [fornecedorNome, setFornecedorNome] = useState(''); // Nome do fornecedor para a busca
+    const [autocompleteVisible, setAutocompleteVisible] = useState(false); // Controla a visibilidade do autocomplete
+    const [marcas, setMarcas] = useState([]); // Estado para armazenar marcas
+    const [categorias, setCategorias] = useState([]); // Estado para armazenar categorias
 
-    // Busca fornecedores e categorias ao carregar o formulário
+    // Carregar marcas e categorias ao montar o componente
     useEffect(() => {
-        const fetchFornecedores = async () => {
+        // Carregar marcas
+        axios.get('http://localhost:8800/marcas') // Ajuste a URL conforme necessário
+            .then(response => setMarcas(response.data))
+            .catch(error => console.error("Erro ao carregar marcas:", error));
+
+        // Carregar categorias
+        axios.get('http://localhost:8800/categorias') // Ajuste a URL conforme necessário
+            .then(response => setCategorias(response.data))
+            .catch(error => console.error("Erro ao carregar categorias:", error));
+    }, []); // Esse useEffect será executado uma vez após a montagem do componente
+
+    // Função para tratar mudanças no campo do fornecedor (busca com autocomplete)
+    const handleFornecedorChange = async (e) => {
+        const razao_social = e.target.value;
+        setFornecedorNome(razao_social);
+
+        if (razao_social.length >= 2) {
             try {
-                const response = await axios.get('http://localhost:8800/Produto/fornecedores');
+                const response = await axios.get(`http://localhost:8800/Produto/${razao_social}`);
                 setFornecedores(response.data);
+                setAutocompleteVisible(true);
             } catch (error) {
                 console.error("Erro ao buscar fornecedores:", error);
             }
-        };
-
-        const fetchCategorias = async () => {
-            try {
-                const response = await axios.get('http://localhost:8800/Produto/categorias');
-                setCategorias(response.data);
-            } catch (error) {
-                console.error("Erro ao buscar categorias:", error);
-            }
-        };
-
-        fetchFornecedores();
-        fetchCategorias();
-    }, []);
-
-    // Busca marcas com base no fornecedor selecionado
-    const fetchMarcas = async (idFornecedor) => {
-        try {
-            const response = await axios.get(`http://localhost:8800/Produto/marcas/${idFornecedor}`);
-            setMarcas(response.data);
-        } catch (error) {
-            console.error("Erro ao buscar marcas:", error);
+        } else {
+            setAutocompleteVisible(false);
         }
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
+    const handleFornecedorSelect = (fornecedor) => {
+        setFornecedorNome(fornecedor.razao_social); // Define o nome do fornecedor selecionado no campo
+        setProduto({
+            ...produto,
+            Fornecedor_idFornecedor: fornecedor.idProduto, // Armazena o ID do fornecedor
+        });
+        setAutocompleteVisible(false); // Fecha o autocomplete
+    };
 
-        if (name === "Fornecedor_idFornecedor") {
-            setProduto({ ...produto, Fornecedor_idFornecedor: value });
-            fetchMarcas(value);  // Atualiza as marcas ao selecionar um fornecedor
-        } else {
-            setProduto({ ...produto, [name]: value });
-        }
+    const handleChange = (e) => {
+        const { razao_social, value } = e.target;
+        setProduto({ ...produto, [razao_social]: value });
     };
 
     const handleSubmit = async (e) => {
@@ -99,7 +101,14 @@ const FormProduto = () => {
 
                 <label style={{ display: 'block' }}>
                     Descrição:
-                    <input type="text" name="descricao" value={produto.descricao} onChange={handleChange} required style={{ width: '100%' }} />
+                    <input 
+                        type="text" 
+                        name="descricao" 
+                        value={produto.descricao} 
+                        onChange={handleChange} 
+                        required 
+                        style={{ width: '100%', whiteSpace: 'nowrap' }} 
+                    />
                 </label>
 
                 <label>
@@ -132,12 +141,26 @@ const FormProduto = () => {
 
                 <label>
                     Estoque Mínimo:
-                    <input type="number" name="estoque_min" value={produto.estoque_min} onChange={handleChange} required />
+                    <input 
+                        type="number" 
+                        name="estoque_min" 
+                        value={produto.estoque_min} 
+                        onChange={handleChange} 
+                        required 
+                        min="0" 
+                    />
                 </label>
 
                 <label>
                     Estoque Atual:
-                    <input type="number" name="estoque_atual" value={produto.estoque_atual} onChange={handleChange} required />
+                    <input 
+                        type="number" 
+                        name="estoque_atual" 
+                        value={produto.estoque_atual} 
+                        onChange={handleChange} 
+                        required 
+                        min="0" 
+                    />
                 </label>
 
                 <label>
@@ -151,14 +174,25 @@ const FormProduto = () => {
 
                 <label>
                     Fornecedor:
-                    <select name="Fornecedor_idFornecedor" value={produto.Fornecedor_idFornecedor} onChange={handleChange} required>
-                        <option value="">Selecione o Fornecedor</option>
-                        {fornecedores.map(fornecedor => (
-                            <option key={fornecedor.idFornecedor} value={fornecedor.idFornecedor}>
-                                {fornecedor.razao_social}
-                            </option>
-                        ))}
-                    </select>
+                    <input
+                        type="text"
+                        name="fornecedorNome"
+                        value={fornecedorNome}
+                        onChange={handleFornecedorChange}
+                        required
+                    />
+                    {autocompleteVisible && (
+                        <ul className="autocomplete-list">
+                            {fornecedores.map((fornecedor) => (
+                                <li
+                                    key={fornecedor.idProduto}
+                                    onClick={() => handleFornecedorSelect(fornecedor)}
+                                >
+                                    {fornecedor.razao_social}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </label>
 
                 <label>
@@ -187,9 +221,7 @@ const FormProduto = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginLeft: '315px' }}>
                     <button type="submit">Cadastrar</button>
-                    <a href='/'>
-                        <button type="button">Cancelar</button>
-                    </a>
+                    <a href='/'><button type="button">Cancelar</button></a>
                 </div>
             </form>
 
@@ -203,4 +235,3 @@ const FormProduto = () => {
 };
 
 export default FormProduto;
-

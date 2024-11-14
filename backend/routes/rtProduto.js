@@ -10,7 +10,7 @@ routerProd.delete("/:idProduto", deleteProdutos);
 routerProd.get("/:idProduto", getProduto); 
 
 // Rotas para obter os dados
-routerProd.get("/fornecedores", getFornecedores);
+routerProd.get("/", getFornecedores);
 routerProd.get("/marcas/:idFornecedor", getMarcasByFornecedor);
 routerProd.get("/categorias", getCategorias);
 
