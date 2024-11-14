@@ -1,14 +1,54 @@
 import { db } from "../db.js";
 
-export const getFornecedor = async (_, res) => {
-    const q = `SELECT * FROM "SuperShop"."Fornecedor"`;
-    db.query(q, (err, data) => {
-        if (err) {
-            console.error("Erro ao buscar fornecedores:", err);
-            return res.status(500).json(err);
-        }
-        return res.status(200).json(data);
-    });
+export const getFornecedor = async (req, res) => {
+    const { razao_social } = req.query;
+    let query = `
+        SELECT 
+            f."idFornecedor",
+            f."cnpj",
+            f."razao_social",
+            f."qtd_min_pedido",
+            f."prazo_entrega",
+            f."dt_inicio_fornecimento",
+            f."observacao",
+            p."nome" AS pessoa_nome,
+            string_agg(m."nome", ', ') AS marcas_nome
+        FROM "SuperShop"."Fornecedor" f
+        JOIN "SuperShop"."Pessoa" p ON f."Pessoa_idPessoa" = p."idPessoa"
+        LEFT JOIN "SuperShop"."Marca" m ON m."idMarca" = ANY(f."marcas_fornecedor")
+        GROUP BY f."idFornecedor", f."cnpj", f."razao_social", f."qtd_min_pedido", f."prazo_entrega", f."dt_inicio_fornecimento", f."observacao", p."nome"
+        ORDER BY f."razao_social" ASC
+    `;
+    let values = [];
+
+    if (razao_social) {
+        query = `
+            SELECT 
+                f."idFornecedor",
+                f."cnpj",
+                f."razao_social",
+                f."qtd_min_pedido",
+                f."prazo_entrega",
+                f."dt_inicio_fornecimento",
+                f."observacao",
+                p."nome" AS pessoa_nome,
+                string_agg(m."nome", ', ') AS marcas_nome
+            FROM "SuperShop"."Fornecedor" f
+            JOIN "SuperShop"."Pessoa" p ON f."Pessoa_idPessoa" = p."idPessoa"
+            LEFT JOIN "SuperShop"."Marca" m ON m."idMarca" = ANY(f."marcas_fornecedor")
+            WHERE f."razao_social" ILIKE $1
+            GROUP BY f."idFornecedor", f."cnpj", f."razao_social", f."qtd_min_pedido", f."prazo_entrega", f."dt_inicio_fornecimento", f."observacao", p."nome"
+            ORDER BY f."razao_social" ASC
+        `;
+        values = [`%${razao_social}%`];
+    }
+
+    try {
+        const result = await db.query(query, values);
+        return res.status(200).json(result.rows);
+    } catch (err) {
+        return res.status(500).json({ error: "Erro ao buscar Fornecedor", details: err });
+    }
 };
 
 export const getFornecedorById = async (req, res) => {
@@ -21,7 +61,6 @@ export const getFornecedorById = async (req, res) => {
     });
 };
 
-
 export const postFornecedor = (req, res) => {
     const q = `INSERT INTO "SuperShop"."Fornecedor" (
         "cnpj",
@@ -30,8 +69,9 @@ export const postFornecedor = (req, res) => {
         "prazo_entrega",
         "dt_inicio_fornecimento",
         "observacao",
-        "Pessoa_idPessoa"
-    ) VALUES($1,$2,$3,$4,$5,$6,$7)`;
+        "Pessoa_idPessoa",
+        "marcas_fornecedor"
+    ) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`;
 
     const values = [
         req.body.cnpj,
@@ -41,6 +81,7 @@ export const postFornecedor = (req, res) => {
         req.body.dt_inicio_fornecimento,
         req.body.observacao,
         req.body.Pessoa_idPessoa,
+        req.body.marcas_fornecedor,
     ];
 
     db.query(q, values, (insertErr) => {
@@ -61,8 +102,9 @@ export const updateFornecedor = (req, res) => {
         "prazo_entrega" = $4,
         "dt_inicio_fornecimento" = $5,
         "observacao" = $6,
-        "Pessoa_idPessoa" = $7
-    WHERE "idFornecedor" = $8`;
+        "Pessoa_idPessoa" = $7,
+        "marcas_fornecedor" = $8
+    WHERE "idFornecedor" = $9`;
 
     const values = [
         req.body.cnpj,
@@ -72,6 +114,7 @@ export const updateFornecedor = (req, res) => {
         req.body.dt_inicio_fornecimento,
         req.body.observacao,
         req.body.Pessoa_idPessoa,
+        req.body.marcas_fornecedor
     ];
 
     db.query(q, [...values, req.params.idFornecedor], (err) => {
@@ -82,6 +125,7 @@ export const updateFornecedor = (req, res) => {
         return res.status(200).json("Fornecedor atualizado com sucesso");
     });
 };
+
 
 export const deleteFornecedor = (req, res) => {
     const q = `DELETE FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1`;
@@ -95,9 +139,8 @@ export const deleteFornecedor = (req, res) => {
     });
 };
 
-// Novo controlador para buscar todos os fornecedores
 export const getFornecedores = (req, res) => {
-    const razao_social = req.query.razao_social || ''; // Obtém a busca via query string
+    const razao_social = req.query.razao_social || '';
     const q = `SELECT "idFornecedor", "razao_social" FROM "SuperShop"."Fornecedor" WHERE "razao_social" ILIKE $1 LIMIT 10`;
 
     db.query(q, [`%${razao_social}%`], (err, data) => {
@@ -105,6 +148,6 @@ export const getFornecedores = (req, res) => {
             console.error("Erro ao buscar fornecedor:", err);
             return res.status(500).json(err);
         }
-        return res.status(200).json(data.rows); // Retorna os dados dos fornecedores
+        return res.status(200).json(data.rows); 
     });
 };

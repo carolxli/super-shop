@@ -7,12 +7,12 @@ const FormFornecedor = () => {
     const [fornecedor, setFornecedor] = useState({
         cnpj: '',
         razao_social: '',
-        valor_min_pedido: '',
+        qtd_min_pedido: '',
         prazo_entrega: '',
         dt_inicio_fornecimento: '',
         observacao: '',
         Pessoa_idPessoa: '',
-        marcas: [] // Array para armazenar as marcas selecionadas
+        marcas: [] 
     });
 
     const [nomePessoa, setNomePessoa] = useState('');
@@ -24,7 +24,8 @@ const FormFornecedor = () => {
     useEffect(() => {
         const fetchMarcas = async () => {
             try {
-                const response = await axios.get('http://localhost:8800/marca');
+                const response = await axios.get(`http://localhost:8800/marca`);
+                console.log(response.data);
                 setMarcas(response.data);
             } catch (error) {
                 console.error("Erro ao buscar marcas:", error);
@@ -36,20 +37,21 @@ const FormFornecedor = () => {
 
     const handleChange = (e) => {
         const { name, value, checked } = e.target;
-
-        if (name === 'marcas') {
+    
+        if (name === 'marcaSelecionada') {
             setFornecedor((prevFornecedor) => {
-                let marcasSelecionadas = [...prevFornecedor.marcas];
-                const marcaId = value;
-
+                const marcasSelecionadas = [...prevFornecedor.marcas];
+                const marcaId = Number(value); 
                 if (checked) {
-            
-                    marcasSelecionadas = [...marcasSelecionadas, marcaId];
+                    marcasSelecionadas.push(marcaId);
                 } else {
-             
-                    marcasSelecionadas = marcasSelecionadas.filter(id => id !== marcaId);
+                    const index = marcasSelecionadas.indexOf(marcaId);
+                    if (index > -1) {
+                        marcasSelecionadas.splice(index, 1);
+                    }
                 }
-
+    
+                console.log("Marcas selecionadas:", marcasSelecionadas);  
                 return { ...prevFornecedor, marcas: marcasSelecionadas };
             });
         } else {
@@ -59,6 +61,8 @@ const FormFornecedor = () => {
             });
         }
     };
+    
+
 
     const fetchRazaoSocial = async (cnpj) => {
         if (cnpj.length === 14) {
@@ -120,17 +124,22 @@ const FormFornecedor = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:8800/fornecedor', fornecedor);
+            const fornecedorData = {
+                ...fornecedor,
+                marcas_fornecedor: fornecedor.marcas
+            };
+            
+            await axios.post(`http://localhost:8800/fornecedor`, fornecedorData);
             alert('Fornecedor cadastrado com sucesso!');
             setFornecedor({
                 cnpj: '',
                 razao_social: '',
-                valor_min_pedido: '',
+                qtd_min_pedido: '',
                 prazo_entrega: '',
                 dt_inicio_fornecimento: '',
                 observacao: '',
                 Pessoa_idPessoa: '',
-                marcas: []
+                marcas: []  
             });
             setNomePessoa('');
         } catch (err) {
@@ -138,6 +147,8 @@ const FormFornecedor = () => {
             alert('Erro ao cadastrar fornecedor');
         }
     };
+    
+    
 
     return (
         <>
@@ -175,11 +186,11 @@ const FormFornecedor = () => {
                         prefix={'R$ '}
                         decimalScale={2}
                         fixedDecimalScale={true}
-                        name="valor_min_pedido"
-                        value={fornecedor.valor_min_pedido}
+                        name="qtd_min_pedido"
+                        value={fornecedor.qtd_min_pedido}
                         onValueChange={(values) => {
                             const { value } = values;
-                            setFornecedor({ ...fornecedor, valor_min_pedido: value });
+                            setFornecedor({ ...fornecedor, qtd_min_pedido: value });
                         }}
                         required
                     />
@@ -241,15 +252,16 @@ const FormFornecedor = () => {
                         </thead>
                         <tbody>
                             {marcas.map((marca) => (
-                                <tr key={marca.id}>
+                                <tr key={marca.idMarca}>
                                     <td>
                                         <input
                                             type="checkbox"
-                                            name="marcas"
-                                            value={marca.id}
-                                            checked={fornecedor.marcas.includes(marca.id)}
+                                            name="marcaSelecionada"
+                                            value={marca.idMarca}
+                                            checked={fornecedor.marcas.includes(marca.idMarca)}
                                             onChange={handleChange}
                                         />
+
                                     </td>
                                     <td>{marca.nome}</td>
                                 </tr>
