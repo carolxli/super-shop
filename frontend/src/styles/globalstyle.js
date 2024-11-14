@@ -186,6 +186,42 @@ const GlobalStyle = createGlobalStyle`
         font-size: 24px;
         margin-top: 45px;
     }
+
+     .autocomplete-list {
+        position: absolute;
+        width: 28%;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        z-index: 10;
+        margin-top: 5px;
+    }
+
+    /* Estilo para a lista de autocomplete */
+    .autocomplete-list {
+        position: absolute;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin-top: 45px;
+        margin-left: 1px; /* Margem para alinhar ao campo */
+    }
+
+    .autocomplete-list li {
+        padding: 8px;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .autocomplete-list li:hover {
+        background-color: #f1f1f1;
+    }
 `;
 
 export default GlobalStyle;

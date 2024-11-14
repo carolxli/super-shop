@@ -112,20 +112,6 @@ export const getProduto = (req, res) => {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Novo controlador para buscar todos os fornecedores
-export const getFornecedores = (req, res) => {
-    const razao_social = req.query.razao_social || ''; // Obtém a busca via query string
-    const q = `SELECT "idProduto", "razao_social" FROM "SuperShop"."Fornecedor" WHERE "razao_social" ILIKE $1 LIMIT 10`;
-
-    db.query(q, [`%${razao_social}%`], (err, data) => {
-        if (err) {
-            console.error("Erro ao buscar fornecedor:", err);
-            return res.status(500).json(err);
-        }
-        return res.status(200).json(data.rows); // Retorna os dados dos fornecedores
-    });
-};
-
 // Novo controlador para buscar todas as marcas de um fornecedor específico
 export const getMarcasByFornecedor = (req, res) => {
     const { idFornecedor } = req.params;

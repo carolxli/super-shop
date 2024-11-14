@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import InputMask from 'react-input-mask';
 import { NumericFormat } from 'react-number-format';
@@ -12,21 +12,54 @@ const FormFornecedor = () => {
         dt_inicio_fornecimento: '',
         observacao: '',
         Pessoa_idPessoa: '',
+        marcas: [] // Array para armazenar as marcas selecionadas
     });
 
+    const [nomePessoa, setNomePessoa] = useState('');
+    const [pessoas, setPessoas] = useState([]);
+    const [autocompleteVisible, setAutocompleteVisible] = useState(false);
+
+    const [marcas, setMarcas] = useState([]);
+
+    useEffect(() => {
+        const fetchMarcas = async () => {
+            try {
+                const response = await axios.get('http://localhost:8800/marca');
+                setMarcas(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar marcas:", error);
+            }
+        };
+
+        fetchMarcas();
+    }, []);
+
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, checked } = e.target;
 
-        // Impede valores negativos em campos numéricos
-        if ((name === 'prazo_entrega' || name === 'Pessoa_idPessoa') && value < 0) return;
+        if (name === 'marcas') {
+            setFornecedor((prevFornecedor) => {
+                let marcasSelecionadas = [...prevFornecedor.marcas];
+                const marcaId = value;
 
-        setFornecedor({
-            ...fornecedor,
-            [name]: value,
-        });
+                if (checked) {
+            
+                    marcasSelecionadas = [...marcasSelecionadas, marcaId];
+                } else {
+             
+                    marcasSelecionadas = marcasSelecionadas.filter(id => id !== marcaId);
+                }
+
+                return { ...prevFornecedor, marcas: marcasSelecionadas };
+            });
+        } else {
+            setFornecedor({
+                ...fornecedor,
+                [name]: value,
+            });
+        }
     };
 
-    // Busca automática da Razão Social
     const fetchRazaoSocial = async (cnpj) => {
         if (cnpj.length === 14) {
             try {
@@ -47,12 +80,41 @@ const FormFornecedor = () => {
     };
 
     const handleCnpjChange = (e) => {
-        const cnpj = e.target.value.replace(/[^\d]/g, ''); // Remove máscara para usar na API
-        setFornecedor({ ...fornecedor, cnpj });
-        // Busca a razão social apenas quando o CNPJ tiver 14 caracteres
+        const cnpj = e.target.value.replace(/[^\d]/g, '');
+        setFornecedor((prevFornecedor) => ({
+            ...prevFornecedor,
+            cnpj,
+            razao_social: ''
+        }));
         if (cnpj.length === 14) {
             fetchRazaoSocial(cnpj);
         }
+    };
+
+    const handleNomePessoaChange = async (e) => {
+        const nome = e.target.value;
+        setNomePessoa(nome);
+
+        if (nome.length >= 2) {
+            try {
+                const response = await axios.get(`http://localhost:8800/Pessoa?nome=${nome}`);
+                setPessoas(response.data);
+                setAutocompleteVisible(true);
+            } catch (error) {
+                console.error("Erro ao buscar pessoas:", error);
+            }
+        } else {
+            setAutocompleteVisible(false);
+        }
+    };
+
+    const handlePessoaSelect = (pessoa) => {
+        setNomePessoa(pessoa.nome);
+        setFornecedor({
+            ...fornecedor,
+            Pessoa_idPessoa: pessoa.idPessoa
+        });
+        setAutocompleteVisible(false);
     };
 
     const handleSubmit = async (e) => {
@@ -68,7 +130,9 @@ const FormFornecedor = () => {
                 dt_inicio_fornecimento: '',
                 observacao: '',
                 Pessoa_idPessoa: '',
+                marcas: []
             });
+            setNomePessoa('');
         } catch (err) {
             console.error(err);
             alert('Erro ao cadastrar fornecedor');
@@ -86,9 +150,9 @@ const FormFornecedor = () => {
                         name="cnpj"
                         value={fornecedor.cnpj}
                         onChange={handleCnpjChange}
-                        maxLength="18" // Limita a quantidade de caracteres para um CNPJ válido
-                        maskChar={null} // Remove o caractere de máscara para facilitar a digitação
+                        maskChar={null}
                         required
+                        className="input-mask"
                     />
                 </label>
 
@@ -100,6 +164,7 @@ const FormFornecedor = () => {
                         value={fornecedor.razao_social}
                         onChange={handleChange}
                         required
+                        readOnly
                     />
                 </label>
 
@@ -143,14 +208,54 @@ const FormFornecedor = () => {
                 </label>
 
                 <label>
-                    ID da Pessoa
+                    Nome da Pessoa
                     <input
-                        type="number"
-                        name="Pessoa_idPessoa"
-                        value={fornecedor.Pessoa_idPessoa}
-                        onChange={handleChange}
-                        disabled
+                        type="text"
+                        name="nomePessoa"
+                        value={nomePessoa}
+                        onChange={handleNomePessoaChange}
+                        required
                     />
+                    {autocompleteVisible && (
+                        <ul className="autocomplete-list">
+                            {pessoas.map((pessoa) => (
+                                <li
+                                    key={pessoa.idPessoa}
+                                    onClick={() => handlePessoaSelect(pessoa)}
+                                >
+                                    {pessoa.nome}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </label>
+
+                <label>
+                    Marcas Trabalhadas
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Selecionar</th>
+                                <th>Marca</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {marcas.map((marca) => (
+                                <tr key={marca.id}>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            name="marcas"
+                                            value={marca.id}
+                                            checked={fornecedor.marcas.includes(marca.id)}
+                                            onChange={handleChange}
+                                        />
+                                    </td>
+                                    <td>{marca.nome}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </label>
 
                 <label>
@@ -158,7 +263,7 @@ const FormFornecedor = () => {
                     <textarea name="observacao" value={fornecedor.observacao} onChange={handleChange} />
                 </label>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '90px', marginLeft: '90px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '50px', marginLeft: '330px' }}>
                     <button type="submit">Cadastrar</button>
                     <a href='/'>
                         <button type="button">Cancelar</button>
@@ -167,7 +272,7 @@ const FormFornecedor = () => {
             </form>
             <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px', marginLeft: '256px' }}>
                 <a href="/listar-fornecedores">
-                    <button>Listar Fornecedores Cadastradas</button>
+                    <button type="button">Listar Fornecedores</button>
                 </a>
             </div>
         </>

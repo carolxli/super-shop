@@ -1,6 +1,5 @@
 import { db } from "../db.js";
 
-// Obtém todos os fornecedores
 export const getFornecedor = async (_, res) => {
     const q = `SELECT * FROM "SuperShop"."Fornecedor"`;
     db.query(q, (err, data) => {
@@ -18,11 +17,11 @@ export const getFornecedorById = async (req, res) => {
     
     db.query(q, [idFornecedor], (err, data) => {
         if (err) return res.json(err);
-        return res.status(200).json(data.rows[0]); // Retornando apenas o fornecedor
+        return res.status(200).json(data.rows[0]);
     });
 };
 
-// Adiciona um novo fornecedor
+
 export const postFornecedor = (req, res) => {
     const q = `INSERT INTO "SuperShop"."Fornecedor" (
         "cnpj",
@@ -54,7 +53,6 @@ export const postFornecedor = (req, res) => {
     });
 };
 
-// Atualiza um fornecedor existente
 export const updateFornecedor = (req, res) => {
     const q = `UPDATE "SuperShop"."Fornecedor" SET
         "cnpj" = $1,
@@ -85,7 +83,6 @@ export const updateFornecedor = (req, res) => {
     });
 };
 
-// Deleta um fornecedor
 export const deleteFornecedor = (req, res) => {
     const q = `DELETE FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1`;
 
@@ -95,5 +92,19 @@ export const deleteFornecedor = (req, res) => {
             return res.status(500).json(err);
         }
         return res.status(200).json("Fornecedor deletado com sucesso");
+    });
+};
+
+// Novo controlador para buscar todos os fornecedores
+export const getFornecedores = (req, res) => {
+    const razao_social = req.query.razao_social || ''; // Obtém a busca via query string
+    const q = `SELECT "idFornecedor", "razao_social" FROM "SuperShop"."Fornecedor" WHERE "razao_social" ILIKE $1 LIMIT 10`;
+
+    db.query(q, [`%${razao_social}%`], (err, data) => {
+        if (err) {
+            console.error("Erro ao buscar fornecedor:", err);
+            return res.status(500).json(err);
+        }
+        return res.status(200).json(data.rows); // Retorna os dados dos fornecedores
     });
 };

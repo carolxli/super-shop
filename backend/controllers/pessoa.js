@@ -18,7 +18,6 @@ export const getPessoa = async (req, res) => {
     }
 };
 
-
 export const postPessoa = (req,res) =>{
     const q = `INSERT INTO "SuperShop"."Pessoa" (
         "email",
@@ -114,5 +113,18 @@ export const getPessoaById = (req, res) => {
     db.query(q, [req.params.idPessoa], (err, data) => {
         if (err) return res.json(err);
         return res.status(200).json(data.rows[0]);
+    });
+};
+
+export const getPessoaByNome = async (req, res) => {
+    const nome = req.query.nome || '';
+    const q = `SELECT "idPessoa", "nome" FROM "SuperShop"."Pessoa" WHERE "nome" ILIKE $1 LIMIT 10`;
+    
+    db.query(q, [`%${nome}%`], (err, data) => {
+        if (err) {
+            console.error("Erro ao buscar pessoa:", err);
+            return res.status(500).json(err);
+        }
+        return res.status(200).json(data.rows);
     });
 };

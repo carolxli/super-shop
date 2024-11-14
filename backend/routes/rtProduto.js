@@ -1,5 +1,5 @@
 import express from "express";
-import { getProdutos, postProdutos, updateProdutos, deleteProdutos, getProduto, getFornecedores, getMarcasByFornecedor, getCategorias } from "../controllers/produto.js";
+import { getProdutos, postProdutos, updateProdutos, deleteProdutos, getProduto, getMarcasByFornecedor, getCategorias } from "../controllers/produto.js";
 
 const routerProd = express.Router();
 
@@ -10,7 +10,6 @@ routerProd.delete("/:idProduto", deleteProdutos);
 routerProd.get("/:idProduto", getProduto); 
 
 // Rotas para obter os dados
-routerProd.get("/", getFornecedores);
 routerProd.get("/marcas/:idFornecedor", getMarcasByFornecedor);
 routerProd.get("/categorias", getCategorias);
 

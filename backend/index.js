@@ -2,6 +2,7 @@ import express from "express";
 import routerProd from "./routes/rtProduto.js";
 import routerPess from "./routes/rtPessoa.js";
 import routerForne from "./routes/rtFornecedor.js";
+import routerMarca from "./routes/rtMarca.js";
 import cors from "cors";
 
 const app = express();
@@ -14,5 +15,6 @@ app.use(express.json());
 app.use("/Produto", routerProd);
 app.use("/Pessoa", routerPess);
 app.use("/Fornecedor", routerForne);
+app.use("/Marca",routerMarca);
 
 app.listen(8800);

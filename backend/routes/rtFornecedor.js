@@ -4,13 +4,13 @@ import {
   getFornecedorById,
   postFornecedor,
   updateFornecedor,
-  deleteFornecedor,
+  deleteFornecedor, 
+  getFornecedores
 } from "../controllers/fornecedor.js";
 
 const routerForne = express.Router();
-
-// Rota para obter todos os fornecedores
-routerForne.get("/", getFornecedor); // Esta linha foi adicionada para listar todos os fornecedores
+routerForne.get("/", getFornecedor);
+routerForne.get("/:razao_social",getFornecedores);
 routerForne.get("/:idFornecedor", getFornecedorById);
 routerForne.post("/", postFornecedor);
 routerForne.put("/:idFornecedor", updateFornecedor);

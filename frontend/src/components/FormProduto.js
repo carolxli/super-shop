@@ -23,17 +23,17 @@ const FormProduto = () => {
     const [categorias, setCategorias] = useState([]); // Estado para armazenar categorias
 
     // Carregar marcas e categorias ao montar o componente
-    useEffect(() => {
-        // Carregar marcas
-        axios.get('http://localhost:8800/marcas') // Ajuste a URL conforme necessário
-            .then(response => setMarcas(response.data))
-            .catch(error => console.error("Erro ao carregar marcas:", error));
+    // useEffect(() => {
+    //     // Carregar marcas
+    //     axios.get('http://localhost:8800/marcas') // Ajuste a URL conforme necessário
+    //         .then(response => setMarcas(response.data))
+    //         .catch(error => console.error("Erro ao carregar marcas:", error));
 
-        // Carregar categorias
-        axios.get('http://localhost:8800/categorias') // Ajuste a URL conforme necessário
-            .then(response => setCategorias(response.data))
-            .catch(error => console.error("Erro ao carregar categorias:", error));
-    }, []); // Esse useEffect será executado uma vez após a montagem do componente
+    //     // Carregar categorias
+    //     axios.get('http://localhost:8800/categorias') // Ajuste a URL conforme necessário
+    //         .then(response => setCategorias(response.data))
+    //         .catch(error => console.error("Erro ao carregar categorias:", error));
+    // }, []);
 
     // Função para tratar mudanças no campo do fornecedor (busca com autocomplete)
     const handleFornecedorChange = async (e) => {
@@ -42,7 +42,7 @@ const FormProduto = () => {
 
         if (razao_social.length >= 2) {
             try {
-                const response = await axios.get(`http://localhost:8800/Produto/${razao_social}`);
+                const response = await axios.get(`http://localhost:8800/Fornecedor/${razao_social}`);
                 setFornecedores(response.data);
                 setAutocompleteVisible(true);
             } catch (error) {
@@ -185,7 +185,7 @@ const FormProduto = () => {
                         <ul className="autocomplete-list">
                             {fornecedores.map((fornecedor) => (
                                 <li
-                                    key={fornecedor.idProduto}
+                                    key={fornecedor.idFornecedor}
                                     onClick={() => handleFornecedorSelect(fornecedor)}
                                 >
                                     {fornecedor.razao_social}
