@@ -148,6 +148,6 @@ export const getFornecedores = (req, res) => {
             console.error("Erro ao buscar fornecedor:", err);
             return res.status(500).json(err);
         }
-        return res.status(200).json(data.rows); 
+        return res.status(200).json(data.rows); // Retorna os dados dos fornecedores
     });
 };
