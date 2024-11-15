@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import InputMask from "react-input-mask";
 
 const FormDespesa = () => {
   const [despesa, setDespesa] = useState({
@@ -8,9 +9,27 @@ const FormDespesa = () => {
     valor: "",
     metodo_pgmto: "",
     descricao: "",
-    status: "",
+    data_quitacao: "",
     idTipo: "",
   });
+
+  const [tiposDespesas, setTiposDespesas] = useState([]);
+
+  useEffect(() => {
+    // Buscar tipos de despesas do backend
+    const fetchTipos = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8800/tipos-despesas"
+        );
+        setTiposDespesas(response.data);
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao buscar tipos de despesas");
+      }
+    };
+    fetchTipos();
+  }, []);
 
   const handleChange = (e) => {
     setDespesa({
@@ -22,7 +41,15 @@ const FormDespesa = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8800/despesa", despesa);
+      // Converter datas para o formato ISO (AAAA-MM-DD) antes de enviar
+      const despesaConvertida = {
+        ...despesa,
+        dt_despesa: despesa.dt_despesa,
+        dt_vencimento: despesa.dt_vencimento,
+        data_quitacao: despesa.data_quitacao,
+        valor: parseFloat(despesa.valor),
+      };
+      await axios.post("http://localhost:8800/despesa", despesaConvertida);
       alert("Despesa cadastrada com sucesso!");
       setDespesa({
         dt_despesa: "",
@@ -30,7 +57,7 @@ const FormDespesa = () => {
         valor: "",
         metodo_pgmto: "",
         descricao: "",
-        status: "",
+        data_quitacao: "",
         idTipo: "",
       });
     } catch (err) {
@@ -45,24 +72,41 @@ const FormDespesa = () => {
       <form onSubmit={handleSubmit}>
         <label>
           Data da Despesa
-          <input
-            type="date"
-            name="dt_despesa"
+          <InputMask
+            mask="99/99/9999"
             value={despesa.dt_despesa}
             onChange={handleChange}
+            placeholder="DD/MM/AAAA"
             required
-          />
+          >
+            {(inputProps) => <input type="text" {...inputProps} />}
+          </InputMask>
         </label>
 
         <label>
           Data de Vencimento
-          <input
-            type="date"
-            name="dt_vencimento"
+          <InputMask
+            mask="99/99/9999"
             value={despesa.dt_vencimento}
             onChange={handleChange}
+            placeholder="DD/MM/AAAA"
             required
-          />
+          >
+            {(inputProps) => <input type="text" {...inputProps} />}
+          </InputMask>
+        </label>
+
+        <label>
+          Data de Quitação
+          <InputMask
+            mask="99/99/9999"
+            value={despesa.data_quitacao}
+            onChange={handleChange}
+            placeholder="DD/MM/AAAA"
+            required
+          >
+            {(inputProps) => <input type="text" {...inputProps} />}
+          </InputMask>
         </label>
 
         <label>
@@ -73,6 +117,7 @@ const FormDespesa = () => {
             value={despesa.valor}
             onChange={handleChange}
             required
+            step="0.01"
           />
         </label>
 
@@ -98,25 +143,20 @@ const FormDespesa = () => {
         </label>
 
         <label>
-          Status
-          <input
-            type="text"
-            name="status"
-            value={despesa.status}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <label>
-          ID do Tipo
-          <input
-            type="number"
+          Tipo de Despesa
+          <select
             name="idTipo"
             value={despesa.idTipo}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">Selecione</option>
+            {tiposDespesas.map((tipo) => (
+              <option key={tipo.idTipo} value={tipo.idTipo}>
+                {tipo.nome_tipo}
+              </option>
+            ))}
+          </select>
         </label>
 
         <div
@@ -132,17 +172,6 @@ const FormDespesa = () => {
           </a>
         </div>
       </form>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-start",
-          marginTop: "10px",
-        }}
-      >
-        {/* <a href="/listar-despesas">
-          <button>Listar Despesas Cadastradas</button>
-        </a> */}
-      </div>
     </>
   );
 };

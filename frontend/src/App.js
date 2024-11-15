@@ -1,3 +1,4 @@
+// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from "./components/header.js";
@@ -13,16 +14,19 @@ import ListarPessoas from "./pages/ListarPessoas.js";
 import GlobalStyle from "./styles/globalstyle.js";
 import EditarPessoa from "./pages/EditarPessoa.js";
 import Despesa from "./pages/Despesa.js";
-import ListarDespesas from "./pages/ListarDespesa.js";
+import ListarDespesa from "./pages/ListarDespesa.js"; // Certifique-se do nome correto
 import EditarDespesa from "./pages/EditarDespesa.js";
 import Login from "./pages/Login.js";
 import PrivateRoute from "./utils/PrivateRoute.js"; // Importa o componente de rota privada
+import { ToastContainer } from "react-toastify"; // Importa o ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Importa o CSS do react-toastify
 
 const App = () => {
   return (
     <Router>
       <GlobalStyle />
       <Header />
+      <ToastContainer /> {/* Adiciona o ToastContainer */}
       <Routes>
         {/* Rota pública para Login */}
         <Route path="/login" element={<Login />} />
@@ -124,7 +128,7 @@ const App = () => {
           path="/listar-despesas"
           element={
             <PrivateRoute>
-              <ListarDespesas />
+              <ListarDespesa />
             </PrivateRoute>
           }
         />

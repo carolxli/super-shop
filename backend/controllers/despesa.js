@@ -89,13 +89,66 @@ export const updateDespesa = (req, res) => {
 
 // Deleta uma despesa
 export const deleteDespesa = (req, res) => {
-  const q = `DELETE FROM "SuperShop"."Despesa" WHERE "idDespesa" = $1`;
+  const idDespesa = req.params.idDespesa;
 
-  db.query(q, [req.params.idDespesa], (err) => {
+  // Iniciar uma transação
+  db.query("BEGIN", (err) => {
     if (err) {
-      console.error("Erro ao deletar despesa:", err);
-      return res.status(500).json(err);
+      console.error("Erro ao iniciar transação:", err);
+      return res.status(500).json({ error: "Erro interno do servidor" });
     }
-    return res.status(200).json("Despesa deletada com sucesso");
+
+    // 1. Deletar todas as referências em Contas_a_Pagar
+    const deleteContasAPagarQuery = `
+      DELETE FROM "SuperShop"."Contas_a_Pagar"
+      WHERE "Despesa_idDespesa" = $1
+    `;
+    db.query(deleteContasAPagarQuery, [idDespesa], (err) => {
+      if (err) {
+        console.error("Erro ao deletar Contas_a_Pagar:", err);
+        return db.query("ROLLBACK", () => {
+          res.status(500).json({ error: "Erro ao deletar contas a pagar" });
+        });
+      }
+
+      // 2. Deletar a Despesa
+      const deleteDespesaQuery = `
+        DELETE FROM "SuperShop"."Despesa"
+        WHERE "idDespesa" = $1
+        RETURNING *
+      `;
+      db.query(deleteDespesaQuery, [idDespesa], (err, result) => {
+        if (err) {
+          console.error("Erro ao deletar Despesa:", err);
+          return db.query("ROLLBACK", () => {
+            res.status(500).json({ error: "Erro ao deletar despesa" });
+          });
+        }
+
+        if (result.rows.length === 0) {
+          // Se nenhuma despesa foi encontrada para deletar, reverter a transação
+          return db.query("ROLLBACK", () => {
+            res.status(404).json({ error: "Despesa não encontrada" });
+          });
+        }
+
+        // 3. Confirmar a transação
+        db.query("COMMIT", (err) => {
+          if (err) {
+            console.error("Erro ao confirmar transação:", err);
+            return db.query("ROLLBACK", () => {
+              res.status(500).json({ error: "Erro interno do servidor" });
+            });
+          }
+
+          res
+            .status(200)
+            .json({
+              message: "Despesa deletada com sucesso",
+              despesa: result.rows[0],
+            });
+        });
+      });
+    });
   });
 };
