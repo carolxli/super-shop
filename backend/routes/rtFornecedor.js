@@ -11,7 +11,7 @@ import {
 const routerForne = express.Router();
 routerForne.get("/", getFornecedor);
 routerForne.get("/:razao_social",getFornecedores);
-routerForne.get("/:idFornecedor", getFornecedorById);
+routerForne.get("/id/:idFornecedor", getFornecedorById);
 routerForne.post("/", postFornecedor);
 routerForne.put("/:idFornecedor", updateFornecedor);
 routerForne.delete("/:idFornecedor", deleteFornecedor);

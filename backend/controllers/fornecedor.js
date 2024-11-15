@@ -51,16 +51,6 @@ export const getFornecedor = async (req, res) => {
     }
 };
 
-export const getFornecedorById = async (req, res) => {
-    const idFornecedor = req.params.idFornecedor;
-    const q = `SELECT * FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1`;
-    
-    db.query(q, [idFornecedor], (err, data) => {
-        if (err) return res.json(err);
-        return res.status(200).json(data.rows[0]);
-    });
-};
-
 export const postFornecedor = (req, res) => {
     const q = `INSERT INTO "SuperShop"."Fornecedor" (
         "cnpj",
@@ -94,8 +84,38 @@ export const postFornecedor = (req, res) => {
     });
 };
 
-export const updateFornecedor = (req, res) => {
-    const q = `UPDATE "SuperShop"."Fornecedor" SET
+export const getFornecedorById = async (req, res) => {
+    const idFornecedor = req.params.idFornecedor;
+    const q = `
+        SELECT 
+            f."idFornecedor",
+            f."cnpj",
+            f."razao_social",
+            f."qtd_min_pedido",
+            f."prazo_entrega",
+            f."dt_inicio_fornecimento",
+            f."observacao",
+            p."nome" AS pessoa_nome,
+            string_agg(m."nome", ', ') AS marcas_nome
+        FROM "SuperShop"."Fornecedor" f
+        JOIN "SuperShop"."Pessoa" p ON f."Pessoa_idPessoa" = p."idPessoa"
+        LEFT JOIN "SuperShop"."Marca" m ON m."idMarca" = ANY(f."marcas_fornecedor")
+        WHERE f."idFornecedor" = $1
+        GROUP BY f."idFornecedor", f."cnpj", f."razao_social", f."qtd_min_pedido", f."prazo_entrega", f."dt_inicio_fornecimento", f."observacao", p."nome";
+    `;
+
+    try {
+        const result = await db.query(q, [idFornecedor]);
+        return res.status(200).json(result.rows[0]);
+    } catch (err) {
+        console.error("Erro ao buscar fornecedor:", err);
+        return res.status(500).json({ error: "Erro ao buscar fornecedor", details: err });
+    }
+};
+
+export const updateFornecedor = async (req, res) => {
+    const q = `
+        UPDATE "SuperShop"."Fornecedor" SET
         "cnpj" = $1,
         "razao_social" = $2,
         "qtd_min_pedido" = $3,
@@ -104,7 +124,8 @@ export const updateFornecedor = (req, res) => {
         "observacao" = $6,
         "Pessoa_idPessoa" = $7,
         "marcas_fornecedor" = $8
-    WHERE "idFornecedor" = $9`;
+        WHERE "idFornecedor" = $9;
+    `;
 
     const values = [
         req.body.cnpj,
@@ -114,16 +135,17 @@ export const updateFornecedor = (req, res) => {
         req.body.dt_inicio_fornecimento,
         req.body.observacao,
         req.body.Pessoa_idPessoa,
-        req.body.marcas_fornecedor
+        req.body.marcas,
+        req.params.idFornecedor
     ];
 
-    db.query(q, [...values, req.params.idFornecedor], (err) => {
-        if (err) {
-            console.error("Erro ao alterar Fornecedor:", err);
-            return res.status(500).json(err);
-        }
-        return res.status(200).json("Fornecedor atualizado com sucesso");
-    });
+    try {
+        await db.query(q, values);
+        return res.status(200).json("Fornecedor atualizado com sucesso.");
+    } catch (err) {
+        console.error("Erro ao atualizar fornecedor:", err);
+        return res.status(500).json({ error: "Erro ao atualizar fornecedor", details: err });
+    }
 };
 
 
@@ -140,7 +162,7 @@ export const deleteFornecedor = (req, res) => {
 };
 
 export const getFornecedores = (req, res) => {
-    const razao_social = req.query.razao_social || ''; 
+    const razao_social = req.query.razao_social || '';
     const q = `SELECT "idFornecedor", "Pessoa_idPessoa", "razao_social" FROM "SuperShop"."Fornecedor" WHERE "razao_social" ILIKE $1 LIMIT 10`;
 
     db.query(q, [`%${razao_social}%`], (err, data) => {
