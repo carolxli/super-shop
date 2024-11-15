@@ -12,9 +12,11 @@ import EditarProduto from "./pages/EditarProduto.js";
 import ListarPessoas from "./pages/ListarPessoas.js";
 import GlobalStyle from "./styles/globalstyle.js";
 import EditarPessoa from "./pages/EditarPessoa.js";
-import Despesa from "./pages/Despesa.js"; // Ajuste aqui
-import ListarDespesas from "./pages/ListarDespesa.js"; // Ajuste aqui
-import EditarDespesa from "./pages/EditarDespesa.js"; // Ajuste aqui
+import Despesa from "./pages/Despesa.js";
+import ListarDespesas from "./pages/ListarDespesa.js";
+import EditarDespesa from "./pages/EditarDespesa.js";
+import Login from "./pages/Login.js";
+import PrivateRoute from "./utils/PrivateRoute.js"; // Importa o componente de rota privada
 
 const App = () => {
   return (
@@ -22,26 +24,118 @@ const App = () => {
       <GlobalStyle />
       <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Rota pública para Login */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Rotas protegidas */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          }
+        />
         {/* Fornecedor */}
-        <Route path="/fornecedor" element={<Fornecedor />} />
-        <Route path="/listar-fornecedores" element={<ListarFornecedores />} />
+        <Route
+          path="/fornecedor"
+          element={
+            <PrivateRoute>
+              <Fornecedor />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/listar-fornecedores"
+          element={
+            <PrivateRoute>
+              <ListarFornecedores />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/editarFornecedor/:idFornecedor"
-          element={<EditarFornecedor />}
+          element={
+            <PrivateRoute>
+              <EditarFornecedor />
+            </PrivateRoute>
+          }
         />
         {/* Pessoa */}
-        <Route path="/pessoa" element={<Pessoa />} />
-        <Route path="/listar-pessoas" element={<ListarPessoas />} />
-        <Route path="/editarPessoa/:idPessoa" element={<EditarPessoa />} />
+        <Route
+          path="/pessoa"
+          element={
+            <PrivateRoute>
+              <Pessoa />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/listar-pessoas"
+          element={
+            <PrivateRoute>
+              <ListarPessoas />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/editarPessoa/:idPessoa"
+          element={
+            <PrivateRoute>
+              <EditarPessoa />
+            </PrivateRoute>
+          }
+        />
         {/* Produto */}
-        <Route path="/produto" element={<Produto />} />
-        <Route path="/listar-produtos" element={<ListarProdutos />} />
-        <Route path="/editarProduto/:idProduto" element={<EditarProduto />} />
+        <Route
+          path="/produto"
+          element={
+            <PrivateRoute>
+              <Produto />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/listar-produtos"
+          element={
+            <PrivateRoute>
+              <ListarProdutos />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/editarProduto/:idProduto"
+          element={
+            <PrivateRoute>
+              <EditarProduto />
+            </PrivateRoute>
+          }
+        />
         {/* Despesa */}
-        <Route path="/despesa" element={<Despesa />} />
-        <Route path="/listar-despesas" element={<ListarDespesas />} />
-        <Route path="/editarDespesa/:idDespesa" element={<EditarDespesa />} />
+        <Route
+          path="/despesa"
+          element={
+            <PrivateRoute>
+              <Despesa />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/listar-despesas"
+          element={
+            <PrivateRoute>
+              <ListarDespesas />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/editarDespesa/:idDespesa"
+          element={
+            <PrivateRoute>
+              <EditarDespesa />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   );

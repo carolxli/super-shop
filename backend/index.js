@@ -4,6 +4,7 @@ import routerPess from "./routes/rtPessoa.js";
 import routerForne from "./routes/rtFornecedor.js";
 import routerMarca from "./routes/rtMarca.js";
 import routerCategoria from "./routes/rtCategoria.js";
+import routerUsuario from "./routes/rtUsuario.js";
 import cors from "cors";
 
 const app = express();
@@ -18,5 +19,6 @@ app.use("/Pessoa", routerPess);
 app.use("/Fornecedor", routerForne);
 app.use("/Marca",routerMarca);
 app.use("/Categoria",routerCategoria);
+app.use("/usuario", routerUsuario);
 
 app.listen(8800);
