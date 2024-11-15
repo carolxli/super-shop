@@ -19,13 +19,11 @@ const FormDespesa = () => {
     // Buscar tipos de despesas do backend
     const fetchTipos = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8800/tipos-despesas"
-        );
+        const response = await axios.get("http://localhost:8800/tipos-despesa");
         setTiposDespesas(response.data);
       } catch (err) {
         console.error(err);
-        alert("Erro ao buscar tipos de despesas");
+        alert("Erro ao buscar tipos de despesa");
       }
     };
     fetchTipos();

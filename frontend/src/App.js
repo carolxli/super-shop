@@ -17,6 +17,7 @@ import Despesa from "./pages/Despesa.js";
 import ListarDespesa from "./pages/ListarDespesa.js"; // Certifique-se do nome correto
 import EditarDespesa from "./pages/EditarDespesa.js";
 import Login from "./pages/Login.js";
+import ListarTipoDespesa from "./pages/ListarTipoDespesa.js"; // Importa a nova página
 import PrivateRoute from "./utils/PrivateRoute.js"; // Importa o componente de rota privada
 import { ToastContainer } from "react-toastify"; // Importa o ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Importa o CSS do react-toastify
@@ -137,6 +138,15 @@ const App = () => {
           element={
             <PrivateRoute>
               <EditarDespesa />
+            </PrivateRoute>
+          }
+        />
+        {/* Tipo de Despesa */}
+        <Route
+          path="/tipos-despesa"
+          element={
+            <PrivateRoute>
+              <ListarTipoDespesa />
             </PrivateRoute>
           }
         />
