@@ -7,7 +7,9 @@ export const getTiposDespesa = (req, res) => {
   db.query(q, (err, data) => {
     if (err) {
       console.error("Erro ao buscar tipos de despesa:", err);
-      return res.status(500).json({ error: "Erro ao buscar tipos de despesa" });
+      return res
+        .status(500)
+        .json({ error: "Erro ao buscar tipos de despesa." });
     }
     return res.status(200).json(data.rows);
   });
@@ -15,37 +17,42 @@ export const getTiposDespesa = (req, res) => {
 
 // Obtém um tipo de despesa específico pelo ID
 export const getTipoDespesaById = (req, res) => {
-  const idTipo = req.params.idTipo;
+  const { idTipo } = req.params;
   const q = `SELECT * FROM "SuperShop"."TipoDespesa" WHERE "idTipo" = $1`;
 
   db.query(q, [idTipo], (err, data) => {
     if (err) {
       console.error("Erro ao buscar tipo de despesa:", err);
-      return res.status(500).json({ error: "Erro ao buscar tipo de despesa" });
+      return res.status(500).json({ error: "Erro ao buscar tipo de despesa." });
     }
     if (data.rows.length === 0) {
-      return res.status(404).json({ error: "Tipo de despesa não encontrado" });
+      return res.status(404).json({ error: "Tipo de despesa não encontrado." });
     }
     return res.status(200).json(data.rows[0]);
   });
 };
 
-// Adiciona um novo tipo de despesa
+// Cria um novo tipo de despesa
 export const createTipoDespesa = (req, res) => {
+  const { nome_tipo, descricao_tipo } = req.body;
+
+  if (!nome_tipo) {
+    return res
+      .status(400)
+      .json({ error: "O nome do tipo de despesa é obrigatório." });
+  }
+
   const q = `
-    INSERT INTO "SuperShop"."TipoDespesa" (
-      "nome_tipo",
-      "descricao_tipo"
-    ) VALUES ($1, $2)
+    INSERT INTO "SuperShop"."TipoDespesa" ("nome_tipo", "descricao_tipo")
+    VALUES ($1, $2)
     RETURNING *
   `;
-
-  const values = [req.body.nome_tipo, req.body.descricao_tipo];
+  const values = [nome_tipo, descricao_tipo || null];
 
   db.query(q, values, (err, data) => {
     if (err) {
       console.error("Erro ao criar tipo de despesa:", err);
-      return res.status(500).json({ error: "Erro ao criar tipo de despesa" });
+      return res.status(500).json({ error: "Erro ao criar tipo de despesa." });
     }
     return res.status(201).json(data.rows[0]);
   });
@@ -53,53 +60,54 @@ export const createTipoDespesa = (req, res) => {
 
 // Atualiza um tipo de despesa existente
 export const updateTipoDespesa = (req, res) => {
-  const idTipo = req.params.idTipo;
+  const { idTipo } = req.params;
+  const { nome_tipo, descricao_tipo } = req.body;
+
+  if (!nome_tipo) {
+    return res
+      .status(400)
+      .json({ error: "O nome do tipo de despesa é obrigatório." });
+  }
+
   const q = `
-    UPDATE "SuperShop"."TipoDespesa" SET
-      "nome_tipo" = $1,
-      "descricao_tipo" = $2
+    UPDATE "SuperShop"."TipoDespesa"
+    SET "nome_tipo" = $1, "descricao_tipo" = $2
     WHERE "idTipo" = $3
     RETURNING *
   `;
-
-  const values = [req.body.nome_tipo, req.body.descricao_tipo, idTipo];
+  const values = [nome_tipo, descricao_tipo || null, idTipo];
 
   db.query(q, values, (err, data) => {
     if (err) {
       console.error("Erro ao atualizar tipo de despesa:", err);
       return res
         .status(500)
-        .json({ error: "Erro ao atualizar tipo de despesa" });
+        .json({ error: "Erro ao atualizar tipo de despesa." });
     }
     if (data.rows.length === 0) {
-      return res.status(404).json({ error: "Tipo de despesa não encontrado" });
+      return res.status(404).json({ error: "Tipo de despesa não encontrado." });
     }
     return res.status(200).json(data.rows[0]);
   });
 };
 
-// Deleta um tipo de despesa
+// Deleta um tipo de despesa existente
 export const deleteTipoDespesa = (req, res) => {
-  const idTipo = req.params.idTipo;
-  const q = `
-    DELETE FROM "SuperShop"."TipoDespesa"
-    WHERE "idTipo" = $1
-    RETURNING *
-  `;
+  const { idTipo } = req.params;
+  const q = `DELETE FROM "SuperShop"."TipoDespesa" WHERE "idTipo" = $1 RETURNING *`;
 
   db.query(q, [idTipo], (err, data) => {
     if (err) {
       console.error("Erro ao deletar tipo de despesa:", err);
-      return res.status(500).json({ error: "Erro ao deletar tipo de despesa" });
+      return res
+        .status(500)
+        .json({ error: "Erro ao deletar tipo de despesa." });
     }
     if (data.rows.length === 0) {
-      return res.status(404).json({ error: "Tipo de despesa não encontrado" });
+      return res.status(404).json({ error: "Tipo de despesa não encontrado." });
     }
     return res
       .status(200)
-      .json({
-        message: "Tipo de despesa deletado com sucesso",
-        tipoDespesa: data.rows[0],
-      });
+      .json({ message: "Tipo de despesa deletado com sucesso!" });
   });
 };

@@ -7,11 +7,12 @@ const CadastrarTipoDespesa = () => {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
-    navigate("/tipos-despesa"); // Redireciona para a lista de tipos de despesa após o sucesso
+    navigate("/tipos-despesa"); // Redireciona para a listagem de tipos de despesa após sucesso
   };
 
   return (
     <div>
+      <h2>Cadastrar Novo Tipo de Despesa</h2>
       <FormTipoDespesa onSuccess={handleSuccess} />
     </div>
   );

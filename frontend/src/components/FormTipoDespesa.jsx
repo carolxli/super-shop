@@ -1,59 +1,94 @@
 // frontend/src/components/FormTipoDespesa.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const FormTipoDespesa = ({ onCriar }) => {
-  const [nomeTipo, setNomeTipo] = useState("");
-  const [descricaoTipo, setDescricaoTipo] = useState("");
+const FormTipoDespesa = ({ initialData = {}, onSuccess }) => {
+  const [tipoDespesa, setTipoDespesa] = useState({
+    nome_tipo: initialData.nome_tipo || "",
+    descricao_tipo: initialData.descricao_tipo || "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setTipoDespesa((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const validateForm = () => {
+    if (!tipoDespesa.nome_tipo.trim()) {
+      toast.error("O nome do tipo de despesa é obrigatório.");
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!nomeTipo.trim()) {
-      toast.error("O nome do tipo é obrigatório");
-      return;
-    }
+
+    if (!validateForm()) return;
 
     try {
-      await axios.post("http://localhost:8800/tipos-despesa", {
-        nome_tipo: nomeTipo,
-        descricao_tipo: descricaoTipo,
+      let response;
+      if (initialData.idTipo) {
+        // Atualizar tipo de despesa existente
+        response = await axios.put(
+          `http://localhost:8800/tipos-despesa/${initialData.idTipo}`,
+          tipoDespesa
+        );
+        toast.success("Tipo de despesa atualizado com sucesso!");
+      } else {
+        // Criar novo tipo de despesa
+        response = await axios.post("http://localhost:8800/tipos-despesa", tipoDespesa);
+        toast.success("Tipo de despesa criado com sucesso!");
+      }
+      console.log("Resposta do servidor:", response.data); // Log para depuração
+      setTipoDespesa({
+        nome_tipo: "",
+        descricao_tipo: "",
       });
-      toast.success("Tipo de despesa criado com sucesso!");
-      setNomeTipo("");
-      setDescricaoTipo("");
-      onCriar(); // Atualiza a lista após criação
+      if (onSuccess) onSuccess();
     } catch (err) {
-      console.error(err);
+      console.error("Erro ao cadastrar/atualizar tipo de despesa:", err);
       if (err.response && err.response.data && err.response.data.error) {
         toast.error(`Erro: ${err.response.data.error}`);
       } else {
-        toast.error("Erro ao criar tipo de despesa");
+        toast.error("Erro ao cadastrar/atualizar tipo de despesa.");
       }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-      <h3>Cadastrar Novo Tipo de Despesa</h3>
-      <div>
-        <label>Nome do Tipo:</label>
-        <input
-          type="text"
-          value={nomeTipo}
-          onChange={(e) => setNomeTipo(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label>Descrição:</label>
-        <textarea
-          value={descricaoTipo}
-          onChange={(e) => setDescricaoTipo(e.target.value)}
-        />
-      </div>
-      <button type="submit">Cadastrar</button>
-    </form>
+    <div>
+      <h2>
+        {initialData.idTipo ? "Editar Tipo de Despesa" : "Cadastrar Novo Tipo de Despesa"}
+      </h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Nome do Tipo:</label>
+          <input
+            type="text"
+            name="nome_tipo"
+            value={tipoDespesa.nome_tipo}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label>Descrição:</label>
+          <textarea
+            name="descricao_tipo"
+            value={tipoDespesa.descricao_tipo}
+            onChange={handleChange}
+          ></textarea>
+        </div>
+        <button type="submit">
+          {initialData.idTipo ? "Atualizar" : "Cadastrar"}
+        </button>
+      </form>
+    </div>
   );
 };
 

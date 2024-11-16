@@ -16,8 +16,8 @@ const Header = () => {
         <div className="dropdown">
           <Link to="/despesa">Despesa</Link>
           <div className="dropdown-content">
-            <Link to="/despesa">Criar Despesa</Link>
-            <Link to="/listar-despesas">Listar Despesas</Link>
+            <Link to="/despesa">Despesa</Link>
+            <Link to="/tipos-despesa">Tipos de Despesa</Link>
           </div>
         </div>
       </nav>

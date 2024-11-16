@@ -1,109 +1,109 @@
-// frontend/src/pages/ListarDespesa.js
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const ListarDespesa = () => {
-  const [despesas, setDespesas] = useState([]);
-  const [tiposDespesa, setTiposDespesa] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [despesas, setDespesas] = useState([]); // Estado inicial como array vazio
+  const [filtro, setFiltro] = useState("");
 
   useEffect(() => {
+    const fetchDespesas = async () => {
+      try {
+        const response = await axios.get("http://localhost:8800/despesa");
+        console.log("Resposta da API para despesas:", response.data); // Log da resposta
+
+        // Ajuste para acessar o array correto
+        if (response.data && Array.isArray(response.data.rows)) {
+          setDespesas(response.data.rows);
+        } else {
+          console.error("Resposta da API não é um array:", response.data);
+          setDespesas([]);
+          toast.error("Erro ao buscar despesas.");
+        }
+      } catch (err) {
+        console.error("Erro ao buscar despesas:", err);
+        toast.error("Erro ao buscar despesas");
+        setDespesas([]);
+      }
+    };
+
     fetchDespesas();
-    fetchTiposDespesa();
   }, []);
 
-  const fetchDespesas = async () => {
-    setLoading(true);
+  const handleDelete = async (idDespesa) => {
+    if (!window.confirm("Tem certeza que deseja deletar esta despesa?")) return;
+
     try {
-      const response = await axios.get("http://localhost:8800/despesa");
-      console.log("Despesas:", response.data); // Log para depuração
-      setDespesas(Array.isArray(response.data) ? response.data : []);
+      await axios.delete(`http://localhost:8800/despesa/${idDespesa}`);
+      toast.success("Despesa deletada com sucesso!");
+      setDespesas((prevDespesas) =>
+        prevDespesas.filter((despesa) => despesa.idDespesa !== idDespesa)
+      );
     } catch (err) {
-      console.error(err);
-      toast.error("Erro ao buscar despesas");
-    }
-    setLoading(false);
-  };
-
-  const fetchTiposDespesa = async () => {
-    try {
-      // **Use o endpoint correto aqui**
-      const response = await axios.get("http://localhost:8800/tipos-despesa");
-      console.log("Tipos de Despesa:", response.data); // Log para depuração
-      setTiposDespesa(Array.isArray(response.data) ? response.data : []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao buscar tipos de despesa");
+      console.error("Erro ao deletar despesa:", err);
+      toast.error("Erro ao deletar despesa.");
     }
   };
 
-  const handleEditar = (idDespesa) => {
-    navigate(`/editarDespesa/${idDespesa}`);
+  const handleFilterChange = (e) => {
+    setFiltro(e.target.value);
   };
 
-  const handleDeletar = async (idDespesa) => {
-    if (window.confirm("Tem certeza que deseja deletar esta despesa?")) {
-      try {
-        await axios.delete(`http://localhost:8800/despesa/${idDespesa}`);
-        toast.success("Despesa deletada com sucesso!");
-        fetchDespesas();
-      } catch (err) {
-        console.error(err);
-        toast.error("Erro ao deletar despesa");
-      }
-    }
-  };
+  const despesasFiltradas = despesas.filter((despesa) =>
+    despesa.descricao.toLowerCase().includes(filtro.toLowerCase())
+  );
 
   return (
     <div>
       <h2>Listar Despesas</h2>
-      {loading ? (
-        <p>Carregando...</p>
-      ) : (
-        <table border="1" cellPadding="10" cellSpacing="0">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome da Despesa</th>
-              <th>Tipo</th>
-              <th>Valor</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(despesas) && despesas.length > 0 ? (
-              despesas.map((despesa) => {
-                const tipo = tiposDespesa.find(
-                  (t) => t.idTipo === despesa.tipoDespesa_id
-                );
-                return (
-                  <tr key={despesa.idDespesa}>
-                    <td>{despesa.idDespesa}</td>
-                    <td>{despesa.nome_despesa}</td>
-                    <td>{tipo ? tipo.nome_tipo : "Desconhecido"}</td>
-                    <td>{despesa.valor.toFixed(2)}</td>
-                    <td>
-                      <button onClick={() => handleEditar(despesa.idDespesa)}>
-                        Editar
-                      </button>
-                      <button onClick={() => handleDeletar(despesa.idDespesa)}>
-                        Deletar
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="5">Nenhuma despesa encontrada.</td>
+      <input
+        type="text"
+        placeholder="Pesquisar por nome"
+        value={filtro}
+        onChange={handleFilterChange}
+      />
+      <Link to="/cadastrarDespesa">
+        <button>Cadastrar Nova Despesa</button>
+      </Link>
+      <table border="1">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome da Despesa</th>
+            <th>Tipo de Despesa</th>
+            <th>Valor</th>
+            <th>Data</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {despesasFiltradas.length > 0 ? (
+            despesasFiltradas.map((despesa) => (
+              <tr key={despesa.idDespesa}>
+                <td>{despesa.idDespesa}</td>
+                <td>{despesa.descricao}</td>
+                <td>{despesa.Tipo_idTipo}</td>{" "}
+                {/* Idealmente, exibir o nome do tipo */}
+                <td>{despesa.valor}</td>
+                <td>{despesa.dt_despesa}</td>
+                <td>
+                  <Link to={`/editarDespesa/${despesa.idDespesa}`}>
+                    <button>Editar</button>
+                  </Link>
+                  <button onClick={() => handleDelete(despesa.idDespesa)}>
+                    Deletar
+                  </button>
+                </td>
               </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6">Nenhuma despesa encontrada.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
