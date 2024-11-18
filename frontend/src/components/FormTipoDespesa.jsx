@@ -1,5 +1,5 @@
 // frontend/src/components/FormTipoDespesa.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 

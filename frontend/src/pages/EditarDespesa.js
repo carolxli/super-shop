@@ -1,4 +1,3 @@
-// frontend/src/pages/EditarDespesa.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -9,14 +8,17 @@ const EditarDespesa = () => {
   const navigate = useNavigate();
 
   const [despesa, setDespesa] = useState({
-    nome_despesa: "",
-    tipoDespesa_id: "",
+    descricao: "",
+    Tipo_idTipo: "",
     valor: "",
-    data_despesa: "",
+    dt_despesa: "",
+    dt_vencimento: "",
+    metodo_pgmto: "",
+    status: "",
   });
 
   const [tiposDespesa, setTiposDespesa] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchDespesa = async () => {
@@ -25,16 +27,17 @@ const EditarDespesa = () => {
           `http://localhost:8800/despesa/${idDespesa}`
         );
         setDespesa({
-          nome_despesa: response.data.descricao, // Mapeamento correto
-          tipoDespesa_id: response.data.Tipo_idTipo,
-          valor: response.data.valor,
-          data_despesa: response.data.dt_despesa,
+          descricao: response.data.descricao || "",
+          Tipo_idTipo: response.data.Tipo_idTipo || "",
+          valor: response.data.valor || "",
+          dt_despesa: response.data.dt_despesa || "",
+          dt_vencimento: response.data.dt_vencimento || "",
+          metodo_pgmto: response.data.metodo_pgmto || "",
+          status: response.data.status || "",
         });
-        setLoading(false);
       } catch (err) {
-        console.error("Erro ao buscar a despesa:", err);
-        toast.error("Erro ao buscar a despesa.");
-        setLoading(false);
+        console.error("Erro ao buscar despesa:", err);
+        toast.error("Erro ao carregar os dados da despesa.");
       }
     };
 
@@ -60,48 +63,30 @@ const EditarDespesa = () => {
     }));
   };
 
-  const validateForm = () => {
-    if (!despesa.nome_despesa.trim()) {
-      toast.error("O nome da despesa é obrigatório.");
-      return false;
-    }
-    if (!despesa.tipoDespesa_id) {
-      toast.error("Selecione um tipo de despesa.");
-      return false;
-    }
-    if (!despesa.valor || isNaN(despesa.valor) || Number(despesa.valor) <= 0) {
-      toast.error("Insira um valor válido e maior que zero.");
-      return false;
-    }
-    if (!despesa.data_despesa) {
-      toast.error("Insira a data da despesa.");
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
-
-    console.log("Enviando dados atualizados para o backend:", despesa); // Log para depuração
+    if (
+      !despesa.descricao ||
+      !despesa.Tipo_idTipo ||
+      !despesa.valor ||
+      !despesa.dt_despesa ||
+      !despesa.metodo_pgmto ||
+      !despesa.status
+    ) {
+      toast.error("Todos os campos são obrigatórios.");
+      return;
+    }
 
     try {
-      const response = await axios.put(
-        `http://localhost:8800/despesa/${idDespesa}`,
-        despesa
-      );
-      console.log("Resposta do servidor:", response.data); // Log para depuração
+      await axios.put(`http://localhost:8800/despesa/${idDespesa}`, despesa);
       toast.success("Despesa atualizada com sucesso!");
-      navigate("/despesa"); // Navega para a rota correta
+      navigate("/despesa");
     } catch (err) {
       console.error("Erro ao atualizar despesa:", err);
-      if (err.response && err.response.data && err.response.data.error) {
-        toast.error(`Erro: ${err.response.data.error}`);
-      } else {
-        toast.error("Erro ao atualizar despesa.");
-      }
+      toast.error(
+        "Erro ao atualizar despesa. Verifique os dados e tente novamente."
+      );
     }
   };
 
@@ -113,34 +98,37 @@ const EditarDespesa = () => {
     <div>
       <h2>Editar Despesa</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nome da Despesa:</label>
+        <label>
+          Descrição:
           <input
             type="text"
-            name="nome_despesa"
-            value={despesa.nome_despesa}
+            name="descricao"
+            value={despesa.descricao}
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
-          <label>Tipo de Despesa:</label>
-          <select
-            name="tipoDespesa_id"
-            value={despesa.tipoDespesa_id}
+        </label>
+        <label>
+          Data da Despesa:
+          <input
+            type="date"
+            name="dt_despesa"
+            value={despesa.dt_despesa}
             onChange={handleChange}
             required
-          >
-            <option value="">Selecione um tipo</option>
-            {tiposDespesa.map((tipo) => (
-              <option key={tipo.idTipo} value={tipo.idTipo}>
-                {tipo.nome_tipo}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label>Valor:</label>
+          />
+        </label>
+        <label>
+          Data de Vencimento:
+          <input
+            type="date"
+            name="dt_vencimento"
+            value={despesa.dt_vencimento}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Valor:
           <input
             type="number"
             name="valor"
@@ -150,17 +138,53 @@ const EditarDespesa = () => {
             step="0.01"
             min="0.01"
           />
-        </div>
-        <div>
-          <label>Data da Despesa:</label>
-          <input
-            type="date"
-            name="data_despesa"
-            value={despesa.data_despesa}
+        </label>
+        <label>
+          Método de Pagamento:
+          <select
+            name="metodo_pgmto"
+            value={despesa.metodo_pgmto}
             onChange={handleChange}
             required
-          />
-        </div>
+          >
+            <option value="">Selecione o método</option>
+            <option value="Cartão">Cartão</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Pix">Pix</option>
+            <option value="Cartão de Crédito">Cartão de Crédito</option>
+            <option value="Boleto">Boleto</option>
+          </select>
+        </label>
+        <label>
+          Status:
+          <select
+            name="status"
+            value={despesa.status}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Selecione o status</option>
+            <option value="Pago">Pago</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </label>
+        <label>
+          Tipo de Despesa:
+          <select
+            name="Tipo_idTipo"
+            value={despesa.Tipo_idTipo}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Selecione o tipo</option>
+            {tiposDespesa.map((tipo) => (
+              <option key={tipo.idTipo} value={tipo.idTipo}>
+                {tipo.nome_tipo}
+              </option>
+            ))}
+          </select>
+        </label>
         <button type="submit">Atualizar</button>
       </form>
     </div>

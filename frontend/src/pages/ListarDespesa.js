@@ -11,35 +11,31 @@ const ListarDespesa = () => {
     const fetchDespesas = async () => {
       try {
         const response = await axios.get("http://localhost:8800/despesa");
-        console.log("Resposta da API para despesas:", response.data); // Log da resposta
+        console.log("Resposta da API para despesas:", response.data);
 
-        // Ajuste para acessar o array correto
-        if (response.data && Array.isArray(response.data.rows)) {
-          setDespesas(response.data.rows);
+        // Confirme que a resposta é um array antes de definir o estado
+        if (Array.isArray(response.data)) {
+          setDespesas(response.data);
         } else {
           console.error("Resposta da API não é um array:", response.data);
-          setDespesas([]);
-          toast.error("Erro ao buscar despesas.");
+          toast.error("Erro ao buscar despesas: formato inesperado.");
         }
       } catch (err) {
         console.error("Erro ao buscar despesas:", err);
-        toast.error("Erro ao buscar despesas");
-        setDespesas([]);
+        toast.error("Erro ao buscar despesas.");
       }
     };
 
     fetchDespesas();
   }, []);
 
-  const handleDelete = async (idDespesa) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Tem certeza que deseja deletar esta despesa?")) return;
 
     try {
-      await axios.delete(`http://localhost:8800/despesa/${idDespesa}`);
+      await axios.delete(`http://localhost:8800/despesa/${id}`);
       toast.success("Despesa deletada com sucesso!");
-      setDespesas((prevDespesas) =>
-        prevDespesas.filter((despesa) => despesa.idDespesa !== idDespesa)
-      );
+      setDespesas(despesas.filter((despesa) => despesa.idDespesa !== id));
     } catch (err) {
       console.error("Erro ao deletar despesa:", err);
       toast.error("Erro ao deletar despesa.");
@@ -59,7 +55,7 @@ const ListarDespesa = () => {
       <h2>Listar Despesas</h2>
       <input
         type="text"
-        placeholder="Pesquisar por nome"
+        placeholder="Pesquisar por descrição"
         value={filtro}
         onChange={handleFilterChange}
       />
@@ -70,8 +66,8 @@ const ListarDespesa = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nome da Despesa</th>
-            <th>Tipo de Despesa</th>
+            <th>Descrição</th>
+            <th>Tipo</th>
             <th>Valor</th>
             <th>Data</th>
             <th>Ações</th>
@@ -83,8 +79,7 @@ const ListarDespesa = () => {
               <tr key={despesa.idDespesa}>
                 <td>{despesa.idDespesa}</td>
                 <td>{despesa.descricao}</td>
-                <td>{despesa.Tipo_idTipo}</td>{" "}
-                {/* Idealmente, exibir o nome do tipo */}
+                <td>{despesa.Tipo_idTipo}</td>
                 <td>{despesa.valor}</td>
                 <td>{despesa.dt_despesa}</td>
                 <td>

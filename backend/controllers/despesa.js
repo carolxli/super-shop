@@ -29,16 +29,18 @@ export const getDespesaById = async (req, res) => {
   const idDespesa = req.params.idDespesa;
   const q = `
     SELECT 
-      d.*, 
-      td.nome_tipo 
+      "idDespesa", 
+      "descricao", 
+      "Tipo_idTipo", 
+      "valor", 
+      "dt_despesa", 
+      "dt_vencimento", 
+      "metodo_pgmto", 
+      "status"
     FROM 
-      "SuperShop"."Despesa" d
-    LEFT JOIN 
-      "SuperShop"."TipoDespesa" td 
-    ON 
-      d."Tipo_idTipo" = td."idTipo"
+      "SuperShop"."Despesa"
     WHERE 
-      d."idDespesa" = $1
+      "idDespesa" = $1
   `;
 
   db.query(q, [idDespesa], (err, data) => {
@@ -49,7 +51,7 @@ export const getDespesaById = async (req, res) => {
     if (data.rows.length === 0) {
       return res.status(404).json({ error: "Despesa não encontrada." });
     }
-    return res.status(200).json(data.rows[0]); // Retorna a despesa específica
+    return res.status(200).json(data.rows[0]);
   });
 };
 
@@ -65,46 +67,59 @@ export const postDespesa = (req, res) => {
     status,
   } = req.body;
 
+  console.log("Dados recebidos no backend:", req.body); // Log para depuração
+
   // Validações básicas
-  if (!descricao || !Tipo_idTipo || !valor || !dt_despesa) {
-    return res
-      .status(400)
-      .json({ error: "Campos obrigatórios estão faltando." });
+  if (
+    !descricao ||
+    !Tipo_idTipo ||
+    !valor ||
+    !dt_despesa ||
+    !metodo_pgmto ||
+    !status
+  ) {
+    console.error("Erro: Campos obrigatórios faltando.");
+    return res.status(400).json({ error: "Todos os campos são obrigatórios." });
   }
 
+  // Validações adicionais
+  if (isNaN(Tipo_idTipo) || isNaN(valor)) {
+    console.error("Erro: Tipo_idTipo e valor devem ser números.");
+    return res
+      .status(400)
+      .json({ error: "Tipo_idTipo e valor devem ser números." });
+  }
+
+  // Inserção no banco de dados
   const q = `
     INSERT INTO "SuperShop"."Despesa" 
-    (
-      "descricao", 
-      "Tipo_idTipo", 
-      "valor", 
-      "dt_despesa", 
-      "dt_vencimento", 
-      "metodo_pgmto", 
-      "status"
-    )
-    VALUES 
-    ($1, $2, $3, $4, $5, $6, $7)
+    ("descricao", "Tipo_idTipo", "valor", "dt_despesa", "dt_vencimento", "metodo_pgmto", "status")
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *
   `;
   const values = [
     descricao,
     Tipo_idTipo,
-    valor,
+    parseFloat(valor), // Garantir que valor seja float
     dt_despesa,
-    dt_vencimento,
+    dt_vencimento || null, // Permitir nulo para dt_vencimento
     metodo_pgmto,
-    status || "Ativo",
+    status,
   ];
 
   db.query(q, values, (err, data) => {
     if (err) {
-      console.error("Erro ao inserir despesa:", err);
+      console.error("Erro ao inserir despesa:", err); // Log detalhado do erro
+      if (err.code === "23503") {
+        return res.status(400).json({
+          error: "Tipo_idTipo não encontrado. Verifique se o ID é válido.",
+        });
+      }
       return res.status(500).json({ error: "Erro ao inserir despesa." });
     }
-    return res
-      .status(201)
-      .json({ message: "Despesa criada com sucesso!", despesa: data.rows[0] });
+
+    console.log("Despesa criada com sucesso:", data.rows[0]); // Log de sucesso
+    return res.status(201).json(data.rows[0]);
   });
 };
 
@@ -128,22 +143,22 @@ export const updateDespesa = (req, res) => {
   }
 
   const q = `
-    UPDATE "SuperShop"."Despesa"
-    SET 
-      "descricao" = $1, 
-      "Tipo_idTipo" = $2, 
-      "valor" = $3, 
-      "dt_despesa" = $4,
-      "dt_vencimento" = $5,
-      "metodo_pgmto" = $6,
-      "status" = $7
-    WHERE 
-      "idDespesa" = $8
-    RETURNING *
-  `;
+  UPDATE "SuperShop"."Despesa"
+  SET 
+    "descricao" = $1, 
+    "Tipo_idTipo" = $2, 
+    "valor" = $3, 
+    "dt_despesa" = $4,
+    "dt_vencimento" = $5,
+    "metodo_pgmto" = $6,
+    "status" = $7
+  WHERE 
+    "idDespesa" = $8
+  RETURNING *
+`;
   const values = [
-    descricao,
-    Tipo_idTipo,
+    descricao, // Nome da despesa
+    Tipo_idTipo, // Chave estrangeira corrigida
     valor,
     dt_despesa,
     dt_vencimento,
@@ -160,12 +175,10 @@ export const updateDespesa = (req, res) => {
     if (data.rows.length === 0) {
       return res.status(404).json({ error: "Despesa não encontrada." });
     }
-    return res
-      .status(200)
-      .json({
-        message: "Despesa atualizada com sucesso!",
-        despesa: data.rows[0],
-      });
+    return res.status(200).json({
+      message: "Despesa atualizada com sucesso!",
+      despesa: data.rows[0],
+    });
   });
 };
 
@@ -187,11 +200,9 @@ export const deleteDespesa = (req, res) => {
     if (data.rows.length === 0) {
       return res.status(404).json({ error: "Despesa não encontrada." });
     }
-    return res
-      .status(200)
-      .json({
-        message: "Despesa deletada com sucesso!",
-        despesa: data.rows[0],
-      });
+    return res.status(200).json({
+      message: "Despesa deletada com sucesso!",
+      despesa: data.rows[0],
+    });
   });
 };

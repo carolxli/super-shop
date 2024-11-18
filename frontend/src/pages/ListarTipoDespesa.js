@@ -2,11 +2,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ListarTipoDespesa = () => {
   const [tiposDespesa, setTiposDespesa] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTiposDespesa = async () => {
