@@ -1,75 +1,69 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import styled from "styled-components";
-
-const LoginContainer = styled.div`
-  /* Estilização da tela */
-`;
-
-const LoginForm = styled.form`
-  /* Estilização do formulário */
-`;
-
-const LoginInput = styled.input`
-  /* Estilização dos inputs */
-`;
-
-const LoginButton = styled.button`
-  /* Estilização do botão */
-`;
-
-const ErrorMessage = styled.p`
-  color: red;
-  font-size: 14px;
-`;
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [login, setLogin] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login: updateAuth } = useAuth(); // Atualiza o contexto de autenticação
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     try {
       const response = await axios.post("http://localhost:8800/usuario/login", {
         login,
         senha,
       });
-  
-      const { token, nome } = response.data;  // Aqui, 'nome' é o login do usuário
+
+      const { token, nome, cargo } = response.data;
+
+      // Armazena os dados no localStorage
       localStorage.setItem("token", token);
-      localStorage.setItem("nome", nome);  // Salva o login como nome
-      navigate("/"); // Redireciona para a página Home
+      localStorage.setItem("nome", nome);
+      localStorage.setItem("cargo", cargo);
+
+      updateAuth(); // Atualiza o contexto de autenticação
+      navigate("/"); // Redireciona para a página inicial
     } catch (error) {
       setError("Credenciais incorretas.");
     }
-  };  
+  };
 
   return (
-    <LoginContainer>
+    <div style={{ maxWidth: "400px", margin: "50px auto", textAlign: "center" }}>
       <h2>Login</h2>
-      <LoginForm onSubmit={handleSubmit}>
-        <LoginInput
-          type="text"
-          placeholder="Login"
-          value={login}
-          onChange={(e) => setLogin(e.target.value)}
-          required
-        />
-        <LoginInput
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          required
-        />
-        <LoginButton type="submit">Entrar</LoginButton>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-      </LoginForm>
-    </LoginContainer>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Login:
+          <input
+            type="text"
+            placeholder="Digite seu login"
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Senha:
+          <input
+            type="password"
+            placeholder="Digite sua senha"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            required
+          />
+        </label>
+        <button type="submit">Entrar</button>
+        {error && (
+          <p style={{ color: "red", fontSize: "14px", marginTop: "10px" }}>
+            {error}
+          </p>
+        )}
+      </form>
+    </div>
   );
 };
 

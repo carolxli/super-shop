@@ -2,24 +2,31 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Header = () => {
+  const cargo = localStorage.getItem("cargo"); // Recupera o cargo do localStorage
+
   return (
     <header>
       <nav>
         <Link to="/">Home</Link>
-        <div className="dropdown">
-          <Link to="/pessoa">Pessoa</Link>
-          <div className="dropdown-content">
-            <Link to="/fornecedor">Fornecedor</Link>
-          </div>
-        </div>
-        <Link to="/produto">Produto</Link>
-        <div className="dropdown">
-          <Link to="/despesa">Despesa</Link>
-          <div className="dropdown-content">
-            <Link to="/despesa">Despesa</Link>
-            <Link to="/tipos-despesa">Tipos de Despesa</Link>
-          </div>
-        </div>
+        {cargo === "admin" && (
+          <>
+            <div className="dropdown">
+              <Link to="/pessoa">Pessoa</Link>
+              <div className="dropdown-content">
+                <Link to="/fornecedor">Fornecedor</Link>
+              </div>
+            </div>
+            <div className="dropdown">
+              <Link to="/despesa">Despesa</Link>
+              <div className="dropdown-content">
+                <Link to="/tipos-despesa">Tipos de Despesa</Link>
+              </div>
+            </div>
+          </>
+        )}
+        {cargo === "admin" || cargo === "vendedor" ? (
+          <Link to="/produto">Produto</Link>
+        ) : null}
       </nav>
     </header>
   );

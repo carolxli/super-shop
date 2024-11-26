@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const WelcomeMessage = styled.div`
   position: fixed;
@@ -37,28 +38,30 @@ const Home = () => {
     const navigate = useNavigate();
   
     useEffect(() => {
-      // Recupera o nome (login) do usuário do localStorage
       const nomeUsuario = localStorage.getItem("nome");
+      const cargoUsuario = localStorage.getItem("cargo");
+    
       if (nomeUsuario) {
         setNome(nomeUsuario);
         setShowWelcome(true);
-  
-        // Depois de 4 segundos, faz a mensagem desaparecer
+    
         setTimeout(() => {
           setShowWelcome(false);
         }, 4000);
       }
+    
+      console.log("Cargo do usuário:", cargoUsuario); // Opcional para depuração
     }, []);
-
-    const handleLogoff = () => {
-        // Remove o token e o nome do localStorage
+    
+      const { logout } = useAuth();
+    
+      const handleLogoff = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("nome");
-    
-        // Redireciona para a página de login
-        navigate("/login");
+        localStorage.removeItem("cargo");
+        logout(); // Atualiza o contexto de autenticação
       };
-  
+    
     return (
       <div>
         <WelcomeMessage show={showWelcome}>
@@ -66,7 +69,7 @@ const Home = () => {
         </WelcomeMessage>
         <h4>Sistema em construção!</h4>
 
-        <LogoffButton onClick={handleLogoff}>Sair</LogoffButton>
+        <button onClick={handleLogoff}>Sair</button>
       </div>
     );
 

@@ -21,18 +21,26 @@ import CadastrarTipoDespesa from "./pages/CadastrarTipoDespesa.js";
 import EditarTipoDespesa from "./pages/EditarTipoDespesa.js";
 import Login from "./pages/Login.js";
 import PrivateRoute from "./utils/PrivateRoute.js"; // Importa o componente de rota privada
-import { ToastContainer } from "react-toastify"; // Importa o ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Importa o CSS do react-toastify
+import { useAuth } from "./context/AuthContext"; // Importa o contexto de autenticação
+
 
 const App = () => {
+  const { isAuthenticated } = useAuth(); // Verifica se o usuário está autenticado
+
   return (
     <Router>
-      <GlobalStyle />
-      <Header />
-      <ToastContainer /> {/* Adiciona o ToastContainer */}
+      {isAuthenticated && <Header />} {/* Exibe o Header apenas se autenticado */}
       <Routes>
-        {/* Rota pública para Login */}
         <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Home />
+            </PrivateRoute>
+          }
+        />
 
         {/* Rotas protegidas */}
         <Route
