@@ -203,6 +203,7 @@ const FormFornecedor = () => {
                         name="prazo_entrega"
                         value={fornecedor.prazo_entrega}
                         onChange={handleChange}
+                        min="0" 
                         required
                     />
                 </label>

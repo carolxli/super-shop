@@ -70,6 +70,7 @@ const GlobalStyle = createGlobalStyle`
     input[type="number"],
     input[type="email"],
     input[type="date"],
+    input[type="password"],
     textarea,
     select {
         width: 100%;
@@ -90,7 +91,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     select {
-         width: calc(110% - 0px);
+         width: calc(104% - 0px);
     }
 
     input[type="text"]:focus,

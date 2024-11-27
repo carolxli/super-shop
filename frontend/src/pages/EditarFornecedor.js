@@ -14,7 +14,7 @@ const EditarFornecedor = () => {
         prazo_entrega: '',
         dt_inicio_fornecimento: '',
         observacao: '',
-        Pessoa_idPessoa: '',
+        Pessoa_idPessoa: '', 
         marcas: []
     });
     const [nomePessoa, setNomePessoa] = useState('');
@@ -48,7 +48,7 @@ const EditarFornecedor = () => {
                     }
 
                     setFornecedor(fornecedorData);
-                    setNomePessoa(fornecedorData.pessoa_nome || '');
+                    setNomePessoa(fornecedorData.pessoa_nome || ''); // Preenche o nome da pessoa
                 }
             } catch (err) {
                 console.error("Erro ao carregar dados:", err);
@@ -98,9 +98,9 @@ const EditarFornecedor = () => {
             }
         }
     };
+
     const handleCnpjChange = (e) => {
         const cnpj = e.target.value.replace(/[^\d]/g, ''); 
-
         setFornecedor((prevFornecedor) => ({
             ...prevFornecedor,
             cnpj
@@ -122,6 +122,7 @@ const EditarFornecedor = () => {
     const handleNomePessoaChange = async (e) => {
         const nome = e.target.value;
         setNomePessoa(nome);
+
         if (nome.length >= 2) {
             try {
                 const response = await axios.get(`http://localhost:8800/Pessoa?nome=${nome}`);
@@ -136,10 +137,10 @@ const EditarFornecedor = () => {
     };
 
     const handlePessoaSelect = (pessoa) => {
-        setNomePessoa(pessoa.nome);
+        setNomePessoa(pessoa.nome); 
         setFornecedor({
             ...fornecedor,
-            Pessoa_idPessoa: pessoa.idPessoa
+            Pessoa_idPessoa: pessoa.idPessoa 
         });
         setAutocompleteVisible(false);
     };
@@ -149,7 +150,13 @@ const EditarFornecedor = () => {
         const confirmUpdate = window.confirm("Você tem certeza que deseja atualizar este fornecedor?");
         if (!confirmUpdate) return;
 
+        if (!fornecedor.Pessoa_idPessoa) {
+            alert('O campo Pessoa é obrigatório.');
+            return;
+        }
+
         try {
+            console.log(fornecedor); // Verifique se o idPessoa está correto no objeto fornecedor
             await axios.put(`http://localhost:8800/Fornecedor/${idFornecedor}`, fornecedor);
             alert('Fornecedor atualizado com sucesso!');
             navigate('/listar-fornecedores');
@@ -234,6 +241,7 @@ const EditarFornecedor = () => {
                         Nome da Pessoa
                         <input
                             type="text"
+                            name="pessoaNome"
                             value={nomePessoa || ''}
                             onChange={handleNomePessoaChange}
                             required

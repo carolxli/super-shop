@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const WelcomeMessage = styled.div`
@@ -17,12 +16,12 @@ const WelcomeMessage = styled.div`
 
 const LogoffButton = styled.button`
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #f44336;
+  bottom: 2px;
+  right: 2px;
+  background-color: #87CEEB;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 5px 5px;
   font-size: 1rem;
   cursor: pointer;
   border-radius: 5px;
@@ -35,7 +34,6 @@ const LogoffButton = styled.button`
 const Home = () => {
     const [nome, setNome] = useState("");
     const [showWelcome, setShowWelcome] = useState(false);
-    const navigate = useNavigate();
   
     useEffect(() => {
       const nomeUsuario = localStorage.getItem("nome");
@@ -50,7 +48,7 @@ const Home = () => {
         }, 4000);
       }
     
-      console.log("Cargo do usuário:", cargoUsuario); // Opcional para depuração
+      console.log("Cargo do usuário:", cargoUsuario); 
     }, []);
     
       const { logout } = useAuth();
@@ -59,7 +57,7 @@ const Home = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("nome");
         localStorage.removeItem("cargo");
-        logout(); // Atualiza o contexto de autenticação
+        logout();
       };
     
     return (
@@ -69,7 +67,7 @@ const Home = () => {
         </WelcomeMessage>
         <h4>Sistema em construção!</h4>
 
-        <button onClick={handleLogoff}>Sair</button>
+        <LogoffButton onClick={handleLogoff}>Sair</LogoffButton>
       </div>
     );
 

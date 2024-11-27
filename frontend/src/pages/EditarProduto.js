@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { NumericFormat } from "react-number-format";
 
 const EditarProduto = () => {
     const { idProduto } = useParams();
@@ -17,37 +18,128 @@ const EditarProduto = () => {
         Marca_idMarca: '',
         Categoria_idCategoria: ''
     });
+    const [fornecedores, setFornecedores] = useState([]);
+    const [fornecedorNome, setFornecedorNome] = useState('');
+    const [autocompleteVisible, setAutocompleteVisible] = useState(false);
+    const [marcas, setMarcas] = useState([]);
+    const [categorias, setCategorias] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
+    // Função para buscar o produto
     useEffect(() => {
         const fetchProduto = async () => {
             try {
                 const response = await axios.get(`http://localhost:8800/Produto/${idProduto}`);
                 setProduto(response.data);
+
+                if (response.data.Fornecedor_idFornecedor) {
+                    const fornecedorResponse = await axios.get(
+                        `http://localhost:8800/Fornecedor/id/${response.data.Fornecedor_idFornecedor}`
+                    );
+                    setFornecedorNome(fornecedorResponse.data.razao_social);
+                }
+
                 setLoading(false);
             } catch (error) {
                 console.error("Erro ao buscar produto:", error);
                 setLoading(false);
             }
         };
+
         fetchProduto();
-    }, [idProduto]);
+    }, [idProduto]);  // Agora o useEffect depende apenas de idProduto
+
+    // Função para buscar marcas
+    useEffect(() => {
+        if (!produto.Fornecedor_idFornecedor) return;
+        const fetchMarcas = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8800/marca/${produto.Fornecedor_idFornecedor}`);
+                setMarcas(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar marcas:", error);
+            }
+        };
+
+        fetchMarcas();
+    }, [produto.Fornecedor_idFornecedor]); 
+
+   
+    useEffect(() => {
+        const fetchCategorias = async () => {
+            try {
+                const response = await axios.get('http://localhost:8800/categoria');
+                setCategorias(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar categorias:", error);
+            }
+        };
+
+        fetchCategorias();
+    }, []);
+
+    
+    useEffect(() => {
+        const fetchFornecedores = async () => {
+            try {
+                const response = await axios.get('http://localhost:8800/Fornecedor');
+                setFornecedores(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar fornecedores:", error);
+            }
+        };
+
+        fetchFornecedores();
+    }, []);
 
     const handleChange = (e) => {
-        setProduto({ ...produto, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setProduto({
+            ...produto,
+            [name]: value,
+        });
+    };
+
+    const handleFornecedorChange = async (e) => {
+        const razao_social = e.target.value;
+        setFornecedorNome(razao_social);
+
+        if (razao_social.length >= 2) {
+            try {
+                const response = await axios.get(`http://localhost:8800/Fornecedor/${razao_social}`);
+                setFornecedores(response.data);
+                setAutocompleteVisible(true);
+            } catch (error) {
+                console.error("Erro ao buscar fornecedores:", error);
+            }
+        } else {
+            setAutocompleteVisible(false);
+        }
+    };
+
+    const handleFornecedorSelect = (fornecedor) => {
+        setFornecedorNome(fornecedor.razao_social);
+        setProduto({
+            ...produto, 
+            Fornecedor_idFornecedor: fornecedor.idFornecedor,
+            Fornecedor_Pessoa_idPessoa: fornecedor.Pessoa_idPessoa,
+        });
+        setAutocompleteVisible(false); 
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (window.confirm("Tem certeza que deseja atualizar este produto?")) {
-            try {
-                await axios.put(`http://localhost:8800/Produto/${idProduto}`, produto);
-                alert("Produto atualizado com sucesso!");
-                navigate("/listar-produtos");
-            } catch (error) {
-                console.error("Erro ao atualizar produto:", error);
-            }
+        const confirmUpdate = window.confirm("Você tem certeza que deseja atualizar este produto?");
+        if (!confirmUpdate) return;
+
+        try {
+            await axios.put(`http://localhost:8800/Produto/${idProduto}`, produto);
+            alert('Produto atualizado com sucesso!');
+            navigate('/listar-produtos');
+        } catch (err) {
+            console.error("Erro ao atualizar produto:", err);
+            alert('Erro ao atualizar produto');
         }
     };
 
@@ -59,48 +151,140 @@ const EditarProduto = () => {
             <form onSubmit={handleSubmit}>
                 <label>
                     SKU:
-                    <input type="text" name="sku" value={produto.sku} onChange={handleChange} />
+                    <input type="text" name="sku" value={produto.sku} onChange={handleChange} required />
                 </label>
+
                 <label>
                     Descrição:
-                    <input type="text" name="descricao" value={produto.descricao} onChange={handleChange} />
+                    <input
+                        type="text"
+                        name="descricao"
+                        value={produto.descricao}
+                        onChange={handleChange}
+                        required
+                        style={{ width: '100%' }}
+                    />
                 </label>
+
                 <label>
-                    Valor de Custo:
-                    <input type="number" name="valor_custo" value={produto.valor_custo} onChange={handleChange} />
+                    Valor Custo:
+                    <NumericFormat
+                        name="valor_custo"
+                        value={produto.valor_custo}
+                        onValueChange={(values) => setProduto({ ...produto, valor_custo: values.value })}
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        prefix="R$ "
+                        allowNegative={false}
+                        required
+                    />
                 </label>
+
                 <label>
-                    Valor de Venda:
-                    <input type="number" name="valor_venda" value={produto.valor_venda} onChange={handleChange} />
+                    Valor Venda:
+                    <NumericFormat
+                        name="valor_venda"
+                        value={produto.valor_venda}
+                        onValueChange={(values) => setProduto({ ...produto, valor_venda: values.value })}
+                        thousandSeparator="."
+                        decimalSeparator=","
+                        prefix="R$ "
+                        allowNegative={false}
+                        required
+                    />
                 </label>
+
                 <label>
                     Estoque Mínimo:
-                    <input type="number" name="estoque_min" value={produto.estoque_min} onChange={handleChange} />
+                    <input
+                        type="number"
+                        name="estoque_min"
+                        value={produto.estoque_min}
+                        onChange={handleChange}
+                        required
+                        min="0"
+                    />
                 </label>
+
                 <label>
                     Estoque Atual:
-                    <input type="number" name="estoque_atual" value={produto.estoque_atual} onChange={handleChange} />
+                    <input
+                        type="number"
+                        name="estoque_atual"
+                        value={produto.estoque_atual}
+                        onChange={handleChange}
+                        required
+                        min="0"
+                        disabled="true"
+                    />
                 </label>
+
                 <label>
                     Status:
-                    <input type="text" name="status" value={produto.status} onChange={handleChange} />
+                    <select name="status" value={produto.status} onChange={handleChange} className="select-campo" required >
+                        <option value="">Selecione</option>
+                        <option value="disponivel">Disponível</option>
+                        <option value="indisponivel">Indisponível</option>
+                    </select>
                 </label>
+
                 <label>
-                    Fornecedor ID:
-                    <input type="text" name="Fornecedor_idFornecedor" value={produto.Fornecedor_idFornecedor} onChange={handleChange} />
+                    Fornecedor:
+                    <input
+                        type="text"
+                        name="fornecedorNome"
+                        value={fornecedorNome || ''}
+                        onChange={handleFornecedorChange}
+                        required
+                    />
+                    {autocompleteVisible && (
+                        <ul className="autocomplete-list">
+                            {fornecedores.map((fornecedor) => (
+                                <li
+                                    key={fornecedor.idFornecedor}
+                                    onClick={() => handleFornecedorSelect(fornecedor)}
+                                >
+                                    {fornecedor.razao_social}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </label>
+
                 <label>
-                    Fornecedor Pessoa ID:
-                    <input type="text" name="Fornecedor_Pessoa_idPessoa" value={produto.Fornecedor_Pessoa_idPessoa} onChange={handleChange} />
+                    Marca:
+                    <select
+                        name="Marca_idMarca"
+                        value={produto.Marca_idMarca}
+                        onChange={handleChange}
+                        required className="select-campo"
+                    >
+                        <option value="">Selecione uma marca</option>
+                        {marcas.map((marca) => (
+                            <option key={marca.idMarca} value={marca.idMarca}>
+                                {marca.nome}
+                            </option>
+                        ))}
+                    </select>
                 </label>
+
                 <label>
-                    Marca ID:
-                    <input type="text" name="Marca_idMarca" value={produto.Marca_idMarca} onChange={handleChange} />
+                    Categoria:
+                    <select
+                        name="Categoria_idCategoria"
+                        value={produto.Categoria_idCategoria}
+                        onChange={handleChange}
+                        required className="select-campo"
+                    >
+                        <option value="">Selecione uma categoria</option>
+                        {categorias.map((categoria) => (
+                            <option key={categoria.idCategoria} value={categoria.idCategoria}>
+                                {categoria.nome}
+                            </option>
+                        ))}
+                    </select>
                 </label>
-                <label>
-                    Categoria ID:
-                    <input type="text" name="Categoria_idCategoria" value={produto.Categoria_idCategoria} onChange={handleChange} />
-                </label>
+
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginLeft: '315px' }}>
                     <button type="submit">Editar</button>
                     <a href='/listar-produtos'>

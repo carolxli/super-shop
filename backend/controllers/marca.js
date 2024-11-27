@@ -1,6 +1,28 @@
 import { db } from "../db.js";
 
-export const getMarca = async (_, res) => {
+export const getMarca = async (req, res) => {
+    const { idFornecedor } = req.params;
+
+    const q = `
+        SELECT * 
+        FROM "SuperShop"."Marca"
+        WHERE "idMarca" IN (
+            SELECT UNNEST("marcas_fornecedor")
+            FROM "SuperShop"."Fornecedor"
+            WHERE "idFornecedor" = $1
+        )
+    `;
+
+    db.query(q, [idFornecedor], (err, data) => {
+        if (err) {
+            console.error("Erro ao buscar marcas:", err);
+            return res.status(500).json(err);
+        }
+        return res.status(200).json(data.rows);
+    });
+};
+
+export const getMarcaFornecedor = async (_, res) => {
 
     const q = `SELECT * FROM "SuperShop"."Marca"`;
     db.query(q, (err, data) => {
@@ -11,6 +33,7 @@ export const getMarca = async (_, res) => {
         return res.status(200).json(data.rows);
     });
 };
+
 
 export const getMarcaById = async (_, res) => {
 

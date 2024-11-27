@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { NumericFormat } from 'react-number-format';
 
@@ -18,15 +18,17 @@ const FormProduto = () => {
     });
 
     const [fornecedores, setFornecedores] = useState([]);
-    const [fornecedorNome, setFornecedorNome] = useState(''); // Nome do fornecedor para a busca
-    const [autocompleteVisible, setAutocompleteVisible] = useState(false); // Controla a visibilidade do autocomplete
+    const [fornecedorNome, setFornecedorNome] = useState('');
+    const [autocompleteVisible, setAutocompleteVisible] = useState(false);
     const [marcas, setMarcas] = useState([]);
     const [categorias, setCategorias] = useState([]);
 
     useEffect(() => {
         const fetchMarcas = async () => {
+            if (!produto.Fornecedor_idFornecedor) return;
+
             try {
-                const response = await axios.get('http://localhost:8800/marca');
+                const response = await axios.get(`http://localhost:8800/marca/${produto.Fornecedor_idFornecedor}`);
                 setMarcas(response.data);
             } catch (error) {
                 console.error("Erro ao buscar marcas:", error);
@@ -34,7 +36,8 @@ const FormProduto = () => {
         };
 
         fetchMarcas();
-    }, []);
+    }, [produto.Fornecedor_idFornecedor]);
+
 
     useEffect(() => {
         const fetchCategorias = async () => {
@@ -49,10 +52,22 @@ const FormProduto = () => {
         fetchCategorias();
     }, []);
 
-    // Função para tratar mudanças no campo do fornecedor (busca com autocomplete)
     const handleFornecedorChange = async (e) => {
         const razao_social = e.target.value;
         setFornecedorNome(razao_social);
+
+        if (razao_social.trim() === "") {
+
+            setProduto({
+                ...produto,
+                Fornecedor_idFornecedor: "",
+                Fornecedor_Pessoa_idPessoa: "",
+                Marca_idMarca: "",
+            });
+            setMarcas([]);
+            setAutocompleteVisible(false);
+            return;
+        }
 
         if (razao_social.length >= 2) {
             try {
@@ -67,16 +82,17 @@ const FormProduto = () => {
         }
     };
 
+
     const handleFornecedorSelect = (fornecedor) => {
         setFornecedorNome(fornecedor.razao_social);
         setProduto({
             ...produto,
-            Fornecedor_idFornecedor: fornecedor.idFornecedor, 
-            Fornecedor_Pessoa_idPessoa: fornecedor.Pessoa_idPessoa, // Armazena o ID da pessoa associada
+            Fornecedor_idFornecedor: fornecedor.idFornecedor,
+            Fornecedor_Pessoa_idPessoa: fornecedor.Pessoa_idPessoa,
         });
         setAutocompleteVisible(false);
     };
-    
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -91,6 +107,8 @@ const FormProduto = () => {
         try {
             const response = await axios.post('http://localhost:8800/produto', produto);
             alert(response.data);
+
+            // Resetando os estados após salvar
             setProduto({
                 sku: '',
                 descricao: '',
@@ -100,14 +118,18 @@ const FormProduto = () => {
                 estoque_atual: '',
                 status: '',
                 Fornecedor_idFornecedor: '',
+                Fornecedor_Pessoa_idPessoa: '',
                 Marca_idMarca: '',
-                Categoria_idCategoria: ''
+                Categoria_idCategoria: '',
             });
+            setFornecedorNome('');
+            setMarcas([]);
         } catch (error) {
             console.error("Erro ao cadastrar produto:", error);
             alert("Erro ao cadastrar produto");
         }
     };
+
 
     return (
         <>
@@ -120,13 +142,13 @@ const FormProduto = () => {
 
                 <label style={{ display: 'block' }}>
                     Descrição:
-                    <input 
-                        type="text" 
-                        name="descricao" 
-                        value={produto.descricao} 
-                        onChange={handleChange} 
-                        required 
-                        style={{ width: '100%', whiteSpace: 'nowrap' }} 
+                    <input
+                        type="text"
+                        name="descricao"
+                        value={produto.descricao}
+                        onChange={handleChange}
+                        required
+                        style={{ width: '100%', whiteSpace: 'nowrap' }}
                     />
                 </label>
 
@@ -160,25 +182,25 @@ const FormProduto = () => {
 
                 <label>
                     Estoque Mínimo:
-                    <input 
-                        type="number" 
-                        name="estoque_min" 
-                        value={produto.estoque_min} 
-                        onChange={handleChange} 
-                        required 
-                        min="0" 
+                    <input
+                        type="number"
+                        name="estoque_min"
+                        value={produto.estoque_min}
+                        onChange={handleChange}
+                        required
+                        min="0"
                     />
                 </label>
 
                 <label>
                     Estoque Atual:
-                    <input 
-                        type="number" 
-                        name="estoque_atual" 
-                        value={produto.estoque_atual} 
-                        onChange={handleChange} 
-                        required 
-                        min="0" 
+                    <input
+                        type="number"
+                        name="estoque_atual"
+                        value={produto.estoque_atual}
+                        onChange={handleChange}
+                        required
+                        min="0"
                     />
                 </label>
 
@@ -218,7 +240,7 @@ const FormProduto = () => {
                     Marca:
                     <select
                         name="Marca_idMarca"
-                        value={fornecedores.Marca_idMarca}
+                        value={produto.Marca_idMarca}
                         onChange={handleChange}>
                         <option value="">Selecione uma marca</option>
                         {marcas.map((marca) => (
@@ -228,7 +250,6 @@ const FormProduto = () => {
                         ))}
                     </select>
                 </label>
-
 
                 <label>
                     Categoria:
