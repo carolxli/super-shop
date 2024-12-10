@@ -13,7 +13,9 @@ const Header = () => {
             <div className="dropdown">
               <Link to="/pessoa">Pessoa</Link>
               <div className="dropdown-content">
+                <Link to="/cliente">Cliente</Link>
                 <Link to="/fornecedor">Fornecedor</Link>
+                <Link to="/usuario">Usuário</Link>
               </div>
             </div>
             <div className="dropdown">
@@ -25,15 +27,7 @@ const Header = () => {
           </>
         )}
         {cargo === "admin" || cargo === "vendedor" ? (
-          <div className="dropdown">
-            <Link to="/produto">Produto</Link>
-            <div className="dropdown-content">
-              <Link to="/categoria">Cadastro de Categorias</Link>
-            </div>
-            <div className="dropdown-content">
-              <Link to="/marca">Cadastro de Marcas</Link>
-            </div>
-          </div>
+          <Link to="/produto">Produto</Link>
         ) : null}
       </nav>
     </header>
