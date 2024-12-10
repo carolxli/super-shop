@@ -18,11 +18,16 @@ import EditarDespesa from "./pages/EditarDespesa.js";
 import ListarTipoDespesa from "./pages/ListarTipoDespesa.js";
 import CadastrarTipoDespesa from "./pages/CadastrarTipoDespesa.js";
 import EditarTipoDespesa from "./pages/EditarTipoDespesa.js";
+import Categoria from "./pages/categoria.js"; // Nova página
+import ListarCategorias from "./pages/ListarCategorias.js"; // Nova página
+import EditarCategoria from "./pages/EditarCategoria.js"; // Nova página
+import Marca from "./pages/marca.js"; // Nova página
+import ListarMarcas from "./pages/ListarMarcas.js"; // Nova página
+import EditarMarca from "./pages/EditarMarca.js"; // Nova página
 import Login from "./pages/Login.js";
 import PrivateRoute from "./utils/PrivateRoute.js";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./context/AuthContext";
-
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -30,7 +35,6 @@ const App = () => {
   return (
     <>
       <Router>
-
         {isAuthenticated && <Header />}
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -42,15 +46,7 @@ const App = () => {
               </PrivateRoute>
             }
           />
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Home />
-              </PrivateRoute>
-            }
-          />
-
+          {/* Rotas de Fornecedor */}
           <Route
             path="/fornecedor"
             element={
@@ -76,6 +72,7 @@ const App = () => {
             }
           />
 
+          {/* Rotas de Pessoa */}
           <Route
             path="/pessoa"
             element={
@@ -100,6 +97,8 @@ const App = () => {
               </PrivateRoute>
             }
           />
+
+          {/* Rotas de Produto */}
           <Route
             path="/produto"
             element={
@@ -125,6 +124,7 @@ const App = () => {
             }
           />
 
+          {/* Rotas de Despesa */}
           <Route
             path="/despesa"
             element={
@@ -150,6 +150,7 @@ const App = () => {
             }
           />
 
+          {/* Rotas de Tipos de Despesa */}
           <Route
             path="/tipos-despesa"
             element={
@@ -171,6 +172,56 @@ const App = () => {
             element={
               <PrivateRoute>
                 <EditarTipoDespesa />
+              </PrivateRoute>
+            }
+          />
+
+          {/* Rotas de Categoria */}
+          <Route
+            path="/listar-categorias"
+            element={
+              <PrivateRoute>
+                <ListarCategorias />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/categoria"
+            element={
+              <PrivateRoute>
+                <Categoria />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/editarCategoria/:idCategoria"
+            element={
+              <PrivateRoute>
+                <EditarCategoria />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/listar-marcas"
+            element={
+              <PrivateRoute>
+                <ListarMarcas />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/marca"
+            element={
+              <PrivateRoute>
+                <Marca />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/editarMarca/:idMarca"
+            element={
+              <PrivateRoute>
+                <EditarMarca />
               </PrivateRoute>
             }
           />

@@ -25,7 +25,15 @@ const Header = () => {
           </>
         )}
         {cargo === "admin" || cargo === "vendedor" ? (
-          <Link to="/produto">Produto</Link>
+          <div className="dropdown">
+            <Link to="/produto">Produto</Link>
+            <div className="dropdown-content">
+              <Link to="/categoria">Cadastro de Categorias</Link>
+            </div>
+            <div className="dropdown-content">
+              <Link to="/marca">Cadastro de Marcas</Link>
+            </div>
+          </div>
         ) : null}
       </nav>
     </header>
