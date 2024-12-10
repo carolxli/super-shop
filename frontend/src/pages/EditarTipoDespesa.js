@@ -1,4 +1,3 @@
-// frontend/src/pages/CadastrarTipoDespesa.js
 import React from "react";
 import FormTipoDespesa from "../components/FormTipoDespesa.jsx";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +6,7 @@ const CadastrarTipoDespesa = () => {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
-    navigate("/tipos-despesa"); // Redireciona para a lista de tipos de despesa após o sucesso
+    navigate("/tipos-despesa"); 
   };
 
   return (

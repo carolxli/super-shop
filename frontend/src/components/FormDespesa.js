@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const FormDespesa = ({ idDespesa }) => {
+  const navigate = useNavigate();
   const [despesa, setDespesa] = useState({
     dt_despesa: "",
     dt_vencimento: "",
@@ -81,6 +83,7 @@ const FormDespesa = ({ idDespesa }) => {
       } else {
         await axios.post("http://localhost:8800/despesa", despesa);
         toast.success("Despesa cadastrada com sucesso!");
+        navigate("/despesa");
       }
     } catch (err) {
       console.error("Erro ao salvar despesa:", err);

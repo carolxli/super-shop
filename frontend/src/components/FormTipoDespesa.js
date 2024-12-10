@@ -1,13 +1,34 @@
-// frontend/src/components/FormTipoDespesa.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useParams, useNavigate } from "react-router-dom";
 
-const FormTipoDespesa = ({ initialData = {}, onSuccess }) => {
+const FormTipoDespesa = () => {
+  const { idTipo } = useParams();
+  const navigate = useNavigate();
+
   const [tipoDespesa, setTipoDespesa] = useState({
-    nome_tipo: initialData.nome_tipo || "",
-    descricao_tipo: initialData.descricao_tipo || "",
+    nome_tipo: "",
+    descricao_tipo: "",
   });
+
+  useEffect(() => {
+    if (idTipo) {
+      const fetchTipoDespesa = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8800/tipos-despesa/${idTipo}`
+          );
+          setTipoDespesa(response.data);
+        } catch (err) {
+          console.error("Erro ao carregar tipo de despesa:", err);
+          toast.error("Erro ao carregar tipo de despesa.");
+        }
+      };
+
+      fetchTipoDespesa();
+    }
+  }, [idTipo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,40 +52,29 @@ const FormTipoDespesa = ({ initialData = {}, onSuccess }) => {
     if (!validateForm()) return;
 
     try {
-      let response;
-      if (initialData.idTipo) {
-        // Atualizar tipo de despesa existente
-        response = await axios.put(
-          `http://localhost:8800/tipos-despesa/${initialData.idTipo}`,
+      if (idTipo) {
+        await axios.put(
+          `http://localhost:8800/tipos-despesa/${idTipo}`,
           tipoDespesa
         );
         toast.success("Tipo de despesa atualizado com sucesso!");
       } else {
-        // Criar novo tipo de despesa
-        response = await axios.post("http://localhost:8800/tipos-despesa", tipoDespesa);
+        await axios.post("http://localhost:8800/tipos-despesa", tipoDespesa);
         toast.success("Tipo de despesa criado com sucesso!");
+        navigate("/listarTipoDespesa");
       }
-      console.log("Resposta do servidor:", response.data); // Log para depuração
-      setTipoDespesa({
-        nome_tipo: "",
-        descricao_tipo: "",
-      });
-      if (onSuccess) onSuccess();
+
+      // Redireciona para a listagem após sucesso
+      navigate("/listarTipoDespesa");
     } catch (err) {
-      console.error("Erro ao cadastrar/atualizar tipo de despesa:", err);
-      if (err.response && err.response.data && err.response.data.error) {
-        toast.error(`Erro: ${err.response.data.error}`);
-      } else {
-        toast.error("Erro ao cadastrar/atualizar tipo de despesa.");
-      }
+      console.error("Erro ao salvar tipo de despesa:", err);
+      toast.error("Erro ao salvar tipo de despesa.");
     }
   };
 
   return (
     <div>
-      <h2>
-        {initialData.idTipo ? "Editar Tipo de Despesa" : "Cadastrar Novo Tipo de Despesa"}
-      </h2>
+      <h2>{idTipo ? "Editar Tipo de Despesa" : "Cadastrar Novo Tipo de Despesa"}</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Nome do Tipo:</label>
@@ -85,7 +95,7 @@ const FormTipoDespesa = ({ initialData = {}, onSuccess }) => {
           ></textarea>
         </div>
         <button type="submit">
-          {initialData.idTipo ? "Atualizar" : "Cadastrar"}
+          {idTipo ? "Atualizar" : "Cadastrar"}
         </button>
       </form>
     </div>

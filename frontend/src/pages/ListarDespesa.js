@@ -4,8 +4,13 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
 const ListarDespesa = () => {
-  const [despesas, setDespesas] = useState([]); // Estado inicial como array vazio
-  const [filtro, setFiltro] = useState("");
+  const [despesas, setDespesas] = useState([]);
+  const [filtroDescricao, setFiltroDescricao] = useState("");
+  const [filtroPeriodo, setFiltroPeriodo] = useState({
+    inicio: "",
+    fim: "",
+  });
+  const [filtroStatus, setFiltroStatus] = useState("");
 
   useEffect(() => {
     const fetchDespesas = async () => {
@@ -13,7 +18,6 @@ const ListarDespesa = () => {
         const response = await axios.get("http://localhost:8800/despesa");
         console.log("Resposta da API para despesas:", response.data);
 
-        // Confirme que a resposta é um array antes de definir o estado
         if (Array.isArray(response.data)) {
           setDespesas(response.data);
         } else {
@@ -29,7 +33,12 @@ const ListarDespesa = () => {
     fetchDespesas();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, status) => {
+    if (status === "Pago") {
+      toast.error("Não é possível excluir uma despesa já paga.");
+      return;
+    }
+
     if (!window.confirm("Tem certeza que deseja deletar esta despesa?")) return;
 
     try {
@@ -42,34 +51,129 @@ const ListarDespesa = () => {
     }
   };
 
-  const handleFilterChange = (e) => {
-    setFiltro(e.target.value);
+  const handleFilterDescricao = (e) => {
+    setFiltroDescricao(e.target.value);
   };
 
-  const despesasFiltradas = despesas.filter((despesa) =>
-    despesa.descricao.toLowerCase().includes(filtro.toLowerCase())
-  );
+  const handleFilterPeriodo = (e) => {
+    const { name, value } = e.target;
+    setFiltroPeriodo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFilterStatus = (e) => {
+    setFiltroStatus(e.target.value);
+  };
+
+  const despesasFiltradas = despesas.filter((despesa) => {
+    const matchDescricao = despesa.descricao
+      .toLowerCase()
+      .includes(filtroDescricao.toLowerCase());
+    const matchPeriodo =
+      (!filtroPeriodo.inicio ||
+        new Date(despesa.dt_despesa) >= new Date(filtroPeriodo.inicio)) &&
+      (!filtroPeriodo.fim ||
+        new Date(despesa.dt_despesa) <= new Date(filtroPeriodo.fim));
+    const matchStatus =
+      !filtroStatus ||
+      despesa.status.toLowerCase() === filtroStatus.toLowerCase();
+
+    return matchDescricao && matchPeriodo && matchStatus;
+  });
 
   return (
     <div>
       <h2>Listar Despesas</h2>
-      <input
-        type="text"
-        placeholder="Pesquisar por descrição"
-        value={filtro}
-        onChange={handleFilterChange}
-      />
-      <Link to="/cadastrarDespesa">
-        <button>Cadastrar Nova Despesa</button>
-      </Link>
-      <table border="1">
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "20px",
+          marginBottom: "20px",
+          padding: "10px",
+          backgroundColor: "#f9f9f9",
+          borderRadius: "8px",
+          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <input
+          type="text"
+          placeholder="Pesquisar por descrição"
+          value={filtroDescricao}
+          onChange={handleFilterDescricao}
+          style={{
+            padding: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+            flex: "1",
+          }}
+        />
+        <input
+          type="date"
+          name="inicio"
+          placeholder="Data inicial"
+          value={filtroPeriodo.inicio}
+          onChange={handleFilterPeriodo}
+          style={{
+            padding: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+          }}
+        />
+        <input
+          type="date"
+          name="fim"
+          placeholder="Data final"
+          value={filtroPeriodo.fim}
+          onChange={handleFilterPeriodo}
+          style={{
+            padding: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+          }}
+        />
+        <select
+          value={filtroStatus}
+          onChange={handleFilterStatus}
+          style={{
+            padding: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+            flex: "1",
+          }}
+        >
+          <option value="">Filtrar por status</option>
+          <option value="Pago">Pago</option>
+          <option value="Pendente">Pendente</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+        <Link to="/cadastrarDespesa">
+          <button
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#87CEEB",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              transition: "background-color 0.3s",
+            }}
+          >
+            Cadastrar Nova Despesa
+          </button>
+        </Link>
+      </div>
+      <table border="1" style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
             <th>ID</th>
             <th>Descrição</th>
-            <th>Tipo</th>
+            <th>Tipo de Despesa</th>
             <th>Valor</th>
             <th>Data</th>
+            <th>Status</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -79,14 +183,48 @@ const ListarDespesa = () => {
               <tr key={despesa.idDespesa}>
                 <td>{despesa.idDespesa}</td>
                 <td>{despesa.descricao}</td>
-                <td>{despesa.Tipo_idTipo}</td>
+                <td>{despesa.nome_tipo || "N/A"}</td>
                 <td>{despesa.valor}</td>
-                <td>{despesa.dt_despesa}</td>
+                <td>{new Date(despesa.dt_despesa).toLocaleDateString()}</td>
+                <td>{despesa.status}</td>
                 <td>
-                  <Link to={`/editarDespesa/${despesa.idDespesa}`}>
-                    <button>Editar</button>
+                  <Link
+                    to={`/editarDespesa/${despesa.idDespesa}`}
+                    state={{ status: despesa.status }}
+                  >
+                    <button
+                      style={{
+                        padding: "6px 12px",
+                        marginRight: "5px",
+                        backgroundColor:
+                          despesa.status === "Pago" ? "#ccc" : "#87CEEB",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor:
+                          despesa.status === "Pago" ? "not-allowed" : "pointer",
+                      }}
+                      disabled={despesa.status === "Pago"}
+                    >
+                      Editar
+                    </button>
                   </Link>
-                  <button onClick={() => handleDelete(despesa.idDespesa)}>
+                  <button
+                    onClick={() =>
+                      handleDelete(despesa.idDespesa, despesa.status)
+                    }
+                    style={{
+                      padding: "6px 12px",
+                      backgroundColor:
+                        despesa.status === "Pago" ? "#ccc" : "#FF6347",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor:
+                        despesa.status === "Pago" ? "not-allowed" : "pointer",
+                    }}
+                    disabled={despesa.status === "Pago"}
+                  >
                     Deletar
                   </button>
                 </td>
@@ -94,7 +232,7 @@ const ListarDespesa = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="6">Nenhuma despesa encontrada.</td>
+              <td colSpan="7">Nenhuma despesa encontrada.</td>
             </tr>
           )}
         </tbody>

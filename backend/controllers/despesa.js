@@ -1,7 +1,5 @@
-// backend/controllers/despesa.js
 import { db } from "../db.js";
 
-// Obtém todas as despesas
 export const getDespesa = async (_, res) => {
   const q = `
     SELECT 
@@ -24,7 +22,6 @@ export const getDespesa = async (_, res) => {
   });
 };
 
-// Obtém uma despesa específica pelo ID com o nome do tipo de despesa
 export const getDespesaById = async (req, res) => {
   const idDespesa = req.params.idDespesa;
   const q = `
@@ -55,7 +52,6 @@ export const getDespesaById = async (req, res) => {
   });
 };
 
-// Adiciona uma nova despesa
 export const postDespesa = (req, res) => {
   const {
     descricao,
@@ -67,9 +63,8 @@ export const postDespesa = (req, res) => {
     status,
   } = req.body;
 
-  console.log("Dados recebidos no backend:", req.body); // Log para depuração
+  console.log("Dados recebidos no backend:", req.body); 
 
-  // Validações básicas
   if (
     !descricao ||
     !Tipo_idTipo ||
@@ -82,7 +77,6 @@ export const postDespesa = (req, res) => {
     return res.status(400).json({ error: "Todos os campos são obrigatórios." });
   }
 
-  // Validações adicionais
   if (isNaN(Tipo_idTipo) || isNaN(valor)) {
     console.error("Erro: Tipo_idTipo e valor devem ser números.");
     return res
@@ -90,7 +84,6 @@ export const postDespesa = (req, res) => {
       .json({ error: "Tipo_idTipo e valor devem ser números." });
   }
 
-  // Inserção no banco de dados
   const q = `
     INSERT INTO "SuperShop"."Despesa" 
     ("descricao", "Tipo_idTipo", "valor", "dt_despesa", "dt_vencimento", "metodo_pgmto", "status")
@@ -100,16 +93,15 @@ export const postDespesa = (req, res) => {
   const values = [
     descricao,
     Tipo_idTipo,
-    parseFloat(valor), // Garantir que valor seja float
+    parseFloat(valor), 
     dt_despesa,
-    dt_vencimento || null, // Permitir nulo para dt_vencimento
-    metodo_pgmto,
+    dt_vencimento || null, 
     status,
   ];
 
   db.query(q, values, (err, data) => {
     if (err) {
-      console.error("Erro ao inserir despesa:", err); // Log detalhado do erro
+      console.error("Erro ao inserir despesa:", err); 
       if (err.code === "23503") {
         return res.status(400).json({
           error: "Tipo_idTipo não encontrado. Verifique se o ID é válido.",
@@ -118,12 +110,11 @@ export const postDespesa = (req, res) => {
       return res.status(500).json({ error: "Erro ao inserir despesa." });
     }
 
-    console.log("Despesa criada com sucesso:", data.rows[0]); // Log de sucesso
+    console.log("Despesa criada com sucesso:", data.rows[0]);
     return res.status(201).json(data.rows[0]);
   });
 };
 
-// Atualiza uma despesa existente
 export const updateDespesa = (req, res) => {
   const { idDespesa } = req.params;
   const {
@@ -157,8 +148,8 @@ export const updateDespesa = (req, res) => {
   RETURNING *
 `;
   const values = [
-    descricao, // Nome da despesa
-    Tipo_idTipo, // Chave estrangeira corrigida
+    descricao, 
+    Tipo_idTipo, 
     valor,
     dt_despesa,
     dt_vencimento,
@@ -182,7 +173,6 @@ export const updateDespesa = (req, res) => {
   });
 };
 
-// Deleta uma despesa
 export const deleteDespesa = (req, res) => {
   const idDespesa = req.params.idDespesa;
 

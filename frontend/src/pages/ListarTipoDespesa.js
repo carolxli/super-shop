@@ -1,4 +1,3 @@
-// frontend/src/pages/ListarTipoDespesa.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -11,7 +10,7 @@ const ListarTipoDespesa = () => {
     const fetchTiposDespesa = async () => {
       try {
         const response = await axios.get("http://localhost:8800/tipos-despesa");
-        console.log("Resposta da API para tipos de despesa:", response.data); // Log da resposta
+        console.log("Resposta da API para tipos de despesa:", response.data);
         setTiposDespesa(response.data);
       } catch (err) {
         console.error("Erro ao buscar tipos de despesa:", err);

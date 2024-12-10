@@ -18,7 +18,12 @@ const EditarDespesa = () => {
   });
 
   const [tiposDespesa, setTiposDespesa] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    return dateString.split("T")[0]; 
+  };
 
   useEffect(() => {
     const fetchDespesa = async () => {
@@ -30,8 +35,8 @@ const EditarDespesa = () => {
           descricao: response.data.descricao || "",
           Tipo_idTipo: response.data.Tipo_idTipo || "",
           valor: response.data.valor || "",
-          dt_despesa: response.data.dt_despesa || "",
-          dt_vencimento: response.data.dt_vencimento || "",
+          dt_despesa: formatDate(response.data.dt_despesa) || "",
+          dt_vencimento: formatDate(response.data.dt_vencimento) || "",
           metodo_pgmto: response.data.metodo_pgmto || "",
           status: response.data.status || "",
         });
