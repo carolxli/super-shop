@@ -53,7 +53,7 @@ const ListarCategorias = () => {
 
     return (
         <>
-            <div>
+            <div style={{ width: "25%", margin: "0 auto" }}>
                 <h2>Lista de Categorias</h2>
 
                 <table>
@@ -65,7 +65,7 @@ const ListarCategorias = () => {
                                     placeholder="Pesquisar por nome"
                                     value={nomeFiltro}
                                     onChange={handleFilterChange}
-                                    style={{ width: "15%" }}
+                                    style={{ width: "50%" }}
                                 />
                             </th>
                         </tr>

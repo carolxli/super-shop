@@ -36,32 +36,34 @@ const FormCategoria = () => {
 
     return (
         <>
-            <h3>Cadastrar Categoria</h3>
-            <form onSubmit={handleSubmit}>
-                <label>
-                    Nome da Categoria
-                    <input
-                        type="text"
-                        name="nome"
-                        value={formData.nome}
-                        onChange={handleChange}
-                        required
-                    />
-                </label>
+            <h3 style={{marginLeft: "35%", marginTop: "8%" }}>Cadastrar Categoria</h3>
+            <div style={{ width: "100%", display: 'flex' }}>
+                <form onSubmit={handleSubmit}>
+                    <label>
+                        Nome da Categoria
+                        <input
+                            type="text"
+                            name="nome"
+                            value={formData.nome}
+                            onChange={handleChange}
+                            required
+                        />
+                    </label>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
-                    <button type="submit">Cadastrar</button>
-                    <a href="/">
-                        <button type="button">Cancelar</button>
+                    <div>
+                        <button type="submit">Cadastrar</button>
+                        <a href="/">
+                            <button type="button" >Cancelar</button>
+                        </a>
+                    </div>
+                </form>
+                </div>
+                <div style={{ width: "17%", display: 'flex', marginLeft: "35%" }}>
+                    <a href="/listar-categorias">
+                        <button>Listar Categorias Cadastradas</button>
                     </a>
                 </div>
-            </form>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
-                <a href="/listar-categorias">
-                    <button>Listar Categorias Cadastradas</button>
-                </a>
-            </div>
+            
         </>
     );
 };

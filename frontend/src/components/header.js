@@ -32,6 +32,7 @@ const Header = () => {
           <div className="dropdown-content">
             <Link to="/categoria">Categorias</Link>
             <Link to="/marca">Marcas</Link>
+            <Link to="/comissao">Comissão</Link>
           </div>
         </div>
         ) : null}

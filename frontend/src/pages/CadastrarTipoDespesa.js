@@ -1,5 +1,5 @@
 import React from "react";
-import FormTipoDespesa from "../components/FormTipoDespesa.jsx";
+import FormTipoDespesa from "../components/FormTipoDespesa.js";
 import { useNavigate } from "react-router-dom";
 
 const CadastrarTipoDespesa = () => {

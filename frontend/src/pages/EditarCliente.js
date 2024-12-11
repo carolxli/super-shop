@@ -158,7 +158,7 @@ const EditarCliente = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '50px', marginLeft: '330px' }}>
                     <button type="submit">Atualizar</button>
-                    <a href="/">
+                    <a href="/listar-clientes">
                         <button type="button">Cancelar</button>
                     </a>
                 </div>

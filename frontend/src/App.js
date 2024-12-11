@@ -21,16 +21,21 @@ import EditarDespesa from "./pages/EditarDespesa.js";
 import ListarTipoDespesa from "./pages/ListarTipoDespesa.js";
 import CadastrarTipoDespesa from "./pages/CadastrarTipoDespesa.js";
 import EditarTipoDespesa from "./pages/EditarTipoDespesa.js";
-import Categoria from "./pages/categoria.js"; // Nova página
-import ListarCategorias from "./pages/ListarCategorias.js"; // Nova página
-import EditarCategoria from "./pages/EditarCategoria.js"; // Nova página
-import Marca from "./pages/marca.js"; // Nova página
-import ListarMarcas from "./pages/ListarMarcas.js"; // Nova página
-import EditarMarca from "./pages/EditarMarca.js"; // Nova página
+import Categoria from "./pages/categoria.js";
+import ListarCategorias from "./pages/ListarCategorias.js";
+import EditarCategoria from "./pages/EditarCategoria.js";
+import Marca from "./pages/marca.js";
+import ListarMarcas from "./pages/ListarMarcas.js";
+import EditarMarca from "./pages/EditarMarca.js";
 import Login from "./pages/Login.js";
 import PrivateRoute from "./utils/PrivateRoute.js";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./context/AuthContext";
+import ListarComissao from "./pages/ListarComissao.js";
+import Comissao from "./pages/comissao.js";
+import Usuario from "./pages/usuario.js";
+import ListarUsuarios from "./pages/ListarUsuario.js";
+import EditarUsuario from "./pages/EditarUsuario.js";
 
 
 const App = () => {
@@ -106,6 +111,30 @@ const App = () => {
             element={
               <PrivateRoute>
                 <EditarPessoa />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/usuario"
+            element={
+              <PrivateRoute>
+                <Usuario />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/listar-usuarios"
+            element={
+              <PrivateRoute>
+                <ListarUsuarios />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/editarUsuario/:idUsuario"
+            element={
+              <PrivateRoute>
+                <EditarUsuario />
               </PrivateRoute>
             }
           />
@@ -209,7 +238,7 @@ const App = () => {
               </PrivateRoute>
             }
           />
-          {/* Rotas de Categoria */}
+
           <Route
             path="/listar-categorias"
             element={
@@ -234,6 +263,24 @@ const App = () => {
               </PrivateRoute>
             }
           />
+          {/* Comissão */}
+          <Route
+            path="/comissao"
+            element={
+              <PrivateRoute>
+                <ListarComissao />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/cadastrarComissao"
+            element={
+              <PrivateRoute>
+                <Comissao />
+              </PrivateRoute>
+            }
+          />
+
           <Route
             path="/listar-marcas"
             element={
@@ -260,6 +307,7 @@ const App = () => {
           />
         </Routes>
       </Router>
+
       <GlobalStyle />
     </>
   );
