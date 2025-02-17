@@ -1,25 +1,27 @@
-import {db} from "../db.js";
+import { db } from "../db.js";
 
 export const getPessoa = async (req, res) => {
-    const { nome } = req.query;
-    let query = `SELECT * FROM "SuperShop"."Pessoa" ORDER BY "nome" ASC`;
-    let values = [];
+  const { nome } = req.query;
+  let query = `SELECT * FROM "SuperShop"."Pessoa" ORDER BY "nome" ASC`;
+  let values = [];
 
-    if (nome) {
-        query = `SELECT * FROM "SuperShop"."Pessoa" WHERE "nome" ILIKE $1 ORDER BY "nome" ASC`;
-        values = [`%${nome}%`];
-    }
+  if (nome) {
+    query = `SELECT * FROM "SuperShop"."Pessoa" WHERE "nome" ILIKE $1 ORDER BY "nome" ASC`;
+    values = [`%${nome}%`];
+  }
 
-    try {
-        const result = await db.query(query, values);
-        return res.status(200).json(result.rows);
-    } catch (err) {
-        return res.status(500).json({ error: "Erro ao buscar pessoas", details: err });
-    }
+  try {
+    const result = await db.query(query, values);
+    return res.status(200).json(result.rows);
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: "Erro ao buscar pessoas", details: err });
+  }
 };
 
-export const postPessoa = (req,res) =>{
-    const q = `INSERT INTO "SuperShop"."Pessoa" (
+export const postPessoa = (req, res) => {
+  const q = `INSERT INTO "SuperShop"."Pessoa" (
         "email",
         "nome",
         "end_rua",
@@ -34,32 +36,32 @@ export const postPessoa = (req,res) =>{
         "data_nasc"
     ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`;
 
-    const values = [
-        req.body.email,
-        req.body.nome,
-        req.body.end_rua,
-        req.body.end_numero,
-        req.body.end_bairro,
-        req.body.end_complemento,
-        req.body.cidade,
-        req.body.estado,
-        req.body.cep,
-        req.body.telefone_1,
-        req.body.telefone_2,
-        req.body.data_nasc,
-    ];
+  const values = [
+    req.body.email,
+    req.body.nome,
+    req.body.end_rua,
+    req.body.end_numero,
+    req.body.end_bairro,
+    req.body.end_complemento,
+    req.body.cidade,
+    req.body.estado,
+    req.body.cep,
+    req.body.telefone_1,
+    req.body.telefone_2,
+    req.body.data_nasc,
+  ];
 
-    db.query(q,values,(insertErr) => {
-        if(insertErr){
-            console.error("Erro ao inserir Pessoa", insertErr);
-            return res.status(500).json("Erro ao inserir pessoa");
-        }
-        return res.status(200).json("Pessoa inserida com sucesso");
-    });
+  db.query(q, values, (insertErr) => {
+    if (insertErr) {
+      console.error("Erro ao inserir Pessoa", insertErr);
+      return res.status(500).json("Erro ao inserir pessoa");
+    }
+    return res.status(200).json("Pessoa inserida com sucesso");
+  });
 };
 
-export const updatePessoa = (req,res) => {
-    const q = `UPDATE "SuperShop"."Pessoa" SET
+export const updatePessoa = (req, res) => {
+  const q = `UPDATE "SuperShop"."Pessoa" SET
         "email" = $1,
         "nome" = $2,
         "end_rua" = $3,
@@ -74,57 +76,70 @@ export const updatePessoa = (req,res) => {
         "data_nasc" = $12
     WHERE "idPessoa" = $13`;
 
-    const values = [
-        req.body.email,
-        req.body.nome,
-        req.body.end_rua,
-        req.body.end_numero,
-        req.body.end_bairro,
-        req.body.end_complemento,
-        req.body.cidade,
-        req.body.estado,
-        req.body.cep,
-        req.body.telefone_1,
-        req.body.telefone_2,
-        req.body.data_nasc,
-    ];
+  const values = [
+    req.body.email,
+    req.body.nome,
+    req.body.end_rua,
+    req.body.end_numero,
+    req.body.end_bairro,
+    req.body.end_complemento,
+    req.body.cidade,
+    req.body.estado,
+    req.body.cep,
+    req.body.telefone_1,
+    req.body.telefone_2,
+    req.body.data_nasc,
+  ];
 
-    db.query(q,[...values, req.params.idPessoa], (err) => {
-        if (err) {
-            return res.json(err);
-        }
-        return res.status(200).json("Pessoa atualizada com sucesso");
-    });
-}
+  db.query(q, [...values, req.params.idPessoa], (err) => {
+    if (err) {
+      return res.json(err);
+    }
+    return res.status(200).json("Pessoa atualizada com sucesso");
+  });
+};
 
-export const deletePessoa = (req, res) => {
-    const q = `DELETE FROM "SuperShop"."Pessoa" WHERE \"idPessoa\" = $1`;
+export const deletePessoa = async (req, res) => {
+  const checkAdminQuery = `SELECT COUNT(*) FROM "SuperShop"."Pessoa" WHERE "cargo" = 'administrador'`;
+  const deleteQuery = `DELETE FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
 
-    db.query(q, [req.params.idPessoa], (err) => {
-        if (err) {
-            return res.json(err);
-        }
-        return res.status(200).json("Pessoa deletada com sucesso");
-    });
+  try {
+    const result = await db.query(checkAdminQuery);
+    const adminCount = parseInt(result.rows[0].count, 10);
+
+    if (adminCount <= 1) {
+      return res.status(400).json({
+        error:
+          "Não é possível deletar a última pessoa com cargo de administrador",
+      });
+    }
+
+    await db.query(deleteQuery, [req.params.idPessoa]);
+    return res.status(200).json("Pessoa deletada com sucesso");
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: "Erro ao deletar pessoa", details: err });
+  }
 };
 
 export const getPessoaById = (req, res) => {
-    const q = `SELECT * FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
-    db.query(q, [req.params.idPessoa], (err, data) => {
-        if (err) return res.json(err);
-        return res.status(200).json(data.rows[0]);
-    });
+  const q = `SELECT * FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
+  db.query(q, [req.params.idPessoa], (err, data) => {
+    if (err) return res.json(err);
+    return res.status(200).json(data.rows[0]);
+  });
 };
 
 export const getPessoaByNome = async (req, res) => {
-    const nome = req.query.nome || '';
-    const q = `SELECT "idPessoa", "nome" FROM "SuperShop"."Pessoa" WHERE "nome" ILIKE $1 LIMIT 10`;
-    
-    db.query(q, [`%${nome}%`], (err, data) => {
-        if (err) {
-            console.error("Erro ao buscar pessoa:", err);
-            return res.status(500).json(err);
-        }
-        return res.status(200).json(data.rows);
-    });
+  const nome = req.query.nome || "";
+  const q = `SELECT "idPessoa", "nome" FROM "SuperShop"."Pessoa" WHERE "nome" ILIKE $1 LIMIT 10`;
+
+  db.query(q, [`%${nome}%`], (err, data) => {
+    if (err) {
+      console.error("Erro ao buscar pessoa:", err);
+      return res.status(500).json(err);
+    }
+    return res.status(200).json(data.rows);
+  });
 };

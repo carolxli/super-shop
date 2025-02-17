@@ -10,13 +10,16 @@ const FormComissao = () => {
     mes: "",
     ano: "",
     valor: "",
+    descricao: "",
   });
 
   useEffect(() => {
     if (idComissao) {
       const fetchComissao = async () => {
         try {
-          const response = await axios.get(`http://localhost:8800/comissao/${idComissao}`);
+          const response = await axios.get(
+            `http://localhost:8800/comissao/${idComissao}`
+          );
           setComissao(response.data);
         } catch (error) {
           console.error("Erro ao buscar comissão:", error);
@@ -37,7 +40,10 @@ const FormComissao = () => {
 
     try {
       if (idComissao) {
-        await axios.put(`http://localhost:8800/comissao/${idComissao}`, comissao);
+        await axios.put(
+          `http://localhost:8800/comissao/${idComissao}`,
+          comissao
+        );
       } else {
         await axios.post("http://localhost:8800/comissao", comissao);
       }
@@ -51,15 +57,43 @@ const FormComissao = () => {
     <form onSubmit={handleSubmit}>
       <label>
         Mês:
-        <input type="number" name="mes" value={comissao.mes} onChange={handleChange} required />
+        <input
+          type="number"
+          name="mes"
+          value={comissao.mes}
+          onChange={handleChange}
+          required
+        />
       </label>
       <label>
         Ano:
-        <input type="number" name="ano" value={comissao.ano} onChange={handleChange} required />
+        <input
+          type="number"
+          name="ano"
+          value={comissao.ano}
+          onChange={handleChange}
+          required
+        />
       </label>
       <label>
         Valor:
-        <input type="number" name="valor" value={comissao.valor} onChange={handleChange} required />
+        <input
+          type="number"
+          name="valor"
+          value={comissao.valor}
+          onChange={handleChange}
+          required
+        />
+      </label>
+      <label>
+        Valor:
+        <input
+          type="string"
+          name="descricao"
+          value={comissao.descricao}
+          onChange={handleChange}
+          required
+        />
       </label>
       <button type="submit">{idComissao ? "Atualizar" : "Cadastrar"}</button>
     </form>

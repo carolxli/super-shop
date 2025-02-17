@@ -1,5 +1,28 @@
 import { db } from "../db.js";
 
+const validate = (body) => {
+  if (
+    !body.descricao ||
+    !body.Tipo_idTipo ||
+    !body.valor ||
+    !body.dt_despesa ||
+    !body.metodo_pgmto ||
+    !body.status
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const validateUpdate = (body) => {
+  if (!descricao || !Tipo_idTipo || !valor || !dt_despesa) {
+    return false;
+  }
+
+  return true;
+};
+
 export const getDespesa = async (_, res) => {
   const q = `
     SELECT 
@@ -63,16 +86,10 @@ export const postDespesa = (req, res) => {
     status,
   } = req.body;
 
-  console.log("Dados recebidos no backend:", req.body); 
+  console.log("Dados recebidos no backend:", req.body);
 
-  if (
-    !descricao ||
-    !Tipo_idTipo ||
-    !valor ||
-    !dt_despesa ||
-    !metodo_pgmto ||
-    !status
-  ) {
+  // Validação de campos obrigatórios
+  if (!validate(req.body)) {
     console.error("Erro: Campos obrigatórios faltando.");
     return res.status(400).json({ error: "Todos os campos são obrigatórios." });
   }
@@ -90,18 +107,20 @@ export const postDespesa = (req, res) => {
     VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *
   `;
+
   const values = [
     descricao,
     Tipo_idTipo,
-    parseFloat(valor), 
+    parseFloat(valor),
     dt_despesa,
-    dt_vencimento || null, 
+    dt_vencimento || null,
+    metodo_pgmto, // <-- add, estava faltando!
     status,
   ];
 
   db.query(q, values, (err, data) => {
     if (err) {
-      console.error("Erro ao inserir despesa:", err); 
+      console.error("Erro ao inserir despesa:", err);
       if (err.code === "23503") {
         return res.status(400).json({
           error: "Tipo_idTipo não encontrado. Verifique se o ID é válido.",
@@ -127,7 +146,7 @@ export const updateDespesa = (req, res) => {
     status,
   } = req.body;
 
-  if (!descricao || !Tipo_idTipo || !valor || !dt_despesa) {
+  if (!validateUpdate(req.body)) {
     return res
       .status(400)
       .json({ error: "Campos obrigatórios estão faltando." });
@@ -148,8 +167,8 @@ export const updateDespesa = (req, res) => {
   RETURNING *
 `;
   const values = [
-    descricao, 
-    Tipo_idTipo, 
+    descricao,
+    Tipo_idTipo,
     valor,
     dt_despesa,
     dt_vencimento,
