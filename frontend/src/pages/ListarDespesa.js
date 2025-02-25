@@ -11,6 +11,7 @@ const ListarDespesa = () => {
     fim: "",
   });
   const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroValor, setFiltroValor] = useState("");
 
   useEffect(() => {
     const fetchDespesas = async () => {
@@ -67,6 +68,10 @@ const ListarDespesa = () => {
     setFiltroStatus(e.target.value);
   };
 
+  const handleFilterValor = (e) => {
+    setFiltroValor(e.target.value);
+  };
+
   const despesasFiltradas = despesas.filter((despesa) => {
     const matchDescricao = despesa.descricao
       .toLowerCase()
@@ -75,12 +80,14 @@ const ListarDespesa = () => {
       (!filtroPeriodo.inicio ||
         new Date(despesa.dt_despesa) >= new Date(filtroPeriodo.inicio)) &&
       (!filtroPeriodo.fim ||
-        new Date(despesa.dt_despesa) <= new Date(filtroPeriodo.fim));
+        new Date(despesa.dt_despesa) <=
+          new Date(new Date(filtroPeriodo.fim).setHours(23, 59, 59, 999)));
     const matchStatus =
       !filtroStatus ||
       despesa.status.toLowerCase() === filtroStatus.toLowerCase();
+    const matchValor = !filtroValor || despesa.valor <= parseFloat(filtroValor);
 
-    return matchDescricao && matchPeriodo && matchStatus;
+    return matchDescricao && matchPeriodo && matchStatus && matchValor;
   });
 
   return (
@@ -149,6 +156,18 @@ const ListarDespesa = () => {
           <option value="Pendente">Pendente</option>
           <option value="Cancelado">Cancelado</option>
         </select>
+        <input
+          type="number"
+          placeholder="Filtrar por valor máximo"
+          value={filtroValor}
+          onChange={handleFilterValor}
+          style={{
+            padding: "8px",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+            flex: "1",
+          }}
+        />
         <Link to="/cadastrarDespesa">
           <button
             style={{

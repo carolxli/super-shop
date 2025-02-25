@@ -6,12 +6,11 @@ const CadastrarTipoDespesa = () => {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
-    navigate("/tipos-despesa"); 
+    navigate("/tipos-despesa");
   };
 
   return (
     <div>
-      <h2>Cadastrar Novo Tipo de Despesa</h2>
       <FormTipoDespesa onSuccess={handleSuccess} />
     </div>
   );
