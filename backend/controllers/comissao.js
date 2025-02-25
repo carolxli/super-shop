@@ -19,7 +19,30 @@ const validate = (body) => {
 // Obtém todas as comissões
 export const getComissoes = (req, res) => {
   const q = `SELECT * FROM "SuperShop"."Comissao"`;
+
   db.query(q, (err, data) => {
+    if (err) return handleError(err, res, "Erro ao buscar comissões.");
+    return res.status(200).json(data.rows);
+  });
+};
+
+// Obtém todas as comissões de um mês e ano específicos
+export const getComissaoByDate = (req, res) => {
+  const { mes, ano } = req.params;
+  const q = `SELECT * FROM "SuperShop"."Comissao" WHERE "mes" = $1 AND "ano" = $2`;
+
+  db.query(q, [mes, ano], (err, data) => {
+    if (err) return handleError(err, res, "Erro ao buscar comissões.");
+    return res.status(200).json(data.rows);
+  });
+};
+
+// Obtém uma comissão específica pela descrição
+export const getComissaoByDescription = (req, res) => {
+  const { descricao } = req.body;
+  const q = `SELECT * FROM "SuperShop"."Comissao" WHERE LOWER("descricao") = LOWER($1)`;
+
+  db.query(q, [descricao], (err, data) => {
     if (err) return handleError(err, res, "Erro ao buscar comissões.");
     return res.status(200).json(data.rows);
   });

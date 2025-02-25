@@ -1,12 +1,13 @@
-import React from 'react';
-import FormComissao from '../components/FormComissao';
+import React from "react";
+import FormComissao from "../components/FormComissao";
 
 const Comissao = () => {
-    return (
-        <div>
-            <FormComissao />
-        </div>
-    );
+  return (
+    <div>
+      <h2>Cadastrar Nova Comissão</h2>
+      <FormComissao />
+    </div>
+  );
 };
 
 export default Comissao;
