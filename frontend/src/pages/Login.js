@@ -8,7 +8,7 @@ const LoginContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height:50vh;
+  height: 50vh;
   background-color: #f5f5f5;
 `;
 
@@ -27,12 +27,28 @@ const LoginForm = styled.form`
 const LoginInput = styled.input`
   /* Estilização dos inputs */
 `;
+
 const LoginButton = styled.button`
   /* Estilização do botão */
 `;
+
 const ErrorMessage = styled.p`
   color: red;
   font-size: 14px;
+`;
+
+const ChangePasswordLink = styled.button`
+  background: none;
+  border: none;
+  color: #0066cc;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+
+  &:hover {
+    color: #0052a3;
+  }
 `;
 
 const Login = () => {
@@ -63,9 +79,13 @@ const Login = () => {
     }
   };
 
+  const handleChangePassword = () => {
+    navigate("/change-password");
+  };
+
   return (
     <>
-     <h2>Login</h2>
+      <h2>Login</h2>
       <LoginContainer>
         <LoginForm onSubmit={handleSubmit}>
           <LoginInput
@@ -84,6 +104,9 @@ const Login = () => {
           />
           <LoginButton type="submit">Entrar</LoginButton>
           {error && <ErrorMessage>{error}</ErrorMessage>}
+          <ChangePasswordLink type="button" onClick={handleChangePassword}>
+            Esqueceu sua senha?
+          </ChangePasswordLink>
         </LoginForm>
       </LoginContainer>
     </>

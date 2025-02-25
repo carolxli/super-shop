@@ -246,6 +246,16 @@ const GlobalStyle = createGlobalStyle`
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.input-filtro {
+    display: block;
+    width: 300px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
 `;
 
 export default GlobalStyle;

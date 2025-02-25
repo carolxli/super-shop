@@ -71,23 +71,27 @@ const ListarDespesa = () => {
   const handleFilterValor = (e) => {
     setFiltroValor(e.target.value);
   };
-
   const despesasFiltradas = despesas.filter((despesa) => {
     const matchDescricao = despesa.descricao
       .toLowerCase()
       .includes(filtroDescricao.toLowerCase());
-    const matchPeriodo =
-      (!filtroPeriodo.inicio ||
-        new Date(despesa.dt_despesa) >= new Date(filtroPeriodo.inicio)) &&
-      (!filtroPeriodo.fim ||
-        new Date(despesa.dt_despesa) <=
-          new Date(new Date(filtroPeriodo.fim).setHours(23, 59, 59, 999)));
+
+    const expenseDate = new Date(despesa.dt_despesa);
+    const startDate = filtroPeriodo.inicio
+      ? new Date(filtroPeriodo.inicio)
+      : null;
+    const endDate = filtroPeriodo.fim ? new Date(filtroPeriodo.fim) : null;
+    const matchData =
+      (!startDate || expenseDate >= startDate) &&
+      (!endDate || expenseDate <= endDate);
+
     const matchStatus =
       !filtroStatus ||
       despesa.status.toLowerCase() === filtroStatus.toLowerCase();
+
     const matchValor = !filtroValor || despesa.valor <= parseFloat(filtroValor);
 
-    return matchDescricao && matchPeriodo && matchStatus && matchValor;
+    return matchDescricao && matchData && matchStatus && matchValor;
   });
 
   return (

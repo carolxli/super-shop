@@ -36,18 +36,18 @@ import Comissao from "./pages/comissao.js";
 import Usuario from "./pages/usuario.js";
 import ListarUsuarios from "./pages/ListarUsuario.js";
 import EditarUsuario from "./pages/EditarUsuario.js";
-
-
+import ChangePassword from "./components/ChangePassword.jsx";
 const App = () => {
   const { isAuthenticated } = useAuth();
 
   return (
     <>
       <Router>
-
         {isAuthenticated && <Header />}
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/change-password" element={<ChangePassword />} />{" "}
+          {/* Adicione esta linha */}
           <Route
             path="/"
             element={
@@ -64,7 +64,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/fornecedor"
             element={
@@ -89,7 +88,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/pessoa"
             element={
@@ -138,7 +136,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/cliente"
             element={
@@ -163,7 +160,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/produto"
             element={
@@ -188,7 +184,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/despesa"
             element={
@@ -213,7 +208,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/tipos-despesa"
             element={
@@ -238,7 +232,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/listar-categorias"
             element={
@@ -280,7 +273,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/listar-marcas"
             element={
