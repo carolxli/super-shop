@@ -18,7 +18,7 @@ const validate = (body) => {
 
 // Validação de campos obrigatórios para atualização
 const validateUpdate = (body) => {
-  if (!descricao || !Tipo_idTipo || !valor || !dt_despesa) {
+  if (!body.descricao || !body.Tipo_idTipo || !body.valor || !body.dt_despesa) {
     return false;
   }
 

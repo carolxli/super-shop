@@ -72,28 +72,31 @@ const ListarDespesa = () => {
     setFiltroValor(e.target.value);
   };
 
-  const despesasFiltradas = despesas.filter((despesa) => {
-    const matchDescricao = despesa.descricao
-      .toLowerCase()
-      .includes(filtroDescricao.toLowerCase());
+  const despesasFiltradas = despesas
+    .filter((despesa) => {
+      const matchDescricao = despesa.descricao
+        .toLowerCase()
+        .includes(filtroDescricao.toLowerCase());
 
-    const expenseDate = new Date(despesa.dt_despesa);
-    const startDate = filtroPeriodo.inicio
-      ? new Date(filtroPeriodo.inicio)
-      : null;
-    const endDate = filtroPeriodo.fim ? new Date(filtroPeriodo.fim) : null;
-    const matchData =
-      (!startDate || expenseDate >= startDate) &&
-      (!endDate || expenseDate <= endDate);
+      const expenseDate = new Date(despesa.dt_despesa);
+      const startDate = filtroPeriodo.inicio
+        ? new Date(filtroPeriodo.inicio)
+        : null;
+      const endDate = filtroPeriodo.fim ? new Date(filtroPeriodo.fim) : null;
+      const matchData =
+        (!startDate || expenseDate >= startDate) &&
+        (!endDate || expenseDate <= endDate);
 
-    const matchStatus =
-      !filtroStatus ||
-      despesa.status.toLowerCase() === filtroStatus.toLowerCase();
+      const matchStatus =
+        !filtroStatus ||
+        despesa.status.toLowerCase() === filtroStatus.toLowerCase();
 
-    const matchValor = !filtroValor || despesa.valor <= parseFloat(filtroValor);
+      const matchValor =
+        !filtroValor || despesa.valor <= parseFloat(filtroValor);
 
-    return matchDescricao && matchData && matchStatus && matchValor;
-  });
+      return matchDescricao && matchData && matchStatus && matchValor;
+    })
+    .sort((a, b) => new Date(a.dt_despesa) - new Date(b.dt_despesa)); // Ordena por data
 
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
@@ -113,7 +116,7 @@ const ListarDespesa = () => {
         >
           <input
             type="text"
-            placeholder="Pesquisar por descrição"
+            placeholder="Pesquisar Descrição..."
             value={filtroDescricao}
             onChange={handleFilterDescricao}
             style={{
@@ -158,14 +161,14 @@ const ListarDespesa = () => {
               flex: "1",
             }}
           >
-            <option value="">Filtrar por status</option>
+            <option value="">Status</option>
             <option value="Pago">Pago</option>
             <option value="Pendente">Pendente</option>
             <option value="Cancelado">Cancelado</option>
           </select>
           <input
             type="number"
-            placeholder="Filtrar por valor máximo"
+            placeholder="Valor Máximo"
             value={filtroValor}
             onChange={handleFilterValor}
             style={{
@@ -187,7 +190,7 @@ const ListarDespesa = () => {
                 transition: "background-color 0.3s",
               }}
             >
-              Cadastrar Nova Despesa
+              Cadastrar Despesa
             </button>
           </Link>
         </div>
@@ -217,8 +220,19 @@ const ListarDespesa = () => {
                   <td>{despesa.idDespesa}</td>
                   <td>{despesa.descricao}</td>
                   <td>{despesa.nome_tipo || "N/A"}</td>
-                  <td>{despesa.valor}</td>
-                  <td>{new Date(despesa.dt_despesa).toLocaleDateString()}</td>
+                  <td>
+                    {despesa.valor.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                  </td>
+                  <td>
+                    {new Date(despesa.dt_despesa).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </td>
                   <td>{despesa.status}</td>
                   <td>
                     <Link

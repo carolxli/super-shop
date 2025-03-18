@@ -18,11 +18,10 @@ const EditarDespesa = () => {
   });
 
   const [tiposDespesa, setTiposDespesa] = useState([]);
-  const [loading] = useState(false);
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    return dateString.split("T")[0]; 
+    return dateString.split("T")[0];
   };
 
   useEffect(() => {
@@ -84,9 +83,16 @@ const EditarDespesa = () => {
     }
 
     try {
-      await axios.put(`http://localhost:8800/despesa/${idDespesa}`, despesa);
+      await axios.put(`http://localhost:8800/despesa/${idDespesa}`, despesa, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      window.alert("Despesa atualizada com sucesso!");
       toast.success("Despesa atualizada com sucesso!");
-      navigate("/despesa");
+      setTimeout(() => {
+        navigate("/despesa");
+      }, 500);
     } catch (err) {
       console.error("Erro ao atualizar despesa:", err);
       toast.error(
@@ -94,10 +100,6 @@ const EditarDespesa = () => {
       );
     }
   };
-
-  if (loading) {
-    return <p>Carregando...</p>;
-  }
 
   return (
     <div>
