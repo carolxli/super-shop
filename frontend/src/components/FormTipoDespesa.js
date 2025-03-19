@@ -14,7 +14,6 @@ const FormTipoDespesa = () => {
   const [resultadosBusca, setResultadosBusca] = useState([]);
   const [filtroNome, setFiltroNome] = useState("");
 
-  // Atualiza os resultados conforme o campo "nome_tipo" é alterado
   useEffect(() => {
     const fetchResultados = async () => {
       if (!filtroNome.trim()) {
@@ -61,10 +60,6 @@ const FormTipoDespesa = () => {
     }));
   };
 
-  const handleFiltroChange = (e) => {
-    setFiltroNome(e.target.value);
-  };
-
   const validateForm = () => {
     if (!tipoDespesa.nome_tipo.trim()) {
       toast.error("O nome do tipo de despesa é obrigatório.");
@@ -84,58 +79,32 @@ const FormTipoDespesa = () => {
           `http://localhost:8800/tipos-despesa/${idTipo}`,
           tipoDespesa
         );
+        window.alert("Tipo de despesa atualizado com sucesso!");
         toast.success("Tipo de despesa atualizado com sucesso!");
       } else {
         await axios.post("http://localhost:8800/tipos-despesa", tipoDespesa);
+        window.alert("Tipo de despesa criado com sucesso!");
         toast.success("Tipo de despesa criado com sucesso!");
       }
 
-      navigate("/listarTipoDespesa");
+      navigate(-1);
     } catch (err) {
       console.error("Erro ao salvar tipo de despesa:", err);
+      window.alert(
+        "Erro ao salvar tipo de despesa. Verifique os dados e tente novamente."
+      );
       toast.error("Erro ao salvar tipo de despesa.");
     }
   };
 
   return (
     <div>
-      <div>
-        <label>Filtrar por Nome:</label>
-        <input type="text" value={filtroNome} onChange={handleFiltroChange} />
-      </div>
-
-      {resultadosBusca.length > 0 && (
-        <table
-          border="1"
-          cellPadding="5"
-          cellSpacing="0"
-          style={{ marginTop: "10px" }}
-        >
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome do Tipo</th>
-              <th>Descrição</th>
-            </tr>
-          </thead>
-          <tbody>
-            {resultadosBusca.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.nome_tipo}</td>
-                <td>{item.descricao_tipo}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      <h2 style={{ marginTop: "20px" }}>
+      <h2>
         {idTipo ? "Editar Tipo de Despesa" : "Cadastrar Novo Tipo de Despesa"}
       </h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nome do Tipo:</label>
+        <label>
+          Nome do Tipo:
           <input
             type="text"
             name="nome_tipo"
@@ -143,15 +112,15 @@ const FormTipoDespesa = () => {
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
-          <label>Descrição:</label>
+        </label>
+        <label>
+          Descrição:
           <textarea
             name="descricao_tipo"
             value={tipoDespesa.descricao_tipo}
             onChange={handleChange}
           ></textarea>
-        </div>
+        </label>
         <button type="submit">{idTipo ? "Atualizar" : "Cadastrar"}</button>
       </form>
     </div>

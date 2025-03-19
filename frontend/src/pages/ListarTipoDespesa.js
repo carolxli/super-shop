@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 const ListarTipoDespesa = () => {
   const [tiposDespesa, setTiposDespesa] = useState([]);
+  const [filteredTiposDespesa, setFilteredTiposDespesa] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -12,7 +13,11 @@ const ListarTipoDespesa = () => {
       try {
         const response = await axios.get("http://localhost:8800/tipos-despesa");
         console.log("Resposta da API para tipos de despesa:", response.data);
-        setTiposDespesa(response.data);
+        const sortedData = response.data.sort((a, b) =>
+          a.nome_tipo.localeCompare(b.nome_tipo)
+        );
+        setTiposDespesa(sortedData);
+        setFilteredTiposDespesa(sortedData);
       } catch (err) {
         console.error("Erro ao buscar tipos de despesa:", err);
         toast.error("Erro ao buscar tipos de despesa");
@@ -22,30 +27,20 @@ const ListarTipoDespesa = () => {
     fetchTiposDespesa();
   }, []);
 
-  const handleSearch = async () => {
-    if (searchTerm.trim() === "") {
-      toast.error("Por favor, insira um termo de busca.");
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        `http://localhost:8800/tipos-despesa/nome/${searchTerm}`
-      );
-      console.log(
-        "Resposta da API para busca de tipos de despesa:",
-        response.data
-      );
-
-      if (response.data.length === 0) {
-        toast.info("Nenhum tipo de despesa encontrado.");
+  useEffect(() => {
+    const handleSearch = () => {
+      if (searchTerm.trim() === "") {
+        setFilteredTiposDespesa(tiposDespesa);
+      } else {
+        const filtered = tiposDespesa.filter((tipo) =>
+          tipo.nome_tipo.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setFilteredTiposDespesa(filtered);
       }
-      setTiposDespesa(response.data);
-    } catch (err) {
-      console.error("Erro ao buscar tipos de despesa:", err);
-      toast.error("Erro ao buscar tipos de despesa.");
-    }
-  };
+    };
+
+    handleSearch();
+  }, [searchTerm, tiposDespesa]);
 
   const handleDelete = async (idTipo) => {
     if (!window.confirm("Tem certeza que deseja deletar este tipo de despesa?"))
@@ -55,7 +50,11 @@ const ListarTipoDespesa = () => {
       await axios.delete(`http://localhost:8800/tipos-despesa/${idTipo}`);
       toast.success("Tipo de despesa deletado com sucesso!");
       window.alert("Tipo de despesa deletado com sucesso!");
-      setTiposDespesa(tiposDespesa.filter((tipo) => tipo.idTipo !== idTipo));
+      const updatedTiposDespesa = tiposDespesa.filter(
+        (tipo) => tipo.idTipo !== idTipo
+      );
+      setTiposDespesa(updatedTiposDespesa);
+      setFilteredTiposDespesa(updatedTiposDespesa);
     } catch (err) {
       if (err.response && err.response.status === 400) {
         toast.error(err.response.data.message);
@@ -72,38 +71,33 @@ const ListarTipoDespesa = () => {
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <div style={{ maxWidth: "800px", width: "100%", textAlign: "center" }}>
-        <h2>Listar Tipos de Despesa</h2>
+        <h2>Gerenciamento de Tipos de Despesa</h2>
         <div style={{ marginBottom: "20px" }}>
-          <input
-            type="text"
-            placeholder="Pesquisar tipos de despesa..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+          <div
             style={{
-              padding: "8px",
-              width: "300px",
-              marginBottom: "10px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "10px",
             }}
-          />
-          <div>
-            <button
-              onClick={handleSearch}
-              style={{ marginRight: "10px", width: "300px", padding: "8px" }}
-            >
-              Buscar
-            </button>
-            <button
-              onClick={() => setSearchTerm("")}
-              style={{ marginRight: "10px", width: "300px", padding: "8px" }}
-            >
-              Limpar
-            </button>
-            <Link to="/cadastrarTipoDespesa">
-              <button style={{ width: "300px", padding: "8px" }}>
-                Cadastrar Novo Tipo de Despesa
-              </button>
-            </Link>
+          >
+            <input
+              type="text"
+              placeholder="Tipo de Despesa..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                padding: "8px",
+                width: "300px",
+                marginBottom: "10px",
+              }}
+            />
           </div>
+          <Link to="/cadastrarTipoDespesa">
+            <button style={{ width: "300px", padding: "8px" }}>
+              Cadastrar Novo Tipo de Despesa
+            </button>
+          </Link>
         </div>
         <table
           border="1"
@@ -114,23 +108,41 @@ const ListarTipoDespesa = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Nome do Tipo</th>
+              <th>Tipo de Despesa</th>
               <th>Descrição</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {tiposDespesa.length > 0 ? (
-              tiposDespesa.map((tipo) => (
+            {filteredTiposDespesa.length > 0 ? (
+              filteredTiposDespesa.map((tipo) => (
                 <tr key={tipo.idTipo}>
                   <td>{tipo.idTipo}</td>
                   <td>{tipo.nome_tipo}</td>
                   <td>{tipo.descricao_tipo || "Não definido"}</td>
                   <td>
                     <Link to={`/editarTipoDespesa/${tipo.idTipo}`}>
-                      <button style={{ marginRight: "5px" }}>Editar</button>
+                      <button
+                        style={{
+                          padding: "6px 12px",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        Editar
+                      </button>
                     </Link>
-                    <button onClick={() => handleDelete(tipo.idTipo)}>
+                    <button
+                      onClick={() => handleDelete(tipo.idTipo)}
+                      style={{
+                        padding: "6px 12px",
+                        backgroundColor: "#FF6347",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                      }}
+                    >
                       Deletar
                     </button>
                   </td>
