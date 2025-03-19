@@ -164,7 +164,6 @@ const FormDespesa = ({ idDespesa }) => {
             required
           >
             <option value="">Selecione um status</option>
-            <option value="Pago">Pago</option>
             <option value="Pendente">Pendente</option>
             <option value="Cancelado">Cancelado</option>
           </select>

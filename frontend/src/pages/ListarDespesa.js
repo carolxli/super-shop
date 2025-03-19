@@ -101,7 +101,7 @@ const ListarDespesa = () => {
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <div style={{ maxWidth: "800px", width: "100%" }}>
-        <h2>Listar Despesas</h2>
+        <h2>Gerenciamento de Despesas</h2>
         <div
           style={{
             display: "flex",
@@ -163,6 +163,7 @@ const ListarDespesa = () => {
           >
             <option value="">Status</option>
             <option value="Pago">Pago</option>
+            <option value="Parcialmente Pago">Parcialmente Pago</option>
             <option value="Pendente">Pendente</option>
             <option value="Cancelado">Cancelado</option>
           </select>
@@ -208,7 +209,8 @@ const ListarDespesa = () => {
               <th>Descrição</th>
               <th>Tipo de Despesa</th>
               <th>Valor</th>
-              <th>Data</th>
+              <th>Data de Registro</th>
+              <th>Data de Pagamento</th>
               <th>Status</th>
               <th>Ações</th>
             </tr>
@@ -221,10 +223,12 @@ const ListarDespesa = () => {
                   <td>{despesa.descricao}</td>
                   <td>{despesa.nome_tipo || "N/A"}</td>
                   <td>
-                    {despesa.valor.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
+                    {despesa.valor
+                      ? despesa.valor.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })
+                      : "R$ 0,00"}
                   </td>
                   <td>
                     {new Date(despesa.dt_despesa).toLocaleDateString("pt-BR", {
@@ -232,6 +236,18 @@ const ListarDespesa = () => {
                       month: "2-digit",
                       year: "numeric",
                     })}
+                  </td>
+                  <td>
+                    {despesa.data_pagamento
+                      ? new Date(despesa.data_pagamento).toLocaleDateString(
+                          "pt-BR",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          }
+                        )
+                      : "N/A"}
                   </td>
                   <td>{despesa.status}</td>
                   <td>
@@ -258,6 +274,28 @@ const ListarDespesa = () => {
                         Editar
                       </button>
                     </Link>
+                    <Link
+                      to={`/quitarDespesa/${despesa.idDespesa}`}
+                      state={{ status: despesa.status }} // VERIFICAR SE ESTÁ CORRETO
+                    >
+                      <button
+                        style={{
+                          padding: "6px 12px",
+                          marginRight: "5px",
+                          backgroundColor:
+                            despesa.status === "Pago" ? "#ccc" : "#87CEEB",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor:
+                            despesa.status === "Pago"
+                              ? "not-allowed"
+                              : "pointer",
+                        }}
+                      >
+                        Quitar
+                      </button>
+                    </Link>
                     <button
                       onClick={() =>
                         handleDelete(despesa.idDespesa, despesa.status)
@@ -281,7 +319,7 @@ const ListarDespesa = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7">Nenhuma despesa encontrada.</td>
+                <td colSpan="8">Nenhuma despesa encontrada.</td>
               </tr>
             )}
           </tbody>

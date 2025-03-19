@@ -225,6 +225,97 @@ export const updateDespesa = (req, res) => {
   });
 };
 
+// Quita uma despesa existente
+export const updateQuitarDespesa = (req, res) => {
+  const { idDespesa } = req.params;
+  const { valor, data_pagamento } = req.body;
+
+  if (!data_pagamento) {
+    return res.status(400).json({ error: "Data de pagamento é obrigatória." });
+  }
+
+  const query = `
+    SELECT "valor", "metodo_pgmto"
+    FROM "SuperShop"."Despesa"
+    WHERE "idDespesa" = $1  
+  `;
+
+  db.query(query, [idDespesa], (err, data) => {
+    if (err) {
+      console.error("Erro ao obter valor da despesa:", err);
+      return res.status(500).json({ error: "Erro ao obter valor da despesa" });
+    }
+
+    if (data.rows.length === 0) {
+      return res.status(404).json({ error: "Despesa não encontrada." });
+    }
+
+    const despesaValor = parseFloat(data.rows[0].valor);
+    const despesaMetodo = data.rows[0].metodo_pgmto;
+    const valorPago = parseFloat(valor);
+
+    let novoValor = 0;
+
+    if (!isNaN(valorPago)) {
+      if (valorPago > despesaValor) {
+        return res
+          .status(400)
+          .json({ error: "O valor pago excede o valor da despesa." });
+      }
+      novoValor = despesaValor - valorPago;
+    }
+
+    updateDespesaValor(
+      idDespesa,
+      novoValor,
+      data_pagamento,
+      despesaMetodo,
+      res
+    );
+  });
+};
+
+const updateDespesaValor = (
+  idDespesa,
+  novoValor,
+  data_pagamento,
+  metodo_pgmto,
+  res
+) => {
+  const q = `
+    UPDATE "SuperShop"."Despesa"
+    SET "valor" = $1::DECIMAL(10,2),  -- Converte explicitamente para DECIMAL
+        "status" = CASE WHEN $1 = 0 THEN 'Pago' ELSE 'Parcialmente Pago' END,
+        "data_pagamento" = $2,
+        "metodo_pgmto" = $3
+    WHERE "idDespesa" = $4
+    RETURNING *
+  `;
+
+  const values = [
+    parseFloat(novoValor).toFixed(2),
+    data_pagamento,
+    metodo_pgmto,
+    idDespesa,
+  ];
+
+  db.query(q, values, (err, data) => {
+    if (err) {
+      console.error("Erro ao atualizar valor da despesa:", err);
+      return res
+        .status(500)
+        .json({ error: "Erro ao atualizar valor da despesa." });
+    }
+    if (data.rows.length === 0) {
+      return res.status(404).json({ error: "Despesa não encontrada." });
+    }
+    return res.status(200).json({
+      message: "Despesa atualizada com sucesso!",
+      despesa: data.rows[0],
+    });
+  });
+};
+
 // Deleta uma despesa existente
 export const deleteDespesa = (req, res) => {
   const idDespesa = req.params.idDespesa;

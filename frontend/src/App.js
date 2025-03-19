@@ -37,6 +37,7 @@ import Usuario from "./pages/usuario.js";
 import ListarUsuarios from "./pages/ListarUsuario.js";
 import EditarUsuario from "./pages/EditarUsuario.js";
 import ChangePassword from "./components/ChangePassword.jsx";
+import QuitarDespesa from "./pages/QuitarDespesa.js";
 const App = () => {
   const { isAuthenticated } = useAuth();
 
@@ -197,6 +198,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <CadastrarDespesa />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/quitarDespesa/:idDespesa"
+            element={
+              <PrivateRoute>
+                <QuitarDespesa />
               </PrivateRoute>
             }
           />
