@@ -176,14 +176,13 @@ const FormPessoa = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '35px', marginLeft: '300px' }}>
                     <a href="/listar-pessoas" style={{ display: 'inline-block' }}>
-                        <button>Listar</button>
+                        <button type="button">Listar</button>
                     </a>
                     <button type="submit">Cadastrar</button>
                 </div>
                 <a href='/' style={{ display: 'inline-block' }}>
                     <button type="button">Cancelar</button>
                 </a>
-
             </form>
         </>
     );

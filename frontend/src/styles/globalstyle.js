@@ -15,7 +15,7 @@ const GlobalStyle = createGlobalStyle`
     nav a {
         color: #fff;
         text-decoration: none;
-        padding: 1px 5px;
+        padding: 4px 4px;
     }
     nav a:hover {
         background-color: #ADD8E6;

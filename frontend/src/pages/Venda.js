@@ -18,7 +18,7 @@ const Form = styled.form`
 `;
 
 const Button = styled.button`
-  background-color: #87CEEB;
+  background-color:rgb(77, 168, 204);
   color: #fff;
   border: none;
   padding: 4px;
@@ -65,7 +65,7 @@ const Venda = () => {
 
   const handleClienteSelect = (cliente) => {
     setNomeCliente(cliente.nome);
-    setVoucher(cliente.voucher);  // Atualiza o valor do voucher no estado
+    setVoucher(cliente.voucher);
     setAutocompleteVisible(false);
   };
 
@@ -153,6 +153,7 @@ const Venda = () => {
           <Button type="submit">Registrar Venda</Button>
           <Button type="button" onClick={() => navigate("/")}>Devolver</Button>
           <Button type="button" onClick={() => navigate("/")}>Reservar</Button>
+          <Button type="button" onClick={() => navigate("/")}>Quitar Recebimento</Button>
         </label>
       </Form>
     </Container>
