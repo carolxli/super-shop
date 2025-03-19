@@ -171,8 +171,8 @@ const EditarDespesa = () => {
             required
           >
             <option value="">Selecione o status</option>
-            <option value="Pago">Pago</option>
             <option value="Pendente">Pendente</option>
+            <option value="Parcialmente Pago">Parcialmente Pago</option>
             <option value="Cancelado">Cancelado</option>
           </select>
         </label>
