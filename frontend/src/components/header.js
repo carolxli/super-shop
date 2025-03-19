@@ -1,9 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
   const cargo = localStorage.getItem("cargo"); // Recupera o cargo do localStorage
 
+  const { logout } = useAuth();
+  const handleLogoff = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("nome");
+    localStorage.removeItem("cargo");
+    logout();
+  };
   return (
     <header>
       <nav>
@@ -28,14 +36,16 @@ const Header = () => {
         )}
         {cargo === "admin" || cargo === "vendedor" ? (
           <div className="dropdown">
-          <Link to="/produto">Produto</Link>
-          <div className="dropdown-content">
-            <Link to="/categoria">Categorias</Link>
-            <Link to="/marca">Marcas</Link>
-            <Link to="/comissao">Comissão</Link>
+            <Link to="/produto">Produto</Link>
+            <div className="dropdown-content">
+              <Link to="/categoria">Categorias</Link>
+              <Link to="/marca">Marcas</Link>
+              <Link to="/comissao">Comissão</Link>
+            </div>
           </div>
-        </div>
         ) : null}
+
+        <Link onClick={handleLogoff}>Sair</Link>
       </nav>
     </header>
   );

@@ -112,7 +112,7 @@ const FormPessoa = () => {
                         value={formData.telefone_1}
                         onChange={handleChange}
                         required
-                         className="input-mask"
+                        className="input-mask"
                     />
                 </label>
 
@@ -140,7 +140,7 @@ const FormPessoa = () => {
                         value={formData.cep}
                         onChange={handleChange}
                         required
-                         className="input-mask"
+                        className="input-mask"
                     />
                 </label>
 
@@ -151,42 +151,40 @@ const FormPessoa = () => {
 
                 <label>
                     Número
-                    <input type="text" name="end_numero" onChange={handleChange} required/>
+                    <input type="text" name="end_numero" onChange={handleChange} required />
                 </label>
 
                 <label>
                     Bairro
-                    <input type="text" name="end_bairro" value={formData.end_bairro} onChange={handleChange} required readOnly/>
+                    <input type="text" name="end_bairro" value={formData.end_bairro} onChange={handleChange} required readOnly />
                 </label>
 
                 <label>
                     Complemento
-                    <input type="text" name="end_complemento" onChange={handleChange}/>
+                    <input type="text" name="end_complemento" onChange={handleChange} />
                 </label>
 
                 <label>
                     Cidade
-                    <input type="text" name="cidade" value={formData.cidade} onChange={handleChange} required readOnly/>
+                    <input type="text" name="cidade" value={formData.cidade} onChange={handleChange} required readOnly />
                 </label>
 
                 <label>
                     Estado
-                    <input type="text" name="estado" value={formData.estado} onChange={handleChange} required readOnly/>
+                    <input type="text" name="estado" value={formData.estado} onChange={handleChange} required readOnly />
                 </label>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginLeft: '315px' }}>
-                    <button type="submit">Cadastrar</button>
-                    <a href='/'>
-                        <button type="button">Cancelar</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '35px', marginLeft: '300px' }}>
+                    <a href="/listar-pessoas" style={{ display: 'inline-block' }}>
+                        <button>Listar</button>
                     </a>
+                    <button type="submit">Cadastrar</button>
                 </div>
-            </form>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px', marginLeft: '256px' }}>
-                <a href="/listar-pessoas">
-                    <button>Listar Pessoas Cadastradas</button>
+                <a href='/' style={{ display: 'inline-block' }}>
+                    <button type="button">Cancelar</button>
                 </a>
-            </div>
+
+            </form>
         </>
     );
 };

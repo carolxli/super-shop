@@ -15,7 +15,7 @@ const FormCliente = () => {
     const [autocompleteVisible, setAutocompleteVisible] = useState(false);
 
     useEffect(() => {
-       
+
     }, []);
 
     const handleNomePessoaChange = async (e) => {
@@ -42,7 +42,7 @@ const FormCliente = () => {
             [name]: value,
         }));
     };
-    
+
 
     const handlePessoaSelect = (pessoa) => {
         setNomePessoa(pessoa.nome);
@@ -59,7 +59,7 @@ const FormCliente = () => {
             const clienteData = {
                 ...cliente,
             };
-            
+
             await axios.post(`http://localhost:8800/cliente`, clienteData);
             alert('Cliente cadastrado com sucesso!');
             setCliente({
@@ -74,14 +74,14 @@ const FormCliente = () => {
             alert('Erro ao cadastrar cliente');
         }
     };
-    
-    
+
+
 
     return (
         <>
             <h3>Cadastrar Cliente</h3>
             <form onSubmit={handleSubmit}>
-            <label>
+                <label>
                     Nome da Pessoa
                     <input
                         type="text"
@@ -129,31 +129,29 @@ const FormCliente = () => {
                         className="input-mask"
                     />
                 </label>
-                
+
                 <label>
-                   Voucher (carteira)
+                    Voucher (carteira)
                     <input
                         type="number"
                         name="voucher"
                         value={cliente.voucher}
                         onChange={handleChange}
-                        min="0" 
+                        min="0"
                         required
                     />
                 </label>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '50px', marginLeft: '330px' }}>
-                    <button type="submit">Cadastrar</button>
-                    <a href='/'>
-                        <button type="button">Cancelar</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '35px', marginLeft: '300px' }}>
+                    <a href="/listar-clientes" style={{ display: 'inline-block' }}>
+                        <button type="button">Listar</button>
                     </a>
+                    <button type="submit">Cadastrar</button>
                 </div>
-            </form>
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px', marginLeft: '256px' }}>
-                <a href="/listar-clientes">
-                    <button type="button">Listar Clientes</button>
+                <a href='/' style={{ display: 'inline-block' }}>
+                    <button type="button">Cancelar</button>
                 </a>
-            </div>
+            </form>
         </>
     );
 };

@@ -36,6 +36,9 @@ import Comissao from "./pages/comissao.js";
 import Usuario from "./pages/usuario.js";
 import ListarUsuarios from "./pages/ListarUsuario.js";
 import EditarUsuario from "./pages/EditarUsuario.js";
+import AcertarEstoque from "./pages/acertoEstoque.js";
+import Venda from "./pages/Venda.js";
+
 import ChangePassword from "./components/ChangePassword.jsx";
 import QuitarDespesa from "./pages/QuitarDespesa.js";
 const App = () => {
@@ -303,6 +306,22 @@ const App = () => {
             element={
               <PrivateRoute>
                 <EditarMarca />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/acertoEstoque/:idProduto" // Nova rota para acerto de estoque
+            element={
+              <PrivateRoute>
+                <AcertarEstoque />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/venda"
+            element={
+              <PrivateRoute>
+                <Venda />
               </PrivateRoute>
             }
           />

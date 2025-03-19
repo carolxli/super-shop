@@ -77,6 +77,7 @@ const ListarProdutos = () => {
                                     <td>
                                         <button onClick={() => navigate(`/editarProduto/${produto.idProduto}`)}>Editar</button>
                                         <button onClick={() => handleDelete(produto.idProduto)}>Deletar</button>
+                                        <button onClick={() => navigate(`/acertoEstoque/${produto.idProduto}`)}>Acertar estoque</button>
                                     </td>
                                 </tr>
                             ))

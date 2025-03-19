@@ -9,6 +9,8 @@ import routerUsuario from "./routes/rtUsuario.js";
 import routerDespesa from "./routes/rtDespesa.js";
 import routerTipoDespesa from "./routes/rtTipoDespesa.js";
 import routerComissao from "./routes/rtComissao.js";
+import routerAcertoEstoque from "./routes/rtAcertoEstoque.js";
+import routerVenda from "./routes/rtVenda.js";
 import cors from "cors";
 
 const app = express();
@@ -28,5 +30,7 @@ app.use("/usuario", routerUsuario);
 app.use("/despesa", routerDespesa);
 app.use("/tipos-despesa", routerTipoDespesa);
 app.use("/comissao",routerComissao);
+app.use("/acertoEstoque",routerAcertoEstoque);
+app.use("/Venda",routerVenda)
 
 app.listen(8800);

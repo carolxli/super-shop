@@ -215,7 +215,7 @@ const EditarProduto = () => {
                         onChange={handleChange}
                         required
                         min="0"
-                        disabled="true"
+                        disabled style={{ cursor: "not-allowed" }}
                     />
                 </label>
 

@@ -81,7 +81,7 @@ const GlobalStyle = createGlobalStyle`
         transition: border-color 0.3s;
     }
     
-    .input-mask{
+    .input-mask {
        width: 100%;
         padding: 8px;
         border: 1px solid #ddd;
@@ -112,19 +112,27 @@ const GlobalStyle = createGlobalStyle`
         transition: background-color 0.3s;
         width: 100%;
         margin-top: 10px;
-        margin-top: 10px;
         margin-right: 10px;
     }
 
     button:hover {
         background-color: #ADD8E6;
     }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        font-size: 24px;
+        margin-top: 45px;
+    }
+
     h3 {
         margin-bottom: 10px; 
         margin-top: 60px;
         margin-left: 256px;
     }
- /* Estilo para o Container da Tabela */
+
+    /* Estilo para a Tabela */
     table {
         width: 94%;
         margin: 15px auto;
@@ -135,7 +143,6 @@ const GlobalStyle = createGlobalStyle`
         overflow: hidden;
     }
 
-    /* Estilo para Cabeçalho da Tabela */
     th {
         background-color: #87CEEB; /* Cor do cabeçalho */
         color: #fff;
@@ -145,7 +152,6 @@ const GlobalStyle = createGlobalStyle`
         font-size: 13px;
     }
 
-    /* Estilo para Linhas da Tabela */
     td {
         padding: 8px;
         font-size: 12px;
@@ -153,19 +159,16 @@ const GlobalStyle = createGlobalStyle`
         color: #333;
     }
 
-    /* Estilo para Linhas Alternadas */
     tr:nth-child(even) {
         background-color: #f9f9f9;
     }
 
-    /* Estilo para o Hover nas Linhas */
     tr:hover {
         background-color: #f1f1f1;
     }
 
-    /* Botões de Ação na Tabela */
     td button {
-        background-color: #87CEEB; /* Cor do botão */
+        background-color: #87CEEB;
         color: #fff;
         border: none;
         padding: 2px 1px;
@@ -180,15 +183,7 @@ const GlobalStyle = createGlobalStyle`
         background-color: #ADD8E6;
     }
 
-    /* Ajuste para Cabeçalho da Tabela */
-    h2 {
-        text-align: center;
-        color: #333;
-        font-size: 24px;
-        margin-top: 45px;
-    }
-
-     .autocomplete-list {
+    .autocomplete-list {
         position: absolute;
         width: 28%;
         background-color: #fff;
@@ -198,18 +193,6 @@ const GlobalStyle = createGlobalStyle`
         overflow-y: auto;
         z-index: 10;
         margin-top: 5px;
-    }
-
-    /* Estilo para a lista de autocomplete */
-    .autocomplete-list {
-        position: absolute;
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        overflow-y: auto;
-        margin-top: 45px;
-        margin-left: 1px; /* Margem para alinhar ao campo */
     }
 
     .autocomplete-list li {
@@ -224,27 +207,28 @@ const GlobalStyle = createGlobalStyle`
         background-color: #f1f1f1;
     }
 
+    /* Estilo para Modal */
     .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
 
-.modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-width: 600px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 600px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
 .input-filtro {
     display: block;
