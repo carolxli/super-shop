@@ -56,7 +56,6 @@ const FormQuitarDespesa = () => {
               ),
       };
 
-      window.alert("despesatoSend: " + JSON.stringify(despesaToSend));
       await axios.put(
         `http://localhost:8800/despesa/quitar/${idDespesa}`,
         despesaToSend,
@@ -67,9 +66,13 @@ const FormQuitarDespesa = () => {
         }
       );
 
+      window.alert("Despesa quitada com sucesso!");
       toast.success("Despesa quitada com sucesso!");
       navigate("/despesa");
     } catch (err) {
+      window.alert(
+        "Erro ao quitar despesa. Verifique os dados e tente novamente."
+      );
       console.error("Erro ao quitar despesa:", err);
       toast.error(
         "Erro ao quitar despesa. Verifique os dados e tente novamente."
