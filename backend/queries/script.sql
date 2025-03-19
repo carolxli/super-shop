@@ -11,3 +11,24 @@ ALTER TABLE "SuperShop"."Comissao" ADD COLUMN descricao VARCHAR(255);
 ALTER TABLE "SuperShop"."Despesa" ADD COLUMN data_pagamento DATE DEFAULT NULL;
 ALTER TABLE "SuperShop"."Despesa" ALTER COLUMN "valor" TYPE DECIMAL(10,2) USING "valor"::DECIMAL(10,2);
 ALTER TABLE "SuperShop"."Despesa" DROP CONSTRAINT IF EXISTS chk_valor_positivo;
+
+-- POPULATE TipoDespesa
+INSERT INTO "SuperShop"."TipoDespesa" (nome_tipo, descricao_tipo) 
+VALUES 
+('Aluguel', 'Despesa referente ao pagamento do aluguel do estabelecimento'),
+('Energia', 'Despesa com conta de energia elétrica'),
+('Internet', 'Despesa com serviço de internet e telecomunicações'),
+('Material de Escritório', 'Compra de suprimentos para o escritório'),
+('Manutenção', 'Custos com reparos e manutenção de equipamentos e estrutura');
+
+-- POPULATE Despesa
+INSERT INTO "SuperShop"."Despesa" (
+    dt_despesa, dt_vencimento, valor, metodo_pgmto, descricao, status, "Tipo_idTipo", data_pagamento
+) VALUES
+    ('2024-03-01', '2024-03-10', 250.00, 'Boleto', 'Conta de luz', 'Pendente', 2, NULL), -- PRESTAR ATENÇÃO NO SERIAL DO ID Tipo_idTipo DO SEU BANCO! 
+    ('2024-03-05', '2024-03-15', 120.50, 'Cartão', 'Conta de água', 'Pendente', 5, NULL),
+    ('2024-03-08', '2024-03-20', 500.00, 'Dinheiro', 'Aluguel apartamento', 'Pendente', 1, NULL),
+    ('2024-03-10', '2024-03-25', 75.90, 'Pix', 'Internet - Vivo', 'Pendente', 3, NULL),
+    ('2024-03-12', '2024-03-30', 200.00, 'Dinheiro', 'Concerto ar-condicionado', 'Pendente', 5, NULL),
+    ('2024-03-15', '2024-03-28', 500.00, 'Cartão', 'Mesa de Escritório', 'Pendente', 4, NULL),
+    ('2024-03-18', '2024-04-05', 300.00, 'Boleto', 'Internet - Claro', 'Pendente', 3, NULL);
