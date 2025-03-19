@@ -206,18 +206,16 @@ const FormUsuario = () => {
                     </select>
                 </label>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '50px', marginLeft: '330px' }}>
-                    <button type="submit">Cadastrar</button>
-                    <a href='/'>
-                        <button type="button">Cancelar</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '35px', marginLeft: '300px' }}>
+                    <a href="/listar-usuarios" style={{ display: 'inline-block' }}>
+                        <button type="button">Listar</button>
                     </a>
+                    <button type="submit">Cadastrar</button>
                 </div>
-            </form>
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px', marginLeft: '256px' }}>
-                <a href="/listar-usuarios">
-                    <button type="button">Listar Usuários</button>
+                <a href='/' style={{ display: 'inline-block' }}>
+                    <button type="button">Cancelar</button>
                 </a>
-            </div>
+            </form>
         </>
     );
 };

@@ -12,7 +12,7 @@ const FormFornecedor = () => {
         dt_inicio_fornecimento: '',
         observacao: '',
         Pessoa_idPessoa: '',
-        marcas: [] 
+        marcas: []
     });
 
     const [nomePessoa, setNomePessoa] = useState('');
@@ -37,11 +37,11 @@ const FormFornecedor = () => {
 
     const handleChange = (e) => {
         const { name, value, checked } = e.target;
-    
+
         if (name === 'marcaSelecionada') {
             setFornecedor((prevFornecedor) => {
                 const marcasSelecionadas = [...prevFornecedor.marcas];
-                const marcaId = Number(value); 
+                const marcaId = Number(value);
                 if (checked) {
                     marcasSelecionadas.push(marcaId);
                 } else {
@@ -50,8 +50,8 @@ const FormFornecedor = () => {
                         marcasSelecionadas.splice(index, 1);
                     }
                 }
-    
-                console.log("Marcas selecionadas:", marcasSelecionadas);  
+
+                console.log("Marcas selecionadas:", marcasSelecionadas);
                 return { ...prevFornecedor, marcas: marcasSelecionadas };
             });
         } else {
@@ -61,7 +61,7 @@ const FormFornecedor = () => {
             });
         }
     };
-    
+
 
 
     const fetchRazaoSocial = async (cnpj) => {
@@ -128,7 +128,7 @@ const FormFornecedor = () => {
                 ...fornecedor,
                 marcas_fornecedor: fornecedor.marcas
             };
-            
+
             await axios.post(`http://localhost:8800/fornecedor`, fornecedorData);
             alert('Fornecedor cadastrado com sucesso!');
             setFornecedor({
@@ -139,7 +139,7 @@ const FormFornecedor = () => {
                 dt_inicio_fornecimento: '',
                 observacao: '',
                 Pessoa_idPessoa: '',
-                marcas: []  
+                marcas: []
             });
             setNomePessoa('');
         } catch (err) {
@@ -147,8 +147,8 @@ const FormFornecedor = () => {
             alert('Erro ao cadastrar fornecedor');
         }
     };
-    
-    
+
+
 
     return (
         <>
@@ -203,7 +203,7 @@ const FormFornecedor = () => {
                         name="prazo_entrega"
                         value={fornecedor.prazo_entrega}
                         onChange={handleChange}
-                        min="0" 
+                        min="0"
                         required
                     />
                 </label>
@@ -276,19 +276,18 @@ const FormFornecedor = () => {
                     <textarea name="observacao" value={fornecedor.observacao} onChange={handleChange} />
                 </label>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '50px', marginLeft: '330px' }}>
-                    <button type="submit">Cadastrar</button>
-                    <a href='/'>
-                        <button type="button">Cancelar</button>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '35px', marginLeft: '300px' }}>
+                    <a href="/listar-fornecedores" style={{ display: 'inline-block' }}>
+                        <button type="button">Listar</button>
                     </a>
+                    <button type="submit">Cadastrar</button>
                 </div>
-            </form>
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px', marginLeft: '256px' }}>
-                <a href="/listar-fornecedores">
-                    <button type="button">Listar Fornecedores</button>
+                <a href='/' style={{ display: 'inline-block' }}>
+                    <button type="button">Cancelar</button>
                 </a>
-            </div>
+            </form>
         </>
+
     );
 };
 

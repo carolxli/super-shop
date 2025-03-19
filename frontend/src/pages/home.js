@@ -1,77 +1,81 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const WelcomeMessage = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 3rem;
-  font-weight: bold;
-  color: #4caf50;
-  opacity: ${(props) => (props.show ? 1 : 0)};
-  transition: opacity 1s ease-out;
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 30px;
 `;
 
-const LogoffButton = styled.button`
-  position: fixed;
-  bottom: 2px;
-  right: 2px;
-  background-color: #87CEEB;
+const WelcomeMessage = styled.div`
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1976d2; /* Azul personalizado */
+  opacity: ${(props) => (props.show ? 1 : 0)};
+  transition: opacity 1s ease-out;
+  text-align: center;
+`;
+
+const ButtonGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+`;
+const Button = styled.button`
+  background: linear-gradient(135deg,rgb(17, 123, 230), #87CEEB);
   color: white;
+  font-size: 1.2rem;
+  padding: 15px 30px;
   border: none;
-  padding: 5px 5px;
-  font-size: 1rem;
+  border-radius: 10px;
   cursor: pointer;
-  border-radius: 5px;
+  transition: 0.3s;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 
   &:hover {
-    background-color: #d32f2f;
+    background: linear-gradient(135deg, #2196f3, #87CEEB); 
+    transform: scale(1.05);
   }
 `;
 
 const Home = () => {
-    const [nome, setNome] = useState("");
-    const [showWelcome, setShowWelcome] = useState(false);
-  
-    useEffect(() => {
-      const nomeUsuario = localStorage.getItem("nome");
-      const cargoUsuario = localStorage.getItem("cargo");
-    
-      if (nomeUsuario) {
-        setNome(nomeUsuario);
-        setShowWelcome(true);
-    
-        setTimeout(() => {
-          setShowWelcome(false);
-        }, 4000);
-      }
-    
-      console.log("Cargo do usuário:", cargoUsuario); 
-    }, []);
-    
-      const { logout } = useAuth();
-    
-      const handleLogoff = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("nome");
-        localStorage.removeItem("cargo");
-        logout();
-      };
-    
-    return (
-      <div>
-        <WelcomeMessage show={showWelcome}>
-            Bem-vindo, {nome}!
-        </WelcomeMessage>
-        <h4>Sistema em construção!</h4>
+  const [nome, setNome] = useState("");
+  const [showWelcome, setShowWelcome] = useState(false);
+  const navigate = useNavigate();
 
-        <LogoffButton onClick={handleLogoff}>Sair</LogoffButton>
-      </div>
-    );
+  useEffect(() => {
+    const nomeUsuario = localStorage.getItem("nome");
+    const cargoUsuario = localStorage.getItem("cargo");
 
-    
-  };  
+    if (nomeUsuario) {
+      setNome(nomeUsuario);
+      setShowWelcome(true);
+
+      setTimeout(() => {
+        setShowWelcome(false);
+      }, 4000);
+    }
+
+    console.log("Cargo do usuário:", cargoUsuario);
+  }, []);
+
+  return (
+    <Container>
+      <WelcomeMessage show={showWelcome}>Bem-vindo(a), {nome}!</WelcomeMessage>
+      <ButtonGrid>
+        <Button type="button" onClick={() => navigate("/venda")}>Caixa</Button>
+        <Button>Compra</Button>
+        <Button>Finanças</Button>
+        <Button>Relatórios</Button>
+      </ButtonGrid>
+    </Container>
+  );
+};
 
 export default Home;

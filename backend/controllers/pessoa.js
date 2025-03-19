@@ -99,28 +99,38 @@ export const updatePessoa = (req, res) => {
   });
 };
 
-export const deletePessoa = async (req, res) => {
-  const checkAdminQuery = `SELECT COUNT(*) FROM "SuperShop"."Pessoa" WHERE "cargo" = 'administrador'`;
-  const deleteQuery = `DELETE FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
+// export const deletePessoa = async (req, res) => {
+//   const checkAdminQuery = `SELECT COUNT(*) FROM "SuperShop"."Pessoa" WHERE "cargo" = 'admin'`;
+//   const deleteQuery = `DELETE FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
 
-  try {
-    const result = await db.query(checkAdminQuery);
-    const adminCount = parseInt(result.rows[0].count, 10);
+//   try {
+//     const result = await db.query(checkAdminQuery);
+//     const adminCount = parseInt(result.rows[0].count, 10);
 
-    if (adminCount <= 1) {
-      return res.status(400).json({
-        error:
-          "Não é possível deletar a última pessoa com cargo de administrador",
-      });
-    }
+//     if (adminCount <= 1) {
+//       return res.status(400).json({
+//         error:
+//           "Não é possível deletar a última pessoa com cargo de administrador",
+//       });
+//     }
 
-    await db.query(deleteQuery, [req.params.idPessoa]);
-    return res.status(200).json("Pessoa deletada com sucesso");
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ error: "Erro ao deletar pessoa", details: err });
-  }
+//     await db.query(deleteQuery, [req.params.idPessoa]);
+//     return res.status(200).json("Pessoa deletada com sucesso");
+//   } catch (err) {
+//     return res
+//       .status(500)
+//       .json({ error: "Erro ao deletar pessoa", details: err });
+//   }
+// };
+export const deletePessoa = (req, res) => {
+  const q = `DELETE FROM "SuperShop"."Pessoa" WHERE \"idPessoa\" = $1`;
+
+  db.query(q, [req.params.idPessoa], (err) => {
+      if (err) {
+          return res.json(err);
+      }
+      return res.status(200).json("Pessoa deletada com sucesso");
+  });
 };
 
 export const getPessoaById = (req, res) => {

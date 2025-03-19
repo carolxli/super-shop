@@ -266,18 +266,18 @@ const FormProduto = () => {
                     </select>
                 </label>
 
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginLeft: '315px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '35px', marginLeft: '300px' }}>
+                    <a href="/listar-produtos" style={{ display: 'inline-block' }}>
+                        <button type="button">Listar</button>
+                    </a>
                     <button type="submit">Cadastrar</button>
-                    <a href='/'><button type="button">Cancelar</button></a>
                 </div>
-            </form>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px', marginLeft: '256px' }}>
-                <a href="/listar-produtos">
-                    <button>Listar Produtos Cadastrados</button>
+                <a href='/' style={{ display: 'inline-block' }}>
+                    <button type="button">Cancelar</button>
                 </a>
-            </div>
+            </form>
         </>
+
     );
 };
 
