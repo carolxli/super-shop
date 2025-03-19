@@ -22,10 +22,11 @@ const WelcomeMessage = styled.div`
 
 const ButtonGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   width: 100%;
   max-width: 400px;
+  margin-top: -180px;
 `;
 const Button = styled.button`
   background: linear-gradient(135deg,rgb(17, 123, 230), #87CEEB);
@@ -70,8 +71,7 @@ const Home = () => {
       <WelcomeMessage show={showWelcome}>Bem-vindo(a), {nome}!</WelcomeMessage>
       <ButtonGrid>
         <Button type="button" onClick={() => navigate("/venda")}>Caixa</Button>
-        <Button>Compra</Button>
-        <Button>Finanças</Button>
+        <Button type="button" onClick={() => navigate("/compra")}>Compra</Button>
         <Button>Relatórios</Button>
       </ButtonGrid>
     </Container>
