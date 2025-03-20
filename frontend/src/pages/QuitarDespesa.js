@@ -1,8 +1,8 @@
 import React from "react";
-import FormDespesa from "../components/FormDespesa.js";
 import { useNavigate } from "react-router-dom";
+import FormQuitarDespesa from "../components/FormQuitarDespesa";
 
-const CadastrarDespesa = () => {
+const QuitarDespesa = () => {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
@@ -11,9 +11,9 @@ const CadastrarDespesa = () => {
 
   return (
     <div>
-      <FormDespesa onSuccess={handleSuccess} />
+      <FormQuitarDespesa onSuccess={handleSuccess} />
     </div>
   );
 };
 
-export default CadastrarDespesa;
+export default QuitarDespesa;

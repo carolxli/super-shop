@@ -92,6 +92,7 @@ const ListarComissao = () => {
             <th style={{ textAlign: "center", padding: "8px" }}>Mês</th>
             <th style={{ textAlign: "center", padding: "8px" }}>Ano</th>
             <th style={{ textAlign: "center", padding: "8px" }}>Valor</th>
+            <th style={{ textAlign: "center", padding: "8px" }}>Descrição</th>
             <th style={{ textAlign: "center", padding: "8px" }}>Ações</th>
           </tr>
         </thead>
@@ -109,6 +110,9 @@ const ListarComissao = () => {
               </td>
               <td style={{ textAlign: "center", padding: "8px" }}>
                 {comissao.valor}
+              </td>
+              <td style={{ textAlign: "center", padding: "8px" }}>
+                {comissao.descricao}
               </td>
               <td style={{ textAlign: "center", padding: "8px" }}>
                 <Link to={`/editarComissao/${comissao.idComissao}`}>

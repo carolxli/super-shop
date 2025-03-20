@@ -11,6 +11,28 @@ const FormTipoDespesa = () => {
     nome_tipo: "",
     descricao_tipo: "",
   });
+  const [resultadosBusca, setResultadosBusca] = useState([]);
+  const [filtroNome, setFiltroNome] = useState("");
+
+  useEffect(() => {
+    const fetchResultados = async () => {
+      if (!filtroNome.trim()) {
+        setResultadosBusca([]);
+        return;
+      }
+      try {
+        const response = await axios.get(
+          `http://localhost:8800/tipos-despesa?nome_tipo_like=${filtroNome}`
+        );
+        setResultadosBusca(response.data);
+      } catch (err) {
+        console.error("Erro ao buscar tipos de despesa:", err);
+        toast.error("Erro ao buscar tipos de despesa.");
+      }
+    };
+
+    fetchResultados();
+  }, [filtroNome]);
 
   useEffect(() => {
     if (idTipo) {
@@ -57,27 +79,32 @@ const FormTipoDespesa = () => {
           `http://localhost:8800/tipos-despesa/${idTipo}`,
           tipoDespesa
         );
+        window.alert("Tipo de despesa atualizado com sucesso!");
         toast.success("Tipo de despesa atualizado com sucesso!");
       } else {
         await axios.post("http://localhost:8800/tipos-despesa", tipoDespesa);
+        window.alert("Tipo de despesa criado com sucesso!");
         toast.success("Tipo de despesa criado com sucesso!");
-        navigate("/listarTipoDespesa");
       }
 
-      // Redireciona para a listagem após sucesso
-      navigate("/listarTipoDespesa");
+      navigate(-1);
     } catch (err) {
       console.error("Erro ao salvar tipo de despesa:", err);
+      window.alert(
+        "Erro ao salvar tipo de despesa. Verifique os dados e tente novamente."
+      );
       toast.error("Erro ao salvar tipo de despesa.");
     }
   };
 
   return (
     <div>
-      <h2>{idTipo ? "Editar Tipo de Despesa" : "Cadastrar Novo Tipo de Despesa"}</h2>
+      <h2>
+        {idTipo ? "Editar Tipo de Despesa" : "Cadastrar Novo Tipo de Despesa"}
+      </h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Nome do Tipo:</label>
+        <label>
+          Nome do Tipo:
           <input
             type="text"
             name="nome_tipo"
@@ -85,18 +112,16 @@ const FormTipoDespesa = () => {
             onChange={handleChange}
             required
           />
-        </div>
-        <div>
-          <label>Descrição:</label>
+        </label>
+        <label>
+          Descrição:
           <textarea
             name="descricao_tipo"
             value={tipoDespesa.descricao_tipo}
             onChange={handleChange}
           ></textarea>
-        </div>
-        <button type="submit">
-          {idTipo ? "Atualizar" : "Cadastrar"}
-        </button>
+        </label>
+        <button type="submit">{idTipo ? "Atualizar" : "Cadastrar"}</button>
       </form>
     </div>
   );

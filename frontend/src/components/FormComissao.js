@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 
 const FormComissao = () => {
   const { idComissao } = useParams();
-  const navigate = useNavigate();
 
   const [comissao, setComissao] = useState({
     mes: "",
@@ -39,17 +38,26 @@ const FormComissao = () => {
     e.preventDefault();
 
     try {
+      let response;
       if (idComissao) {
-        await axios.put(
+        response = await axios.put(
           `http://localhost:8800/comissao/${idComissao}`,
           comissao
         );
       } else {
-        await axios.post("http://localhost:8800/comissao", comissao);
+        response = await axios.post("http://localhost:8800/comissao", comissao);
       }
-      navigate("/listarComissao");
+
+      if ([200, 201].includes(response.status)) {
+        alert("Operação realizada com sucesso!");
+        setComissao({ mes: "", ano: "", valor: "", descricao: "" });
+      }
     } catch (error) {
-      console.error("Erro ao salvar comissão:", error);
+      if (error.response && error.response.status === 400) {
+        alert("Já existe uma comissão cadastrada com a mesma descricao.");
+      } else {
+        console.error("Erro ao salvar comissão:", error);
+      }
     }
   };
 
@@ -86,9 +94,9 @@ const FormComissao = () => {
         />
       </label>
       <label>
-        Valor:
+        Descrição:
         <input
-          type="string"
+          type="text"
           name="descricao"
           value={comissao.descricao}
           onChange={handleChange}

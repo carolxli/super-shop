@@ -72,151 +72,238 @@ const ListarDespesa = () => {
     setFiltroValor(e.target.value);
   };
 
-  const despesasFiltradas = despesas.filter((despesa) => {
-    const matchDescricao = despesa.descricao
-      .toLowerCase()
-      .includes(filtroDescricao.toLowerCase());
-    const matchPeriodo =
-      (!filtroPeriodo.inicio ||
-        new Date(despesa.dt_despesa) >= new Date(filtroPeriodo.inicio)) &&
-      (!filtroPeriodo.fim ||
-        new Date(despesa.dt_despesa) <=
-          new Date(new Date(filtroPeriodo.fim).setHours(23, 59, 59, 999)));
-    const matchStatus =
-      !filtroStatus ||
-      despesa.status.toLowerCase() === filtroStatus.toLowerCase();
-    const matchValor = !filtroValor || despesa.valor <= parseFloat(filtroValor);
+  const despesasFiltradas = despesas
+    .filter((despesa) => {
+      const matchDescricao = despesa.descricao
+        .toLowerCase()
+        .includes(filtroDescricao.toLowerCase());
 
-    return matchDescricao && matchPeriodo && matchStatus && matchValor;
-  });
+      const expenseDate = new Date(despesa.dt_despesa);
+      const startDate = filtroPeriodo.inicio
+        ? new Date(filtroPeriodo.inicio)
+        : null;
+      const endDate = filtroPeriodo.fim ? new Date(filtroPeriodo.fim) : null;
+      const matchData =
+        (!startDate || expenseDate >= startDate) &&
+        (!endDate || expenseDate <= endDate);
+
+      const matchStatus =
+        !filtroStatus ||
+        despesa.status.toLowerCase() === filtroStatus.toLowerCase();
+
+      const matchValor =
+        !filtroValor || despesa.valor <= parseFloat(filtroValor);
+
+      return matchDescricao && matchData && matchStatus && matchValor;
+    })
+    .sort((a, b) => new Date(a.dt_despesa) - new Date(b.dt_despesa)); // Ordena por data
 
   return (
-    <div>
-      <h2>Listar Despesas</h2>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "20px",
-          marginBottom: "20px",
-          padding: "10px",
-          backgroundColor: "#f9f9f9",
-          borderRadius: "8px",
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Pesquisar por descrição"
-          value={filtroDescricao}
-          onChange={handleFilterDescricao}
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <div style={{ maxWidth: "800px", width: "100%" }}>
+        <h2>Gerenciamento de Despesas</h2>
+        <div
           style={{
-            padding: "8px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-            flex: "1",
-          }}
-        />
-        <input
-          type="date"
-          name="inicio"
-          placeholder="Data inicial"
-          value={filtroPeriodo.inicio}
-          onChange={handleFilterPeriodo}
-          style={{
-            padding: "8px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-          }}
-        />
-        <input
-          type="date"
-          name="fim"
-          placeholder="Data final"
-          value={filtroPeriodo.fim}
-          onChange={handleFilterPeriodo}
-          style={{
-            padding: "8px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-          }}
-        />
-        <select
-          value={filtroStatus}
-          onChange={handleFilterStatus}
-          style={{
-            padding: "8px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-            flex: "1",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "20px",
+            marginBottom: "20px",
+            padding: "10px",
+            backgroundColor: "#f9f9f9",
+            borderRadius: "8px",
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <option value="">Filtrar por status</option>
-          <option value="Pago">Pago</option>
-          <option value="Pendente">Pendente</option>
-          <option value="Cancelado">Cancelado</option>
-        </select>
-        <input
-          type="number"
-          placeholder="Filtrar por valor máximo"
-          value={filtroValor}
-          onChange={handleFilterValor}
-          style={{
-            padding: "8px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-            flex: "1",
-          }}
-        />
-        <Link to="/cadastrarDespesa">
-          <button
+          <input
+            type="text"
+            placeholder="Pesquisar Descrição..."
+            value={filtroDescricao}
+            onChange={handleFilterDescricao}
             style={{
-              padding: "8px 16px",
-              backgroundColor: "#87CEEB",
-              color: "#fff",
-              border: "none",
+              display: "block",
+              padding: "8px",
+              border: "1px solid #ddd",
               borderRadius: "4px",
-              cursor: "pointer",
-              transition: "background-color 0.3s",
+              flex: "1",
+            }}
+          />
+          <input
+            type="date"
+            name="inicio"
+            placeholder="Data inicial"
+            value={filtroPeriodo.inicio}
+            onChange={handleFilterPeriodo}
+            style={{
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
+          />
+          <input
+            type="date"
+            name="fim"
+            placeholder="Data final"
+            value={filtroPeriodo.fim}
+            onChange={handleFilterPeriodo}
+            style={{
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+            }}
+          />
+          <select
+            value={filtroStatus}
+            onChange={handleFilterStatus}
+            style={{
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              flex: "1",
             }}
           >
-            Cadastrar Nova Despesa
-          </button>
-        </Link>
-      </div>
-      <table border="1" style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Descrição</th>
-            <th>Tipo de Despesa</th>
-            <th>Valor</th>
-            <th>Data</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {despesasFiltradas.length > 0 ? (
-            despesasFiltradas.map((despesa) => (
-              <tr key={despesa.idDespesa}>
-                <td>{despesa.idDespesa}</td>
-                <td>{despesa.descricao}</td>
-                <td>{despesa.nome_tipo || "N/A"}</td>
-                <td>{despesa.valor}</td>
-                <td>{new Date(despesa.dt_despesa).toLocaleDateString()}</td>
-                <td>{despesa.status}</td>
-                <td>
-                  <Link
-                    to={`/editarDespesa/${despesa.idDespesa}`}
-                    state={{ status: despesa.status }}
-                  >
+            <option value="">Status</option>
+            <option value="Pago">Pago</option>
+            <option value="Parcialmente Pago">Parcialmente Pago</option>
+            <option value="Pendente">Pendente</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Valor Máximo"
+            value={filtroValor}
+            onChange={handleFilterValor}
+            style={{
+              padding: "8px",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              flex: "1",
+            }}
+          />
+          <Link to="/cadastrarDespesa">
+            <button
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#87CEEB",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                transition: "background-color 0.3s",
+              }}
+            >
+              Cadastrar Despesa
+            </button>
+          </Link>
+        </div>
+        <table
+          border="1"
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            marginBottom: "20px",
+          }}
+        >
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Descrição</th>
+              <th>Tipo de Despesa</th>
+              <th>Valor</th>
+              <th>Data de Registro</th>
+              <th>Data de Pagamento</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {despesasFiltradas.length > 0 ? (
+              despesasFiltradas.map((despesa) => (
+                <tr key={despesa.idDespesa}>
+                  <td>{despesa.idDespesa}</td>
+                  <td>{despesa.descricao}</td>
+                  <td>{despesa.nome_tipo || "N/A"}</td>
+                  <td>
+                    {despesa.valor
+                      ? despesa.valor.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })
+                      : "R$ 0,00"}
+                  </td>
+                  <td>
+                    {new Date(despesa.dt_despesa).toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
+                  </td>
+                  <td>
+                    {despesa.data_pagamento
+                      ? new Date(despesa.data_pagamento).toLocaleDateString(
+                          "pt-BR",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          }
+                        )
+                      : "N/A"}
+                  </td>
+                  <td>{despesa.status}</td>
+                  <td>
+                    <Link
+                      to={`/editarDespesa/${despesa.idDespesa}`}
+                      state={{ status: despesa.status }}
+                    >
+                      <button
+                        style={{
+                          padding: "6px 12px",
+                          marginRight: "5px",
+                          backgroundColor:
+                            despesa.status === "Pago" ? "#ccc" : "#87CEEB",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor:
+                            despesa.status === "Pago"
+                              ? "not-allowed"
+                              : "pointer",
+                        }}
+                        disabled={despesa.status === "Pago"}
+                      >
+                        Editar
+                      </button>
+                    </Link>
+                    <Link
+                      to={`/quitarDespesa/${despesa.idDespesa}`}
+                      state={{ status: despesa.status }} // VERIFICAR SE ESTÁ CORRETO
+                    >
+                      <button
+                        style={{
+                          padding: "6px 12px",
+                          marginRight: "5px",
+                          backgroundColor:
+                            despesa.status === "Pago" ? "#ccc" : "#87CEEB",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor:
+                            despesa.status === "Pago"
+                              ? "not-allowed"
+                              : "pointer",
+                        }}
+                      >
+                        Quitar
+                      </button>
+                    </Link>
                     <button
+                      onClick={() =>
+                        handleDelete(despesa.idDespesa, despesa.status)
+                      }
                       style={{
                         padding: "6px 12px",
-                        marginRight: "5px",
                         backgroundColor:
-                          despesa.status === "Pago" ? "#ccc" : "#87CEEB",
+                          despesa.status === "Pago" ? "#ccc" : "#FF6347",
                         color: "#fff",
                         border: "none",
                         borderRadius: "4px",
@@ -225,37 +312,19 @@ const ListarDespesa = () => {
                       }}
                       disabled={despesa.status === "Pago"}
                     >
-                      Editar
+                      Deletar
                     </button>
-                  </Link>
-                  <button
-                    onClick={() =>
-                      handleDelete(despesa.idDespesa, despesa.status)
-                    }
-                    style={{
-                      padding: "6px 12px",
-                      backgroundColor:
-                        despesa.status === "Pago" ? "#ccc" : "#FF6347",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor:
-                        despesa.status === "Pago" ? "not-allowed" : "pointer",
-                    }}
-                    disabled={despesa.status === "Pago"}
-                  >
-                    Deletar
-                  </button>
-                </td>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8">Nenhuma despesa encontrada.</td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7">Nenhuma despesa encontrada.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

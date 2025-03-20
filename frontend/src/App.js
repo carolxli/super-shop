@@ -40,16 +40,19 @@ import AcertarEstoque from "./pages/acertoEstoque.js";
 import Venda from "./pages/Venda.js";
 import Compra from "./pages/compra.js";
 
+import ChangePassword from "./components/ChangePassword.jsx";
+import QuitarDespesa from "./pages/QuitarDespesa.js";
 const App = () => {
   const { isAuthenticated } = useAuth();
 
   return (
     <>
       <Router>
-
         {isAuthenticated && <Header />}
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/change-password" element={<ChangePassword />} />{" "}
+          {/* Adicione esta linha */}
           <Route
             path="/"
             element={
@@ -66,7 +69,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/fornecedor"
             element={
@@ -91,7 +93,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/pessoa"
             element={
@@ -140,7 +141,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/cliente"
             element={
@@ -165,7 +165,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/produto"
             element={
@@ -190,7 +189,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/despesa"
             element={
@@ -208,6 +206,14 @@ const App = () => {
             }
           />
           <Route
+            path="/quitarDespesa/:idDespesa"
+            element={
+              <PrivateRoute>
+                <QuitarDespesa />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/editarDespesa/:idDespesa"
             element={
               <PrivateRoute>
@@ -215,7 +221,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/tipos-despesa"
             element={
@@ -240,7 +245,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/listar-categorias"
             element={
@@ -282,7 +286,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/listar-marcas"
             element={
@@ -307,7 +310,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/acertoEstoque/:idProduto" // Nova rota para acerto de estoque
             element={
@@ -316,7 +318,6 @@ const App = () => {
               </PrivateRoute>
             }
           />
-
           <Route
             path="/venda"
             element={
