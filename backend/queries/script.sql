@@ -32,3 +32,27 @@ INSERT INTO "SuperShop"."Despesa" (
     ('2024-03-12', '2024-03-30', 200.00, 'Dinheiro', 'Concerto ar-condicionado', 'Pendente', 5, NULL),
     ('2024-03-15', '2024-03-28', 500.00, 'Cartão', 'Mesa de Escritório', 'Pendente', 4, NULL),
     ('2024-03-18', '2024-04-05', 300.00, 'Boleto', 'Internet - Claro', 'Pendente', 3, NULL);
+
+
+-- ALTER Compra
+ALTER TABLE "SuperShop"."Usuario" ADD CONSTRAINT unique_idUsuario UNIQUE ("idUsuario");
+ALTER TABLE "SuperShop"."Compra" DROP CONSTRAINT "fk_Compra_Fornecedor"
+ALTER TABLE "SuperShop"."Compra" DROP CONSTRAINT "fk_Compra_Usuario"
+ALTER TABLE "SuperShop"."Compra" DROP CONSTRAINT fk_compra_usuario;
+
+ALTER TABLE "SuperShop"."Compra"
+ADD CONSTRAINT fk_Compra_Usuario
+FOREIGN KEY ("Usuario_idUsuario")
+REFERENCES "SuperShop"."Usuario"("idUsuario")
+ON DELETE CASCADE;
+
+ALTER TABLE "SuperShop"."Compra" ALTER COLUMN "total_compra" TYPE DECIMAL(10,2) USING "total_compra"::DECIMAL(10,2);
+ALTER TABLE "SuperShop"."Compra" ALTER COLUMN "desconto" TYPE DECIMAL(10,2) USING "desconto"::DECIMAL(10,2);
+
+ALTER TABLE "SuperShop"."Compra" DROP COLUMN "Usuario_Pessoa_idPessoa";
+ALTER TABLE "SuperShop"."Compra" DROP COLUMN "Fornecedor_Pessoa_idPessoa";
+ALTER TABLE "SuperShop"."Compra" DROP COLUMN "Fornecedor_idFornecedor";
+
+ALTER TABLE "SuperShop"."Compra" RENAME COLUMN "idCompra" TO "id_compra";
+ALTER TABLE "SuperShop"."Compra" RENAME COLUMN "idProduto" TO "id_produto";
+ALTER TABLE "SuperShop"."Compra" RENAME COLUMN "idUsuario" TO "id_usuario";
