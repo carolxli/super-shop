@@ -56,3 +56,9 @@ ALTER TABLE "SuperShop"."Compra" DROP COLUMN "Fornecedor_idFornecedor";
 ALTER TABLE "SuperShop"."Compra" RENAME COLUMN "idCompra" TO "id_compra";
 ALTER TABLE "SuperShop"."Compra" RENAME COLUMN "idProduto" TO "id_produto";
 ALTER TABLE "SuperShop"."Compra" RENAME COLUMN "idUsuario" TO "id_usuario";
+
+ALTER TABLE "SuperShop"."Compra" DROP CONSTRAINT "fk_Compra_Produto";
+ALTER TABLE "SuperShop"."Compra" DROP CONSTRAINT "fk_compra_usuario";
+
+ALTER TABLE "SuperShop"."Compra" DROP COLUMN "id_produto";
+ALTER TABLE "SuperShop"."Compra" DROP COLUMN "id_usuario";
