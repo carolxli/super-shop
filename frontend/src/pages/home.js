@@ -29,7 +29,7 @@ const ButtonGrid = styled.div`
   margin-top: -180px;
 `;
 const Button = styled.button`
-  background: linear-gradient(135deg,rgb(17, 123, 230), #87CEEB);
+  background: linear-gradient(135deg, rgb(17, 123, 230), #87ceeb);
   color: white;
   font-size: 1.2rem;
   padding: 15px 30px;
@@ -40,7 +40,7 @@ const Button = styled.button`
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 
   &:hover {
-    background: linear-gradient(135deg, #2196f3, #87CEEB); 
+    background: linear-gradient(135deg, #2196f3, #87ceeb);
     transform: scale(1.05);
   }
 `;
@@ -70,8 +70,12 @@ const Home = () => {
     <Container>
       <WelcomeMessage show={showWelcome}>Bem-vindo(a), {nome}!</WelcomeMessage>
       <ButtonGrid>
-        <Button type="button" onClick={() => navigate("/venda")}>Caixa</Button>
-        <Button type="button" onClick={() => navigate("/compra")}>Compra</Button>
+        <Button type="button" onClick={() => navigate("/venda")}>
+          Caixa
+        </Button>
+        <Button type="button" onClick={() => navigate("/purchasePage")}>
+          Compra
+        </Button>
         <Button>Relatórios</Button>
       </ButtonGrid>
     </Container>

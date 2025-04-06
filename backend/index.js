@@ -12,6 +12,7 @@ import routerComissao from "./routes/rtComissao.js";
 import routerAcertoEstoque from "./routes/rtAcertoEstoque.js";
 import routerVenda from "./routes/rtVenda.js";
 import cors from "cors";
+import routerPurchase from "./routes/rtPurchase.js";
 
 const app = express();
 
@@ -23,14 +24,15 @@ app.use("/Produto", routerProd);
 app.use("/Pessoa", routerPess);
 app.use("/Fornecedor", routerForne);
 app.use("/Cliente", routerCli);
-app.use('/vendasCliente', routerCli);
+app.use("/vendasCliente", routerCli);
 app.use("/Marca", routerMarca);
 app.use("/Categoria", routerCategoria);
 app.use("/usuario", routerUsuario);
 app.use("/despesa", routerDespesa);
 app.use("/tipos-despesa", routerTipoDespesa);
-app.use("/comissao",routerComissao);
-app.use("/acertoEstoque",routerAcertoEstoque);
-app.use("/Venda",routerVenda)
+app.use("/comissao", routerComissao);
+app.use("/acertoEstoque", routerAcertoEstoque);
+app.use("/Venda", routerVenda);
+app.use("/purchase", routerPurchase);
 
 app.listen(8800);
