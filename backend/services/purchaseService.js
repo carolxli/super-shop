@@ -1,5 +1,6 @@
 import {
   createPurchaseRepository,
+  getAllProductsWithSuppliersRepository,
   getAllPurchasesRepository,
   getProductsByPurchaseIdRepository,
 } from "../repositories/purchaseRepository.js";
@@ -10,6 +11,7 @@ const validate = (data) => {
     data.purchaseDate === null ||
     data.purchaseDate === ""
   ) {
+    console.log("Data da compra inválida");
     return false;
   }
 
@@ -19,6 +21,7 @@ const validate = (data) => {
     data.totalValue === "" ||
     isNaN(data.totalValue)
   ) {
+    console.log("Valor total inválido");
     return false;
   }
 
@@ -28,6 +31,7 @@ const validate = (data) => {
     data.discount === "" ||
     isNaN(data.discount)
   ) {
+    console.log("Desconto inválido");
     return false;
   }
 
@@ -36,20 +40,23 @@ const validate = (data) => {
     data.paymentMethod === null ||
     data.paymentMethod === ""
   ) {
+    console.log("Método de pagamento inválido");
     return false;
   }
 
   if (!Array.isArray(data.products) || data.products.length === 0) {
+    console.log("Produtos inválidos");
     return false;
   }
 
   for (const product of data.products) {
     if (
-      product.productID === undefined ||
-      product.productID === null ||
-      product.productID === "" ||
-      isNaN(product.productID)
+      product.productId === undefined ||
+      product.productId === null ||
+      product.productId === "" ||
+      isNaN(product.productId)
     ) {
+      console.log("ID do produto inválido");
       return false;
     }
 
@@ -59,6 +66,7 @@ const validate = (data) => {
       product.quantity === "" ||
       isNaN(product.quantity)
     ) {
+      console.log("Quantidade inválida");
       return false;
     }
   }
@@ -68,6 +76,7 @@ const validate = (data) => {
 
 export const createPurchaseService = async (data) => {
   if (!validate(data)) {
+    console.log("Dados inválidos para criar compra");
     return false;
   }
 
@@ -87,14 +96,26 @@ export const getAllPurchasesService = async () => {
 
   return purchases;
 };
+
 export const getProductsByPurchaseIdService = async (purchaseId) => {
   if (!purchaseId || isNaN(purchaseId)) {
+    console.log("ID da compra inválido");
     return null;
   }
 
   const products = await getProductsByPurchaseIdRepository(purchaseId);
   if (!products || products.length === 0) {
+    console.log("Nenhum produto encontrado para a compra com ID:", purchaseId);
     return null;
+  }
+
+  return products;
+};
+
+export const getAllProductsWithSuppliersService = async () => {
+  const products = await getAllProductsWithSuppliersRepository();
+  if (!products || products.length === 0) {
+    return [];
   }
 
   return products;

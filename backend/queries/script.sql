@@ -62,3 +62,33 @@ ALTER TABLE "SuperShop"."Compra" DROP CONSTRAINT "fk_compra_usuario";
 
 ALTER TABLE "SuperShop"."Compra" DROP COLUMN "id_produto";
 ALTER TABLE "SuperShop"."Compra" DROP COLUMN "id_usuario";
+
+CREATE TABLE "SuperShop"."Compra_Produto" (
+    id_compra INT NOT NULL,
+    id_produto INT NOT NULL,
+    quantidade INT NOT NULL DEFAULT 1,
+    PRIMARY KEY (id_compra, id_produto),
+    FOREIGN KEY (id_compra) REFERENCES "SuperShop"."Compra"(id_compra) ON DELETE CASCADE,
+    FOREIGN KEY (id_produto) REFERENCES "SuperShop"."Produto"("idProduto") ON DELETE CASCADE
+);
+
+-- POPULATE Produto
+INSERT INTO "SuperShop"."Produto" (
+  "sku",
+  "descricao",
+  "valor_custo",
+  "valor_venda",
+  "estoque_min",
+  "estoque_atual",
+  "status",
+  "Categoria_idCategoria",
+  "Fornecedor_idFornecedor",
+  "Fornecedor_Pessoa_idPessoa"
+) VALUES
+('SKU-1001', 'Mouse óptico USB', 15.00, 30.00, 5, 20, 'ativo', 5, 1, 1),
+('SKU-1002', 'Teclado ABNT2 com fio', 30.00, 62.00, 4, 15, 'ativo', 5, 1, 1),
+('SKU-1003', 'Monitor LED 21.5”', 600.00, 720.00, 2, 8, 'ativo', 6, 1, 1),
+('SKU-1004', 'Notebook Core i5 8GB RAM', 4000.00, 5200.00, 1, 5, 'ativo', 5, 1, 1),
+('SKU-1005', 'HD Externo 1TB USB 3.0', 300.00, 350.00, 3, 10, 'ativo', 6, 1, 1),
+('SKU-1006', 'Headset com microfone', 100.00, 200.00, 3, 12, 'ativo', 6, 1, 1),
+('SKU-1007', 'Webcam HD 720p', 100.00, 150.00, 2, 9, 'ativo', 5, 1, 1);
