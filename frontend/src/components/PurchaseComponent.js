@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const PurchaseComponent = () => {
+  // States
   const [formData, setFormData] = useState({
     purchaseDate: "",
     totalValue: "",
@@ -19,8 +20,8 @@ const PurchaseComponent = () => {
   const [products, setProducts] = useState([]);
   const [productOptions, setProductOptions] = useState([]);
 
+  // Functions
   useEffect(() => {
-    // Carregar os produtos para o dropdown
     const fetchProducts = async () => {
       try {
         const response = await axios.get(
@@ -38,7 +39,19 @@ const PurchaseComponent = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    if (name === "discount") {
+      const numericValue = value.replace(/\D/g, "");
+      const floatValue = parseFloat(numericValue) / 100;
+      const formatted = floatValue.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+
+      setFormData({ ...formData, discount: formatted });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleProductChange = (e) => {
@@ -82,12 +95,26 @@ const PurchaseComponent = () => {
       0
     );
 
-    formData.totalValue = parseFloat(total) - parseFloat(formData.discount);
-    formData.discount = parseFloat(formData.discount) || 0;
-
     return total;
   };
 
+  const calculateTotalValueWithDiscount = () => {
+    const total = products.reduce(
+      (total, product) => total + product.saleValue * product.quantity,
+      0
+    );
+
+    const discount =
+      parseFloat(formData.discount.replace(/\D/g, "")) / 100 || 0;
+
+    return total - discount;
+  };
+
+  const removeProduct = (indexToRemove) => {
+    setProducts(products.filter((_, index) => index !== indexToRemove));
+  };
+
+  // Styles
   const inputBase = {
     padding: "10px",
     borderRadius: "6px",
@@ -117,42 +144,39 @@ const PurchaseComponent = () => {
       return;
     }
     try {
-      // Calcula o total com base nos produtos adicionados
       const total = products.reduce(
         (acc, product) => acc + product.saleValue * product.quantity,
         0
       );
 
-      const discount = parseFloat(formData.discount) || 0;
+      const discount =
+        parseFloat(formData.discount.replace(/\D/g, "")) / 100 || 0;
+
+      if (discount > total) {
+        alert("O desconto não pode ser maior que o valor total.");
+        return;
+      }
+
       const totalValue = total - discount;
 
-      // Cria um array somente com productId e quantity
       const minimalProducts = products.map(({ productId, quantity }) => ({
         productId,
         quantity,
       }));
 
-      // Cria o objeto de dados da compra
       const purchaseData = {
         ...formData,
+        discount,
         totalValue,
         products: minimalProducts,
       };
 
-      // Exibe os dados da compra no console
-      alert("Dados da compra:\n" + JSON.stringify(purchaseData, null, 2));
       console.log(purchaseData);
 
       await axios.post("http://localhost:8800/purchase", purchaseData);
 
       alert("Compra cadastrada com sucesso!");
-      setFormData({
-        purchaseDate: "",
-        totalValue: "",
-        discount: "",
-        paymentMethod: "",
-      });
-      setProducts([]);
+      window.location.reload();
     } catch (error) {
       console.error("Erro ao cadastrar compra:", error);
       if (error.response) {
@@ -218,7 +242,7 @@ const PurchaseComponent = () => {
               *Desconto:
             </label>
             <input
-              type="number"
+              type="text"
               name="discount"
               value={formData.discount}
               onChange={handleInputChange}
@@ -228,17 +252,23 @@ const PurchaseComponent = () => {
           </div>
 
           <div>
-            <label style={{ display: "block", marginBottom: "6px" }}>
-              *Forma de Pagamento:
+            <label>
+              *Forma de Pagamento
+              <select
+                name="paymentMethod"
+                value={formData.paymentMethod}
+                onChange={handleInputChange}
+                required
+                style={{ ...inputBase, width: "150%" }}
+              >
+                <option value="">Forma de Pagamento</option>
+                <option value="Cartão">Cartão</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Pix">Pix</option>
+                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                <option value="Boleto">Boleto</option>
+              </select>
             </label>
-            <input
-              type="text"
-              name="paymentMethod"
-              value={formData.paymentMethod}
-              onChange={handleInputChange}
-              required
-              style={{ ...inputBase, width: "80%" }}
-            />
           </div>
         </div>
 
@@ -277,18 +307,21 @@ const PurchaseComponent = () => {
               />
             )}
           </div>
-          <button
-            type="button"
-            onClick={addProduct}
-            style={{ ...buttonStyle, marginTop: "10px", width: "100%" }}
-          >
-            Adicionar Produto
-          </button>
+
+          {currentProduct.productId && (
+            <button
+              type="button"
+              onClick={addProduct}
+              style={{ ...buttonStyle, marginTop: "10px", width: "100%" }}
+            >
+              Adicionar Produto
+            </button>
+          )}
         </div>
 
         {products.length > 0 && (
           <div>
-            <h3>Produtos Adicionados:</h3>
+            <h3>Produtos Adicionados</h3>
             <table
               style={{
                 width: "100%",
@@ -300,8 +333,10 @@ const PurchaseComponent = () => {
                 <tr style={{ backgroundColor: "#f9f9f9" }}>
                   <th style={cellStyle}>ID</th>
                   <th style={cellStyle}>Descrição</th>
-                  <th style={cellStyle}>Valor</th>
-                  <th style={cellStyle}>Qtd</th>
+                  <th style={cellStyle}>Valor Unitário</th>
+                  <th style={cellStyle}>Valor Total</th>
+                  <th style={cellStyle}>Quantidade</th>
+                  <th style={cellStyle}>Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -315,7 +350,29 @@ const PurchaseComponent = () => {
                         currency: "BRL",
                       }).format(product.saleValue)}
                     </td>
+                    <td style={cellStyle}>
+                      {new Intl.NumberFormat("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      }).format(product.saleValue * product.quantity)}
+                    </td>
                     <td style={cellStyle}>{product.quantity}</td>
+                    <td style={cellStyle}>
+                      <button
+                        type="button"
+                        onClick={() => removeProduct(index)}
+                        style={{
+                          backgroundColor: "#ef5350",
+                          color: "#fff",
+                          border: "none",
+                          padding: "6px 10px",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Remover
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -326,6 +383,13 @@ const PurchaseComponent = () => {
                 style: "currency",
                 currency: "BRL",
               }).format(calculateTotalValue())}
+            </h4>
+            <h4 style={{ marginTop: "10px" }}>
+              Valor Com Desconto:{" "}
+              {new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(calculateTotalValueWithDiscount())}
             </h4>
           </div>
         )}
