@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import axios from "axios";
 
 const FormRow = styled.form`
   width: 80%;
@@ -57,8 +57,6 @@ const Venda = () => {
   const [clientes, setClientes] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [produtos, setProdutos] = useState([]);
-  const [clienteIds, setClienteIds] = useState([]);
-  const [usuarioIds, setUsuarioIds] = useState([]);
   const [autocompleteClienteVisible, setAutocompleteClienteVisible] = useState(false);
   const [autocompleteUsuarioVisible, setAutocompleteUsuarioVisible] = useState(false);
   const [autocompleteProdutoVisible, setAutocompleteProdutoVisible] = useState(false);
@@ -71,10 +69,10 @@ const Venda = () => {
     const fetchDados = async () => {
       try {
         const clientesResponse = await axios.get("http://localhost:8800/Cliente");
-        setClienteIds(clientesResponse.data.map(cliente => cliente.Pessoa_idPessoa));
+        setClientes(clientesResponse.data);
 
         const usuariosResponse = await axios.get("http://localhost:8800/Usuario");
-        setUsuarioIds(usuariosResponse.data.map(usuario => usuario.Pessoa_idPessoa));
+        setUsuarios(usuariosResponse.data);
 
         const produtosResponse = await axios.get("http://localhost:8800/Produto");
         setProdutos(produtosResponse.data.rows || []);
@@ -128,9 +126,10 @@ const Venda = () => {
     setNomeCliente(nome);
     if (nome.length >= 2) {
       try {
-        const response = await axios.get(`http://localhost:8800/Pessoa?nome=${nome}`);
-        const clientesFiltrados = response.data.filter(pessoa => clienteIds.includes(pessoa.idPessoa));
-        setClientes(clientesFiltrados);
+        const response = await axios.get(`http://localhost:8800/Cliente`, {
+          params: { nome }
+        });
+        setClientes(response.data);
         setAutocompleteClienteVisible(true);
       } catch (error) {
         console.error("Erro ao buscar clientes:", error);
@@ -145,9 +144,10 @@ const Venda = () => {
     setNomeUsuario(nome);
     if (nome.length >= 2) {
       try {
-        const response = await axios.get(`http://localhost:8800/Pessoa?nome=${nome}`);
-        const usuariosFiltrados = response.data.filter(pessoa => usuarioIds.includes(pessoa.idPessoa));
-        setUsuarios(usuariosFiltrados);
+        const response = await axios.get(`http://localhost:8800/Usuario`, {
+          params: { nome }
+        });
+        setUsuarios(response.data);
         setAutocompleteUsuarioVisible(true);
       } catch (error) {
         console.error("Erro ao buscar usuários:", error);
@@ -187,19 +187,17 @@ const Venda = () => {
               {clientes.length > 0 ? (
                 clientes.map(cliente => (
                   <li key={cliente.idPessoa} onClick={() => {
-                    setNomeCliente(cliente.nome);
+                    setNomeCliente(cliente.pessoa_nome);
+                    setValorVoucher(cliente.voucher || 0);
                     setAutocompleteClienteVisible(false);
-
-                    const valor = cliente.voucher || 0;
-                    setValorVoucher(valor);
 
                     const dadosVoucher = {
                       clienteId: cliente.idPessoa,
-                      nome: cliente.nome,
-                      valorVoucher: valor
+                      nome: cliente.pessoa_nome,
+                      valorVoucher: cliente.voucher || 0
                     };
                     localStorage.setItem("voucher_cliente", JSON.stringify(dadosVoucher));
-                  }}>{cliente.nome}</li>
+                  }}>{cliente.pessoa_nome}</li>
                 ))
               ) : (
                 <li>Cliente não encontrado</li>
@@ -210,23 +208,23 @@ const Venda = () => {
 
         {valorVoucher > 0 && (
           <p style={{ marginTop: "5px", color: "green", fontWeight: "bold" }}>
-            Voucher disponível: R$ {valorVoucher.toFixed(2)}
+            Cliente possui voucher de R$ {valorVoucher.toFixed(2)}
           </p>
         )}
 
-        <label>Usuário (Vendedor):
+        <label>Usuário:
           <Input type="text" value={nomeUsuario} onChange={handleNomeUsuarioChange} required />
           {autocompleteUsuarioVisible && (
             <ul className="autocomplete-list">
               {usuarios.length > 0 ? (
                 usuarios.map(usuario => (
                   <li key={usuario.idPessoa} onClick={() => {
-                    setNomeUsuario(usuario.nome);
+                    setNomeUsuario(usuario.pessoa_nome);
                     setAutocompleteUsuarioVisible(false);
-                  }}>{usuario.nome}</li>
+                  }}>{usuario.pessoa_nome}</li>
                 ))
               ) : (
-                <li>Vendedor não encontrado</li>
+                <li>Usuário não encontrado</li>
               )}
             </ul>
           )}
@@ -237,30 +235,30 @@ const Venda = () => {
             type="text"
             value={produto}
             onChange={(e) => {
-              setProduto(e.target.value);
-              setAutocompleteProdutoVisible(true);
-              setProdutoSelecionado(null);
+              const valor = e.target.value;
+              setProduto(valor);
+              const encontrados = produtos.filter(p =>
+                p.descricao.toLowerCase().includes(valor.toLowerCase())
+              );
+              if (encontrados.length > 0) {
+                setProdutoSelecionado(encontrados[0]);
+              } else {
+                setProdutoSelecionado(null);
+              }
+              setAutocompleteProdutoVisible(valor.length >= 1);
             }}
+            required
           />
           {autocompleteProdutoVisible && (
             <ul className="autocomplete-list">
               {produtos
-                .filter(p =>
-                  (p.descricao?.toLowerCase().includes(produto.toLowerCase()) ||
-                  p.sku?.toLowerCase().includes(produto.toLowerCase()))
-                )
+                .filter(p => p.descricao.toLowerCase().includes(produto.toLowerCase()))
                 .map(p => (
-                  <li
-                    key={p.idProduto}
-                    onClick={() => {
-                      setProduto(`${p.descricao} (${p.sku})`);
-                      setProdutoSelecionado(p);
-                      setAutocompleteProdutoVisible(false);
-                      setQuantidade(1);
-                    }}
-                  >
-                    {p.descricao} ({p.sku})
-                  </li>
+                  <li key={p.idProduto} onClick={() => {
+                    setProduto(p.descricao);
+                    setProdutoSelecionado(p);
+                    setAutocompleteProdutoVisible(false);
+                  }}>{p.descricao}</li>
                 ))}
             </ul>
           )}
@@ -271,48 +269,48 @@ const Venda = () => {
             type="number"
             min="1"
             value={quantidade}
-            onChange={(e) => setQuantidade(Number(e.target.value))}
+            onChange={(e) => setQuantidade(parseInt(e.target.value))}
+            required
           />
         </label>
 
-        <Button type="button" onClick={adicionarProduto}>Adicionar</Button>
+        <Button type="button" onClick={adicionarProduto}>Adicionar Produto</Button>
+      </FormRow>
 
-        <Table>
-          <thead>
-            <tr>
-              <Th>Produto</Th>
-              <Th>Quantidade</Th>
-              <Th>Valor unitário</Th>
-              <Th>Valor Total</Th>
-              <Th>Ações</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {itens.length > 0 ? (
-              itens.map((item) => (
+      {itens.length > 0 && (
+        <>
+          <h3>Itens da Venda</h3>
+          <Table>
+            <thead>
+              <tr>
+                <Th>Produto</Th>
+                <Th>Quantidade</Th>
+                <Th>Valor Unitário</Th>
+                <Th>Valor Total</Th>
+                <Th>Ações</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {itens.map(item => (
                 <tr key={item.id}>
                   <Td>{item.produto}</Td>
                   <Td>{item.quantidade}</Td>
                   <Td>R$ {item.valorUnitario.toFixed(2)}</Td>
                   <Td>R$ {item.valorTotal.toFixed(2)}</Td>
-                  <Td><Button onClick={() => removerProduto(item.id)}>Remover</Button></Td>
+                  <Td>
+                    <Button type="button" onClick={() => removerProduto(item.id)}>Remover</Button>
+                  </Td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <Td colSpan="5">Nenhum produto adicionado</Td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
+              ))}
+            </tbody>
+          </Table>
 
-        <p>Quantidade Total de Itens: {totalItens}</p>
-        <p>Subtotal: R$ {subtotal.toFixed(2)}</p>
-        <p>Total: R$ {total.toFixed(2)}</p>
+          <h4>Subtotal: R$ {subtotal.toFixed(2)}</h4>
+          <h4>Total de Itens: {totalItens}</h4>
+        </>
+      )}
 
-        <Button onClick={registrarVenda}>Registrar Venda</Button>
-        <Button onClick={() => navigate("/")}>Cancelar</Button>
-      </FormRow>
+      <Button type="button" onClick={registrarVenda}>Finalizar Venda</Button>
     </>
   );
 };
