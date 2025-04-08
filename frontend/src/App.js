@@ -39,9 +39,10 @@ import EditarUsuario from "./pages/EditarUsuario.js";
 import AcertarEstoque from "./pages/acertoEstoque.js";
 import Venda from "./pages/Venda.js";
 import VendaFinanceiro from "./pages/VendaFinanceiro.js";
-import Compra from "./pages/compra.js";
 import ChangePassword from "./components/ChangePassword.jsx";
 import QuitarDespesa from "./pages/QuitarDespesa.js";
+
+import PurchasePage from "./pages/purchasePage.js";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -329,23 +330,13 @@ const App = () => {
           />
 
           <Route
-            path="/venda-financeiro"
+            path="/purchasePage"
             element={
               <PrivateRoute>
-                <VendaFinanceiro />
+                <PurchasePage />
               </PrivateRoute>
             }
           />
-
-          <Route
-            path="/compra"
-            element={
-              <PrivateRoute>
-                <Compra />
-              </PrivateRoute>
-            }
-          />
-
         </Routes>
       </Router>
 
