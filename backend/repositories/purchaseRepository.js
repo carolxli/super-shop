@@ -238,3 +238,53 @@ export const getAllProductsWithSuppliersRepository = async () => {
     return [];
   }
 };
+
+export const deletePurchaseRepository = async (purchaseId) => {
+  const client = await db.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Check if the purchase exists
+    const checkPurchaseQuery = `
+                SELECT COUNT(*) AS count
+                FROM "SuperShop"."Compra"
+                WHERE "id_compra" = $1
+        `;
+
+    const { rows: checkRows } = await client.query(checkPurchaseQuery, [
+      purchaseId,
+    ]);
+    const purchaseCount = parseInt(checkRows[0].count, 10);
+    if (purchaseCount === 0) {
+      console.log("Compra não encontrada");
+      return false;
+    }
+
+    // Delete from "Compra_Produto" table
+    const deletePurchaseProductQuery = `
+                DELETE FROM "SuperShop"."Compra_Produto"
+                WHERE "id_compra" = $1
+        `;
+    await client.query(deletePurchaseProductQuery, [purchaseId]);
+
+    // Delete from "Compra" table
+    const deletePurchaseQuery = `
+                DELETE FROM "SuperShop"."Compra"
+                WHERE "id_compra" = $1
+        `;
+    await client.query(deletePurchaseQuery, [purchaseId]);
+
+    await client.query("COMMIT");
+
+    return true;
+  } catch (err) {
+    console.log("Erro ao deletar compra:", err);
+    await client.query("ROLLBACK");
+    console.error("Erro ao deletar compra:", err);
+
+    return false;
+  } finally {
+    client.release();
+  }
+};
