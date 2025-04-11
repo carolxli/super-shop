@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  deletePurchase,
   getAllProductsWithSuppliers,
   getAllPurchase,
   getPurchaseById,
@@ -12,5 +13,6 @@ routerPurchase.post("/", postPurchase);
 routerPurchase.get("/", getAllPurchase);
 routerPurchase.get("/products", getAllProductsWithSuppliers);
 routerPurchase.get("/:purchaseId", getPurchaseById);
+routerPurchase.delete("/:purchaseId", deletePurchase);
 
 export default routerPurchase;
