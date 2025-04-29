@@ -132,13 +132,17 @@ export const getProductsByPurchaseIdRepository = async (param) => {
                         p."idProduto" as "productId",
                         p."descricao" as "productDescription",
                         p.valor_venda as "saleValue",
-                        cp.quantidade as "quantity"
+                        cp.quantidade as "quantity",
+                        p.valor_custo as "purchaseValue",
+                        f.razao_social as "supplierName"
                 from
                         "SuperShop"."Compra" c 
                 inner join 
                         "SuperShop"."Compra_Produto" cp on c.id_compra = cp.id_compra
                 inner join 
                         "SuperShop"."Produto" p on p."idProduto" = cp.id_produto
+                inner join
+                        "SuperShop"."Fornecedor" f on p."Fornecedor_idFornecedor" = f."idFornecedor"
                 where c.id_compra = $1
         `;
 
@@ -165,6 +169,8 @@ export const getProductsByPurchaseIdRepository = async (param) => {
         productDescription: row.productDescription,
         saleValue: row.saleValue,
         quantity: row.quantity,
+        purchaseValue: row.purchaseValue,
+        supplierName: row.supplierName,
       });
 
       return acc;

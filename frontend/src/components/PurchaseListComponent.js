@@ -94,10 +94,28 @@ const PurchaseListComponent = () => {
   const applyFilters = () => {
     let filtered = [...purchases];
 
-    if (filters.startDate) {
-      filtered = filtered.filter(
-        (p) => new Date(p.purchaseDate) >= new Date(filters.startDate)
-      );
+    if (filters.startDate && filters.endDate) {
+      // Create date objects for comparison but set time to start/end of day
+      const startDate = new Date(filters.startDate);
+      startDate.setHours(0, 0, 0, 0); // Start of day
+
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(0, 0, 0, 0); // End of day
+
+      filtered = filtered.filter((p) => {
+        const purchaseDate = new Date(p.purchaseDate);
+        return purchaseDate >= startDate && purchaseDate <= endDate;
+      });
+    } else if (filters.startDate) {
+      const startDate = new Date(filters.startDate);
+      startDate.setHours(0, 0, 0, 0);
+
+      filtered = filtered.filter((p) => new Date(p.purchaseDate) >= startDate);
+    } else if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(23, 59, 59, 999);
+
+      filtered = filtered.filter((p) => new Date(p.purchaseDate) <= endDate);
     }
 
     if (filters.paymentMethod) {
@@ -122,8 +140,9 @@ const PurchaseListComponent = () => {
 
     filteredPurchases.forEach((purchase) => {
       totalValue +=
-        parseFloat(purchase.totalValue) + parseFloat(purchase.discount);
-      totalWithDiscount += parseFloat(purchase.totalValue);
+        parseFloat(purchase.totalValue || 0) +
+        parseFloat(purchase.discount || 0);
+      totalWithDiscount += parseFloat(purchase.totalValue || 0);
     });
 
     return {
@@ -157,24 +176,6 @@ const PurchaseListComponent = () => {
     paddingBottom: "10px",
   };
 
-  // Estilos para botões de ação
-  const buttonStyle = (bgColor, textColor = "white") => ({
-    padding: "10px 15px",
-    backgroundColor: bgColor,
-    color: textColor,
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontWeight: "500",
-    transition: "all 0.2s ease",
-    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-    "&:hover": {
-      opacity: 0.9,
-      transform: "translateY(-1px)",
-      boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
-    },
-  });
-
   return (
     <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "20px" }}>
       <h2 style={{ textAlign: "center", marginBottom: "30px", color: "#333" }}>
@@ -207,6 +208,31 @@ const PurchaseListComponent = () => {
               type="date"
               name="startDate"
               value={filters.startDate}
+              onChange={handleFilterChange}
+              style={{
+                padding: "10px 12px",
+                width: "100%",
+                border: "1px solid #e0e0e0",
+                borderRadius: "6px",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+          <div style={{ marginBottom: "16px" }}>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "6px",
+                fontWeight: "500",
+                color: "#555",
+              }}
+            >
+              Data Final
+            </label>
+            <input
+              type="date"
+              name="endDate"
+              value={filters.endDate}
               onChange={handleFilterChange}
               style={{
                 padding: "10px 12px",
@@ -353,7 +379,16 @@ const PurchaseListComponent = () => {
                         borderBottom: "2px solid #e0e0e0",
                       }}
                     >
-                      Valor Total
+                      Preço Compra
+                    </th>
+                    <th
+                      style={{
+                        textAlign: "right",
+                        padding: "12px 16px",
+                        borderBottom: "2px solid #e0e0e0",
+                      }}
+                    >
+                      Preço Venda
                     </th>
                     <th
                       style={{
@@ -416,9 +451,17 @@ const PurchaseListComponent = () => {
                           {new Intl.NumberFormat("pt-BR", {
                             style: "currency",
                             currency: "BRL",
+                          }).format(purchase.purchaseValue || 0)}
+                        </td>
+                        <td
+                          style={{ textAlign: "right", padding: "14px 16px" }}
+                        >
+                          {new Intl.NumberFormat("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
                           }).format(
-                            parseFloat(purchase.totalValue) +
-                              parseFloat(purchase.discount)
+                            parseFloat(purchase.totalValue || 0) +
+                              parseFloat(purchase.discount || 0)
                           )}
                         </td>
                         <td
@@ -427,7 +470,7 @@ const PurchaseListComponent = () => {
                           {new Intl.NumberFormat("pt-BR", {
                             style: "currency",
                             currency: "BRL",
-                          }).format(purchase.discount)}
+                          }).format(purchase.discount || 0)}
                         </td>
                         <td
                           style={{ textAlign: "right", padding: "14px 16px" }}
@@ -435,7 +478,7 @@ const PurchaseListComponent = () => {
                           {new Intl.NumberFormat("pt-BR", {
                             style: "currency",
                             currency: "BRL",
-                          }).format(purchase.totalValue)}
+                          }).format(purchase.totalValue || 0)}
                         </td>
                         <td style={{ padding: "10px 16px" }}>
                           <div
@@ -483,7 +526,7 @@ const PurchaseListComponent = () => {
                   ) : (
                     <tr>
                       <td
-                        colSpan="7"
+                        colSpan="8"
                         style={{ padding: "20px", textAlign: "center" }}
                       >
                         Nenhuma compra encontrada com os filtros selecionados.
@@ -520,7 +563,7 @@ const PurchaseListComponent = () => {
                     fontSize: "16px",
                   }}
                 >
-                  Valor Total:
+                  Preço Venda Total:
                 </p>
                 <p
                   style={{
@@ -624,7 +667,9 @@ const PurchaseListComponent = () => {
                   <tr style={{ backgroundColor: "#e3f2fd" }}>
                     <th style={cellStyle}>ID</th>
                     <th style={cellStyle}>Descrição</th>
-                    <th style={cellStyle}>Valor Unitário</th>
+                    <th style={cellStyle}>Preço Compra</th>
+                    <th style={cellStyle}>Preço Venda</th>
+                    <th style={cellStyle}>Fornecedor</th>
                     <th style={cellStyle}>Quantidade</th>
                   </tr>
                 </thead>
@@ -637,7 +682,16 @@ const PurchaseListComponent = () => {
                         {new Intl.NumberFormat("pt-BR", {
                           style: "currency",
                           currency: "BRL",
-                        }).format(product.saleValue)}
+                        }).format(product.purchaseValue || 0)}
+                      </td>
+                      <td style={cellStyle}>
+                        {new Intl.NumberFormat("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        }).format(product.saleValue || 0)}
+                      </td>
+                      <td style={cellStyle}>
+                        {product.supplierName || "Não informado"}
                       </td>
                       <td style={cellStyle}>{product.quantity}</td>
                     </tr>
