@@ -31,16 +31,10 @@ app.use("/Categoria", routerCategoria);
 app.use("/usuario", routerUsuario);
 app.use("/despesa", routerDespesa);
 app.use("/tipos-despesa", routerTipoDespesa);
-<<<<<<< HEAD
-app.use("/comissao",routerComissao);
-app.use("/acertoEstoque",routerAcertoEstoque);
-app.use("/Venda",routerVenda)
-app.use("/venda-financeiro",routerVendaFinanc);
-=======
 app.use("/comissao", routerComissao);
 app.use("/acertoEstoque", routerAcertoEstoque);
 app.use("/Venda", routerVenda);
+app.use("/venda-financeiro", routerVendaFinanc);
 app.use("/purchase", routerPurchase);
->>>>>>> 30c13dcd93a9286b99fe7331a57ec1fa060a3e1c
 
 app.listen(8800);

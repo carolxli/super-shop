@@ -77,6 +77,16 @@ const PurchaseComponent = () => {
 
   const addProduct = () => {
     if (currentProduct.productId && currentProduct.quantity) {
+      // Check if product already exists in the list
+      const isDuplicate = products.some(
+        (product) => product.productId === currentProduct.productId
+      );
+
+      if (isDuplicate) {
+        alert("Este produto já foi adicionado à compra!");
+        return;
+      }
+
       setProducts([...products, currentProduct]);
       setCurrentProduct({
         productId: "",
@@ -289,11 +299,18 @@ const PurchaseComponent = () => {
               style={{ flex: 2, ...inputBase }}
             >
               <option value="">Selecione um produto</option>
-              {productOptions.map((product) => (
-                <option key={product.productId} value={product.productId}>
-                  {product.productDescription}
-                </option>
-              ))}
+              {productOptions
+                .filter((product) => {
+                  // Filter out products that are already added to the list
+                  return !products.some(
+                    (p) => p.productId === product.productId
+                  );
+                })
+                .map((product) => (
+                  <option key={product.productId} value={product.productId}>
+                    {product.productDescription}
+                  </option>
+                ))}
             </select>
 
             {currentProduct.productId && (
