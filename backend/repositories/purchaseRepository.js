@@ -220,6 +220,7 @@ export const getAllProductsWithSuppliersRepository = async () => {
                 SELECT 
                         p."idProduto" AS "productId",
                         p."descricao" AS "productDescription",
+                        p."valor_custo" AS "purchaseValue",
                         p."valor_venda" AS "saleValue",
                         f."idFornecedor" AS "supplierId",
                         f."razao_social" AS "supplierName"
@@ -235,6 +236,7 @@ export const getAllProductsWithSuppliersRepository = async () => {
     return rows.map((product) => ({
       productId: product.productId,
       productDescription: product.productDescription,
+      purchaseValue: product.purchaseValue,
       saleValue: product.saleValue,
       supplierId: product.supplierId,
       supplierName: product.supplierName,

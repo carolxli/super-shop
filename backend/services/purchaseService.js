@@ -78,7 +78,7 @@ const validate = (data) => {
 
 export const createPurchaseService = async (data) => {
   if (!validate(data)) {
-    console.log("Dados inválidos para criar compra");
+    console.log("Dados inválidos para criar compra: ", data);
     return false;
   }
 
