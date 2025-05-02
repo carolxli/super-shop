@@ -100,10 +100,11 @@ const PurchaseListComponent = () => {
       startDate.setHours(0, 0, 0, 0); // Start of day
 
       const endDate = new Date(filters.endDate);
-      endDate.setHours(0, 0, 0, 0); // End of day
+      endDate.setHours(23, 59, 59, 999); // End of day
 
       filtered = filtered.filter((p) => {
         const purchaseDate = new Date(p.purchaseDate);
+        // Ensure proper date comparison
         return purchaseDate >= startDate && purchaseDate <= endDate;
       });
     } else if (filters.startDate) {
@@ -118,13 +119,17 @@ const PurchaseListComponent = () => {
       filtered = filtered.filter((p) => new Date(p.purchaseDate) <= endDate);
     }
 
-    if (filters.paymentMethod) {
+    if (filters.paymentMethod && filters.paymentMethod !== "Todos") {
       filtered = filtered.filter(
         (p) => p.paymentMethod === filters.paymentMethod
       );
     }
 
-    if (filters.maxValue && !isNaN(parseFloat(filters.maxValue))) {
+    if (
+      filters.maxValue &&
+      !isNaN(parseFloat(filters.maxValue)) &&
+      parseFloat(filters.maxValue) > 0
+    ) {
       filtered = filtered.filter(
         (p) => parseFloat(p.totalValue) <= parseFloat(filters.maxValue)
       );
@@ -202,7 +207,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Data Inicial
+              Data Inicial (Desde)
             </label>
             <input
               type="date"
@@ -227,7 +232,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Data Final
+              Data Final (Até)
             </label>
             <input
               type="date"
@@ -253,7 +258,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Valor Máximo
+              Valor Máximo (Com desconto)
             </label>
             <input
               type="number"
@@ -379,16 +384,7 @@ const PurchaseListComponent = () => {
                         borderBottom: "2px solid #e0e0e0",
                       }}
                     >
-                      Preço Compra
-                    </th>
-                    <th
-                      style={{
-                        textAlign: "right",
-                        padding: "12px 16px",
-                        borderBottom: "2px solid #e0e0e0",
-                      }}
-                    >
-                      Preço Venda
+                      Valor
                     </th>
                     <th
                       style={{
@@ -444,14 +440,6 @@ const PurchaseListComponent = () => {
                         </td>
                         <td style={{ padding: "14px 16px" }}>
                           {purchase.paymentMethod}
-                        </td>
-                        <td
-                          style={{ textAlign: "right", padding: "14px 16px" }}
-                        >
-                          {new Intl.NumberFormat("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          }).format(purchase.purchaseValue || 0)}
                         </td>
                         <td
                           style={{ textAlign: "right", padding: "14px 16px" }}
@@ -563,7 +551,7 @@ const PurchaseListComponent = () => {
                     fontSize: "16px",
                   }}
                 >
-                  Preço Venda Total:
+                  Total em Compras:
                 </p>
                 <p
                   style={{
@@ -572,7 +560,7 @@ const PurchaseListComponent = () => {
                     fontSize: "16px",
                   }}
                 >
-                  Valor Com Desconto:
+                  Valor com Desconto:
                 </p>
               </div>
               <div style={{ textAlign: "right" }}>

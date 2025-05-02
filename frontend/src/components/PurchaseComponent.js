@@ -14,6 +14,7 @@ const PurchaseComponent = () => {
     productId: "",
     productDescription: "",
     saleValue: "",
+    purchaseValue: "",
     quantity: "",
   });
 
@@ -63,6 +64,7 @@ const PurchaseComponent = () => {
         productId: selectedProduct.productId,
         productDescription: selectedProduct.productDescription,
         saleValue: selectedProduct.saleValue,
+        purchaseValue: selectedProduct.purchaseValue, // novo campo
         quantity: "",
       });
     }
@@ -91,6 +93,7 @@ const PurchaseComponent = () => {
       setCurrentProduct({
         productId: "",
         productDescription: "",
+        purchaseValue: "",
         saleValue: "",
         quantity: "",
       });
@@ -101,7 +104,7 @@ const PurchaseComponent = () => {
 
   const calculateTotalValue = () => {
     const total = products.reduce(
-      (total, product) => total + product.saleValue * product.quantity,
+      (total, product) => total + product.purchaseValue * product.quantity,
       0
     );
 
@@ -110,7 +113,7 @@ const PurchaseComponent = () => {
 
   const calculateTotalValueWithDiscount = () => {
     const total = products.reduce(
-      (total, product) => total + product.saleValue * product.quantity,
+      (total, product) => total + product.purchaseValue * product.quantity,
       0
     );
 
@@ -155,7 +158,7 @@ const PurchaseComponent = () => {
     }
     try {
       const total = products.reduce(
-        (acc, product) => acc + product.saleValue * product.quantity,
+        (acc, product) => acc + product.purchaseValue * product.quantity,
         0
       );
 
@@ -350,7 +353,8 @@ const PurchaseComponent = () => {
                 <tr style={{ backgroundColor: "#f9f9f9" }}>
                   <th style={cellStyle}>ID</th>
                   <th style={cellStyle}>Descrição</th>
-                  <th style={cellStyle}>Valor Unitário</th>
+                  <th style={cellStyle}>Valor Compra</th>
+                  <th style={cellStyle}>Valor Venda</th>
                   <th style={cellStyle}>Valor Total</th>
                   <th style={cellStyle}>Quantidade</th>
                   <th style={cellStyle}>Ações</th>
@@ -365,13 +369,19 @@ const PurchaseComponent = () => {
                       {new Intl.NumberFormat("pt-BR", {
                         style: "currency",
                         currency: "BRL",
+                      }).format(product.purchaseValue)}
+                    </td>
+                    <td style={cellStyle}>
+                      {new Intl.NumberFormat("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
                       }).format(product.saleValue)}
                     </td>
                     <td style={cellStyle}>
                       {new Intl.NumberFormat("pt-BR", {
                         style: "currency",
                         currency: "BRL",
-                      }).format(product.saleValue * product.quantity)}
+                      }).format(product.purchaseValue * product.quantity)}
                     </td>
                     <td style={cellStyle}>{product.quantity}</td>
                     <td style={cellStyle}>
@@ -395,7 +405,7 @@ const PurchaseComponent = () => {
               </tbody>
             </table>
             <h4 style={{ marginTop: "10px" }}>
-              Valor Total:{" "}
+              Valor Total da Compra:{" "}
               {new Intl.NumberFormat("pt-BR", {
                 style: "currency",
                 currency: "BRL",
