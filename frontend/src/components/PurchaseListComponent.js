@@ -100,11 +100,10 @@ const PurchaseListComponent = () => {
       startDate.setHours(0, 0, 0, 0); // Start of day
 
       const endDate = new Date(filters.endDate);
-      endDate.setHours(23, 59, 59, 999); // End of day
+      endDate.setHours(0, 0, 0, 0); // End of day
 
       filtered = filtered.filter((p) => {
         const purchaseDate = new Date(p.purchaseDate);
-        // Ensure proper date comparison
         return purchaseDate >= startDate && purchaseDate <= endDate;
       });
     } else if (filters.startDate) {
@@ -119,17 +118,13 @@ const PurchaseListComponent = () => {
       filtered = filtered.filter((p) => new Date(p.purchaseDate) <= endDate);
     }
 
-    if (filters.paymentMethod && filters.paymentMethod !== "Todos") {
+    if (filters.paymentMethod) {
       filtered = filtered.filter(
         (p) => p.paymentMethod === filters.paymentMethod
       );
     }
 
-    if (
-      filters.maxValue &&
-      !isNaN(parseFloat(filters.maxValue)) &&
-      parseFloat(filters.maxValue) > 0
-    ) {
+    if (filters.maxValue && !isNaN(parseFloat(filters.maxValue))) {
       filtered = filtered.filter(
         (p) => parseFloat(p.totalValue) <= parseFloat(filters.maxValue)
       );
@@ -207,7 +202,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Data Inicial (Desde)
+              Data Inicial
             </label>
             <input
               type="date"
@@ -232,7 +227,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Data Final (Até)
+              Data Final
             </label>
             <input
               type="date"
@@ -258,7 +253,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Valor Máximo (Com desconto)
+              Valor Máximo
             </label>
             <input
               type="number"
@@ -551,7 +546,7 @@ const PurchaseListComponent = () => {
                     fontSize: "16px",
                   }}
                 >
-                  Total em Compras:
+                  Preço Venda Total:
                 </p>
                 <p
                   style={{
@@ -560,7 +555,7 @@ const PurchaseListComponent = () => {
                     fontSize: "16px",
                   }}
                 >
-                  Valor com Desconto:
+                  Valor Com Desconto:
                 </p>
               </div>
               <div style={{ textAlign: "right" }}>
