@@ -94,40 +94,87 @@ const PurchaseListComponent = () => {
   const applyFilters = () => {
     let filtered = [...purchases];
 
-    if (filters.startDate && filters.endDate) {
-      // Create date objects for comparison but set time to start/end of day
-      const startDate = new Date(filters.startDate);
-      startDate.setHours(0, 0, 0, 0); // Start of day
-
-      const endDate = new Date(filters.endDate);
-      endDate.setHours(0, 0, 0, 0); // End of day
-
+    if (filters.startDate || filters.endDate) {
       filtered = filtered.filter((p) => {
-        const purchaseDate = new Date(p.purchaseDate);
-        return purchaseDate >= startDate && purchaseDate <= endDate;
+        // Convertendo a data da compra para objeto Date
+        // Assumindo que p.purchaseDate está no formato 'YYYY-MM-DD'
+        let purchaseDate;
+
+        // Verifica como a data está formatada no objeto de compra
+        if (typeof p.purchaseDate === "string") {
+          // Se o formato é 'YYYY-MM-DD'
+          if (p.purchaseDate.includes("-")) {
+            const [year, month, day] = p.purchaseDate.split("-");
+            purchaseDate = new Date(
+              parseInt(year),
+              parseInt(month) - 1,
+              parseInt(day)
+            );
+          }
+          // Se o formato é 'DD/MM/YYYY' como mostrado nas imagens
+          else if (p.purchaseDate.includes("/")) {
+            const [day, month, year] = p.purchaseDate.split("/");
+            purchaseDate = new Date(
+              parseInt(year),
+              parseInt(month) - 1,
+              parseInt(day)
+            );
+          }
+          // Caso seja um timestamp ou outro formato
+          else {
+            purchaseDate = new Date(p.purchaseDate);
+          }
+        } else {
+          // Se já for um objeto Date
+          purchaseDate = new Date(p.purchaseDate);
+        }
+
+        // Zerando as horas da data de compra para comparação adequada
+        purchaseDate.setHours(0, 0, 0, 0);
+
+        // Aplicando filtros de data
+        let passesStartDateFilter = true;
+        let passesEndDateFilter = true;
+
+        if (filters.startDate) {
+          const startDate = new Date(filters.startDate);
+          startDate.setHours(0, 0, 0, 0);
+          passesStartDateFilter = purchaseDate >= startDate;
+        }
+
+        if (filters.endDate) {
+          const endDate = new Date(filters.endDate);
+          endDate.setHours(23, 59, 59, 999);
+          passesEndDateFilter = purchaseDate <= endDate;
+        }
+
+        return passesStartDateFilter && passesEndDateFilter;
       });
-    } else if (filters.startDate) {
-      const startDate = new Date(filters.startDate);
-      startDate.setHours(0, 0, 0, 0);
-
-      filtered = filtered.filter((p) => new Date(p.purchaseDate) >= startDate);
-    } else if (filters.endDate) {
-      const endDate = new Date(filters.endDate);
-      endDate.setHours(23, 59, 59, 999);
-
-      filtered = filtered.filter((p) => new Date(p.purchaseDate) <= endDate);
     }
 
-    if (filters.paymentMethod) {
+    // Filtro por método de pagamento (ignora se for "Todos")
+    if (filters.paymentMethod && filters.paymentMethod !== "Todos") {
       filtered = filtered.filter(
         (p) => p.paymentMethod === filters.paymentMethod
       );
     }
 
-    if (filters.maxValue && !isNaN(parseFloat(filters.maxValue))) {
-      filtered = filtered.filter(
-        (p) => parseFloat(p.totalValue) <= parseFloat(filters.maxValue)
-      );
+    // Filtro por valor máximo
+    if (
+      filters.maxValue &&
+      !isNaN(parseFloat(filters.maxValue)) &&
+      parseFloat(filters.maxValue) > 0
+    ) {
+      const maxValue = parseFloat(filters.maxValue);
+      filtered = filtered.filter((p) => {
+        const purchaseValue =
+          typeof p.totalValue === "string"
+            ? parseFloat(
+                p.totalValue.replace(/[^\d,.-]/g, "").replace(",", ".")
+              )
+            : parseFloat(p.totalValue);
+        return !isNaN(purchaseValue) && purchaseValue <= maxValue;
+      });
     }
 
     setFilteredPurchases(filtered);
@@ -202,7 +249,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Data Inicial
+              Data Inicial (Desde)
             </label>
             <input
               type="date"
@@ -227,7 +274,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Data Final
+              Data Final (Até)
             </label>
             <input
               type="date"
@@ -546,7 +593,7 @@ const PurchaseListComponent = () => {
                     fontSize: "16px",
                   }}
                 >
-                  Preço Venda Total:
+                  Valor Total em Compras:
                 </p>
                 <p
                   style={{
@@ -650,8 +697,8 @@ const PurchaseListComponent = () => {
                   <tr style={{ backgroundColor: "#e3f2fd" }}>
                     <th style={cellStyle}>ID</th>
                     <th style={cellStyle}>Descrição</th>
-                    <th style={cellStyle}>Preço Compra</th>
-                    <th style={cellStyle}>Preço Venda</th>
+                    <th style={cellStyle}>Valor Compra</th>
+                    <th style={cellStyle}>Valor Venda</th>
                     <th style={cellStyle}>Fornecedor</th>
                     <th style={cellStyle}>Quantidade</th>
                   </tr>
