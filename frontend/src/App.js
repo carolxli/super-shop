@@ -29,7 +29,6 @@ import ListarMarcas from "./pages/ListarMarcas.js";
 import EditarMarca from "./pages/EditarMarca.js";
 import Login from "./pages/Login.js";
 import PrivateRoute from "./utils/PrivateRoute.js";
-import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "./context/AuthContext";
 import ListarComissao from "./pages/ListarComissao.js";
 import Comissao from "./pages/comissao.js";
@@ -41,8 +40,12 @@ import Venda from "./pages/Venda.js";
 import VendaFinanceiro from "./pages/VendaFinanceiro.js";
 import ChangePassword from "./components/ChangePassword.jsx";
 import QuitarDespesa from "./pages/QuitarDespesa.js";
-
+import Devolucao from "./pages/devolucao.js";
 import PurchasePage from "./pages/purchasePage.js";
+import RelatorioDevolucoes from "./pages/RelatorioDevolucoes.js";
+import Reserva from "./pages/reserva.js";
+import Relatorios from "./components/Relatorios.js";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   const { isAuthenticated } = useAuth();
@@ -53,293 +56,75 @@ const App = () => {
         {isAuthenticated && <Header />}
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/change-password" element={<ChangePassword />} />{" "}
-          {/* Adicione esta linha */}
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Home />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Home />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/fornecedor"
-            element={
-              <PrivateRoute>
-                <Fornecedor />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/listar-fornecedores"
-            element={
-              <PrivateRoute>
-                <ListarFornecedores />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarFornecedor/:idFornecedor"
-            element={
-              <PrivateRoute>
-                <EditarFornecedor />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/pessoa"
-            element={
-              <PrivateRoute>
-                <Pessoa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/listar-pessoas"
-            element={
-              <PrivateRoute>
-                <ListarPessoas />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarPessoa/:idPessoa"
-            element={
-              <PrivateRoute>
-                <EditarPessoa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/usuario"
-            element={
-              <PrivateRoute>
-                <Usuario />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/listar-usuarios"
-            element={
-              <PrivateRoute>
-                <ListarUsuarios />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarUsuario/:idUsuario"
-            element={
-              <PrivateRoute>
-                <EditarUsuario />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/cliente"
-            element={
-              <PrivateRoute>
-                <Cliente />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/listar-clientes"
-            element={
-              <PrivateRoute>
-                <ListarClientes />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarCliente/:idCliente"
-            element={
-              <PrivateRoute>
-                <EditarCliente />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/produto"
-            element={
-              <PrivateRoute>
-                <Produto />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/listar-produtos"
-            element={
-              <PrivateRoute>
-                <ListarProdutos />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarProduto/:idProduto"
-            element={
-              <PrivateRoute>
-                <EditarProduto />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/despesa"
-            element={
-              <PrivateRoute>
-                <ListarDespesa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/cadastrarDespesa"
-            element={
-              <PrivateRoute>
-                <CadastrarDespesa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/quitarDespesa/:idDespesa"
-            element={
-              <PrivateRoute>
-                <QuitarDespesa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarDespesa/:idDespesa"
-            element={
-              <PrivateRoute>
-                <EditarDespesa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/tipos-despesa"
-            element={
-              <PrivateRoute>
-                <ListarTipoDespesa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/cadastrarTipoDespesa"
-            element={
-              <PrivateRoute>
-                <CadastrarTipoDespesa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarTipoDespesa/:idTipo"
-            element={
-              <PrivateRoute>
-                <EditarTipoDespesa />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/listar-categorias"
-            element={
-              <PrivateRoute>
-                <ListarCategorias />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/categoria"
-            element={
-              <PrivateRoute>
-                <Categoria />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarCategoria/:idCategoria"
-            element={
-              <PrivateRoute>
-                <EditarCategoria />
-              </PrivateRoute>
-            }
-          />
-          {/* Comissão */}
-          <Route
-            path="/comissao"
-            element={
-              <PrivateRoute>
-                <ListarComissao />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/cadastrarComissao"
-            element={
-              <PrivateRoute>
-                <Comissao />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/listar-marcas"
-            element={
-              <PrivateRoute>
-                <ListarMarcas />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/marca"
-            element={
-              <PrivateRoute>
-                <Marca />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/editarMarca/:idMarca"
-            element={
-              <PrivateRoute>
-                <EditarMarca />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/acertoEstoque/:idProduto" // Nova rota para acerto de estoque
-            element={
-              <PrivateRoute>
-                <AcertarEstoque />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/venda"
-            element={
-              <PrivateRoute>
-                <Venda />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/change-password" element={<ChangePassword />} />
 
-          <Route
-            path="/purchasePage"
-            element={
-              <PrivateRoute>
-                <PurchasePage />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+
+          {/* Fornecedor */}
+          <Route path="/fornecedor" element={<PrivateRoute><Fornecedor /></PrivateRoute>} />
+          <Route path="/listar-fornecedores" element={<PrivateRoute><ListarFornecedores /></PrivateRoute>} />
+          <Route path="/editarFornecedor/:idFornecedor" element={<PrivateRoute><EditarFornecedor /></PrivateRoute>} />
+
+          {/* Pessoa */}
+          <Route path="/pessoa" element={<PrivateRoute><Pessoa /></PrivateRoute>} />
+          <Route path="/listar-pessoas" element={<PrivateRoute><ListarPessoas /></PrivateRoute>} />
+          <Route path="/editarPessoa/:idPessoa" element={<PrivateRoute><EditarPessoa /></PrivateRoute>} />
+
+          {/* Usuario */}
+          <Route path="/usuario" element={<PrivateRoute><Usuario /></PrivateRoute>} />
+          <Route path="/listar-usuarios" element={<PrivateRoute><ListarUsuarios /></PrivateRoute>} />
+          <Route path="/editarUsuario/:idUsuario" element={<PrivateRoute><EditarUsuario /></PrivateRoute>} />
+
+          {/* Cliente */}
+          <Route path="/cliente" element={<PrivateRoute><Cliente /></PrivateRoute>} />
+          <Route path="/listar-clientes" element={<PrivateRoute><ListarClientes /></PrivateRoute>} />
+          <Route path="/editarCliente/:idCliente" element={<PrivateRoute><EditarCliente /></PrivateRoute>} />
+
+          {/* Produto */}
+          <Route path="/produto" element={<PrivateRoute><Produto /></PrivateRoute>} />
+          <Route path="/listar-produtos" element={<PrivateRoute><ListarProdutos /></PrivateRoute>} />
+          <Route path="/editarProduto/:idProduto" element={<PrivateRoute><EditarProduto /></PrivateRoute>} />
+          <Route path="/acertoEstoque/:idProduto" element={<PrivateRoute><AcertarEstoque /></PrivateRoute>} />
+
+          {/* Despesa */}
+          <Route path="/despesa" element={<PrivateRoute><ListarDespesa /></PrivateRoute>} />
+          <Route path="/cadastrarDespesa" element={<PrivateRoute><CadastrarDespesa /></PrivateRoute>} />
+          <Route path="/quitarDespesa/:idDespesa" element={<PrivateRoute><QuitarDespesa /></PrivateRoute>} />
+          <Route path="/editarDespesa/:idDespesa" element={<PrivateRoute><EditarDespesa /></PrivateRoute>} />
+          <Route path="/tipos-despesa" element={<PrivateRoute><ListarTipoDespesa /></PrivateRoute>} />
+          <Route path="/cadastrarTipoDespesa" element={<PrivateRoute><CadastrarTipoDespesa /></PrivateRoute>} />
+          <Route path="/editarTipoDespesa/:idTipo" element={<PrivateRoute><EditarTipoDespesa /></PrivateRoute>} />
+
+          {/* Categoria */}
+          <Route path="/categoria" element={<PrivateRoute><Categoria /></PrivateRoute>} />
+          <Route path="/listar-categorias" element={<PrivateRoute><ListarCategorias /></PrivateRoute>} />
+          <Route path="/editarCategoria/:idCategoria" element={<PrivateRoute><EditarCategoria /></PrivateRoute>} />
+
+          {/* Comissão */}
+          <Route path="/comissao" element={<PrivateRoute><ListarComissao /></PrivateRoute>} />
+          <Route path="/cadastrarComissao" element={<PrivateRoute><Comissao /></PrivateRoute>} />
+
+          {/* Marca */}
+          <Route path="/marca" element={<PrivateRoute><Marca /></PrivateRoute>} />
+          <Route path="/listar-marcas" element={<PrivateRoute><ListarMarcas /></PrivateRoute>} />
+          <Route path="/editarMarca/:idMarca" element={<PrivateRoute><EditarMarca /></PrivateRoute>} />
+
+          {/* Venda */}
+          <Route path="/venda" element={<PrivateRoute><Venda /></PrivateRoute>} />
+          <Route path="/venda-financeiro" element={<PrivateRoute><VendaFinanceiro /></PrivateRoute>} />
+
+          {/* Devolução */}
+          <Route path="/devolucao" element={<PrivateRoute><Devolucao /></PrivateRoute>} />
+          <Route path="/relatorios/devolucoes" element={<PrivateRoute><RelatorioDevolucoes /></PrivateRoute>} />
+
+          {/* Reserva e Compras */}
+          <Route path="/reserva" element={<PrivateRoute><Reserva /></PrivateRoute>} />
+          <Route path="/purchasePage" element={<PrivateRoute><PurchasePage /></PrivateRoute>} />
+
+          {/* Relatórios */}
+          <Route path="/relatorios" element={<PrivateRoute><Relatorios /></PrivateRoute>} />
         </Routes>
       </Router>
-
       <GlobalStyle />
     </>
   );

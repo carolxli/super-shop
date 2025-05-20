@@ -20,6 +20,39 @@ export const getPessoa = async (req, res) => {
   }
 };
 
+export const getPessoaByNome = async (req, res) => {
+  const nome = req.params.nome || "";
+  const q = ` SELECT p."idPessoa", p."nome", p."email", u."idUsuario"
+    FROM "SuperShop"."Pessoa" p
+    LEFT JOIN "SuperShop"."Usuario" u ON p."idPessoa" = u."Pessoa_idPessoa"
+    WHERE p."nome" ILIKE $1 LIMIT 10`;
+
+  db.query(q, [`%${nome}%`], (err, data) => {
+    if (err) {
+      console.error("Erro ao buscar pessoa:", err);
+      return res.status(500).json(err);
+    }
+    return res.status(200).json(data.rows);
+  });
+};
+
+export const getPessoaById = async (req, res) => {
+  const { idPessoa } = req.params;
+
+  const q = `SELECT * FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
+
+  try {
+    const result = await db.query(query, [idPessoa]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Pessoa não encontrada" });
+    }
+    return res.status(200).json(result.rows[0]);
+  } catch (err) {
+    console.error("Erro ao buscar pessoa por ID:", err);
+    return res.status(500).json({ error: "Erro ao buscar pessoa por ID", details: err });
+  }
+};
+
 export const postPessoa = (req, res) => {
   const q = `INSERT INTO "SuperShop"."Pessoa" (
         "email",
@@ -99,57 +132,13 @@ export const updatePessoa = (req, res) => {
   });
 };
 
-// export const deletePessoa = async (req, res) => {
-//   const checkAdminQuery = `SELECT COUNT(*) FROM "SuperShop"."Pessoa" WHERE "cargo" = 'admin'`;
-//   const deleteQuery = `DELETE FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
-
-//   try {
-//     const result = await db.query(checkAdminQuery);
-//     const adminCount = parseInt(result.rows[0].count, 10);
-
-//     if (adminCount <= 1) {
-//       return res.status(400).json({
-//         error:
-//           "Não é possível deletar a última pessoa com cargo de administrador",
-//       });
-//     }
-
-//     await db.query(deleteQuery, [req.params.idPessoa]);
-//     return res.status(200).json("Pessoa deletada com sucesso");
-//   } catch (err) {
-//     return res
-//       .status(500)
-//       .json({ error: "Erro ao deletar pessoa", details: err });
-//   }
-// };
 export const deletePessoa = (req, res) => {
   const q = `DELETE FROM "SuperShop"."Pessoa" WHERE \"idPessoa\" = $1`;
 
   db.query(q, [req.params.idPessoa], (err) => {
-      if (err) {
-          return res.json(err);
-      }
-      return res.status(200).json("Pessoa deletada com sucesso");
-  });
-};
-
-export const getPessoaById = (req, res) => {
-  const q = `SELECT * FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
-  db.query(q, [req.params.idPessoa], (err, data) => {
-    if (err) return res.json(err);
-    return res.status(200).json(data.rows[0]);
-  });
-};
-
-export const getPessoaByNome = async (req, res) => {
-  const nome = req.query.nome || "";
-  const q = `SELECT "idPessoa", "nome" FROM "SuperShop"."Pessoa" WHERE "nome" ILIKE $1 LIMIT 10`;
-
-  db.query(q, [`%${nome}%`], (err, data) => {
     if (err) {
-      console.error("Erro ao buscar pessoa:", err);
-      return res.status(500).json(err);
+      return res.json(err);
     }
-    return res.status(200).json(data.rows);
+    return res.status(200).json("Pessoa deletada com sucesso");
   });
 };

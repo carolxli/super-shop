@@ -7,7 +7,7 @@ const ListarClientes = () => {
     const [clientes, setClientes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [search, setSearch] = useState(""); 
+    const [search, setSearch] = useState("");
 
     useEffect(() => {
         const fetchClientes = async () => {
@@ -24,10 +24,10 @@ const ListarClientes = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchClientes();
     }, [search]);
-    
+
     const handleDelete = async (id) => {
         const confirmDelete = window.confirm("Você tem certeza que deseja deletar este cliente?");
         if (confirmDelete) {
@@ -52,7 +52,7 @@ const ListarClientes = () => {
                                 type="text"
                                 placeholder="Pesquisar por Nome"
                                 value={search}
-                                onChange={(e) => setSearch(e.target.value)} 
+                                onChange={(e) => setSearch(e.target.value)}
                                 style={{ width: "15%" }}
                             />
                         </th>
@@ -82,7 +82,6 @@ const ListarClientes = () => {
                                 <td>
                                     <button onClick={() => navigate(`/editarCliente/${cliente.idCliente}`)}>Editar</button>
                                     <button onClick={() => handleDelete(cliente.idCliente)}>Deletar</button>
-                                    <button>Ver Compras</button>
                                 </td>
                             </tr>
                         ))

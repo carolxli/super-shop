@@ -88,7 +88,6 @@ const ListarUsuarios = () => {
                                 <td>
                                     <button onClick={() => navigate(`/editarUsuario/${usuario.idUsuario}`)}>Editar</button>
                                     <button onClick={() => handleDelete(usuario.idUsuario)}>Deletar</button>
-                                    <button>Ver Vendas</button>
                                 </td>
                             </tr>
                         ))

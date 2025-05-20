@@ -76,7 +76,15 @@ const Home = () => {
         <Button type="button" onClick={() => navigate("/purchasePage")}>
           Compra
         </Button>
-        <Button>Relatórios</Button>
+        <Button type="button" onClick={() => navigate("/relatorios")}>
+          Relatórios
+        </Button>
+        <Button type="button" onClick={() => navigate("/devolucao")}>
+          Devolução
+        </Button>
+        <Button type="button" onClick={() => navigate("/reserva")}>
+          Reserva
+        </Button>
       </ButtonGrid>
     </Container>
   );

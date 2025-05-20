@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from 'axios';
 
 const FormRow = styled.form`
@@ -57,8 +57,6 @@ const Venda = () => {
   const [clientes, setClientes] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [produtos, setProdutos] = useState([]);
-  const [clienteIds, setClienteIds] = useState([]);
-  const [usuarioIds, setUsuarioIds] = useState([]);
   const [autocompleteClienteVisible, setAutocompleteClienteVisible] = useState(false);
   const [autocompleteUsuarioVisible, setAutocompleteUsuarioVisible] = useState(false);
   const [autocompleteProdutoVisible, setAutocompleteProdutoVisible] = useState(false);
@@ -70,12 +68,6 @@ const Venda = () => {
   useEffect(() => {
     const fetchDados = async () => {
       try {
-        const clientesResponse = await axios.get("http://localhost:8800/Cliente");
-        setClienteIds(clientesResponse.data.map(cliente => cliente.Pessoa_idPessoa));
-
-        const usuariosResponse = await axios.get("http://localhost:8800/Usuario");
-        setUsuarioIds(usuariosResponse.data.map(usuario => usuario.Pessoa_idPessoa));
-
         const produtosResponse = await axios.get("http://localhost:8800/Produto");
         setProdutos(produtosResponse.data.rows || []);
         setLoading(false);
@@ -85,6 +77,7 @@ const Venda = () => {
         setLoading(false);
       }
     };
+
     fetchDados();
   }, []);
 
@@ -96,20 +89,39 @@ const Venda = () => {
 
     const estoqueDisponivel = produtoSelecionado.estoque_atual || 0;
 
-    if (quantidade > estoqueDisponivel) {
-      alert(`Não é possível adicionar ${quantidade} unidades. O estoque atual do produto "${produtoSelecionado.descricao}" é de ${estoqueDisponivel} unidade(s).`);
+    const itemExistente = itens.find(item => item.idProduto === produtoSelecionado.idProduto);
+
+    const quantidadeExistente = itemExistente?.quantidade || 0;
+    const novaQuantidade = quantidadeExistente + quantidade;
+
+    if (novaQuantidade > estoqueDisponivel) {
+      alert(`Não é possível adicionar ${quantidade} unidade(s). Já há ${quantidadeExistente} unidade(s) deste produto no carrinho. O estoque atual do produto "${produtoSelecionado.descricao}" é de ${estoqueDisponivel} unidade(s).`);
       return;
     }
 
-    const item = {
-      id: Date.now(),
-      produto: produtoSelecionado.descricao,
-      quantidade,
-      valorUnitario: produtoSelecionado.valor_venda,
-      valorTotal: quantidade * produtoSelecionado.valor_venda
+    if (itemExistente) {
+      const itensAtualizados = itens.map(item =>
+        item.idProduto === produtoSelecionado.idProduto
+          ? {
+            ...item,
+            quantidade: item.quantidade + quantidade,
+            valorTotal: (item.quantidade + quantidade) * item.valorUnitario
+          }
+          : item
+      );
+      setItens(itensAtualizados);
+    } else {
+      const item = {
+        id: Date.now(),
+        idProduto: produtoSelecionado.idProduto,
+        produto: produtoSelecionado.descricao,
+        quantidade,
+        valorUnitario: produtoSelecionado.valor_venda,
+        valorTotal: quantidade * produtoSelecionado.valor_venda
+      };
+      setItens([...itens, item]);
     };
 
-    setItens([...itens, item]);
     setProduto("");
     setProdutoSelecionado(null);
     setQuantidade(1);
@@ -129,8 +141,7 @@ const Venda = () => {
     if (nome.length >= 2) {
       try {
         const response = await axios.get(`http://localhost:8800/Pessoa?nome=${nome}`);
-        const clientesFiltrados = response.data.filter(pessoa => clienteIds.includes(pessoa.idPessoa));
-        setClientes(clientesFiltrados);
+        setClientes(response.data);
         setAutocompleteClienteVisible(true);
       } catch (error) {
         console.error("Erro ao buscar clientes:", error);
@@ -140,14 +151,15 @@ const Venda = () => {
     }
   };
 
+
   const handleNomeUsuarioChange = async (e) => {
     const nome = e.target.value;
     setNomeUsuario(nome);
     if (nome.length >= 2) {
       try {
-        const response = await axios.get(`http://localhost:8800/Pessoa?nome=${nome}`);
-        const usuariosFiltrados = response.data.filter(pessoa => usuarioIds.includes(pessoa.idPessoa));
-        setUsuarios(usuariosFiltrados);
+        const response = await axios.get(`http://localhost:8800/Venda/usuario/${nome}`);
+        console.log("Usuários filtrados:", response.data);
+        setUsuarios(response.data);
         setAutocompleteUsuarioVisible(true);
       } catch (error) {
         console.error("Erro ao buscar usuários:", error);
@@ -162,19 +174,30 @@ const Venda = () => {
       alert("Preencha todos os campos obrigatórios e adicione ao menos um produto.");
       return;
     }
-
+  
+    const usuario = usuarios.find(u => u.nome === nomeUsuario);
+  
+    if (!usuario) {
+      alert("Usuário inválido ou não selecionado corretamente.");
+      return;
+    }
+  
     const dadosVenda = {
+      Usuario_Pessoa_idPessoa: usuario.Pessoa_idPessoa,
+      Usuario_idUsuario: usuario.idUsuario,
       cliente: nomeCliente,
-      usuario: nomeUsuario,
       itens: itens,
       total: total,
-      totalItens: totalItens
+      totalItens: totalItens,
+      usuario: usuario.nome
     };
-
+  
     localStorage.setItem("venda_em_aberto", JSON.stringify(dadosVenda));
-
+    console.log("Dados salvos no localStorage:", JSON.parse(localStorage.getItem("venda_em_aberto")));
+  
     navigate("/venda-financeiro");
   };
+  
 
   return (
     <>
@@ -223,7 +246,26 @@ const Venda = () => {
                   <li key={usuario.idPessoa} onClick={() => {
                     setNomeUsuario(usuario.nome);
                     setAutocompleteUsuarioVisible(false);
-                  }}>{usuario.nome}</li>
+
+                    const dadosVenda = {
+                      Usuario_Pessoa_idPessoa: usuario.Pessoa_idPessoa,
+                      Usuario_idUsuario: usuario.idUsuario,
+                      cliente: nomeCliente,                    
+                      itens: itens,
+                      total: total,
+                      totalItens: totalItens,
+                      usuario: usuario.nome
+                    };
+
+
+                    console.log("Dados do usuário ao salvar:", usuario);
+                    console.log("Dados da venda ao salvar:", dadosVenda);
+
+                    localStorage.setItem("venda_em_aberto", JSON.stringify(dadosVenda));
+                    console.log("Dados salvos no localStorage:", JSON.parse(localStorage.getItem("venda_em_aberto")));
+                  }}>
+                    {usuario.nome}
+                  </li>
                 ))
               ) : (
                 <li>Vendedor não encontrado</li>
@@ -246,7 +288,7 @@ const Venda = () => {
             <ul className="autocomplete-list">
               {produtos
                 .filter(p =>
-                  (p.descricao?.toLowerCase().includes(produto.toLowerCase()) ||
+                (p.descricao?.toLowerCase().includes(produto.toLowerCase()) ||
                   p.sku?.toLowerCase().includes(produto.toLowerCase()))
                 )
                 .map(p => (
@@ -308,10 +350,12 @@ const Venda = () => {
 
         <p>Quantidade Total de Itens: {totalItens}</p>
         <p>Subtotal: R$ {subtotal.toFixed(2)}</p>
-        <p>Total: R$ {total.toFixed(2)}</p>
+
 
         <Button onClick={registrarVenda}>Registrar Venda</Button>
-        <Button onClick={() => navigate("/")}>Cancelar</Button>
+        <Button onClick={() => {
+          navigate("/");
+        }}>Cancelar</Button>
       </FormRow>
     </>
   );
