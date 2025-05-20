@@ -39,6 +39,7 @@ app.use("/comissao", routerComissao);
 app.use("/acertoEstoque", routerAcertoEstoque);
 app.use("/venda", routerVenda);
 app.use("/venda-financeiro", routerVendaFinanc);
+app.use("/venda-financeiro", routerVendaFinanc);
 app.use("/purchase", routerPurchase);
 app.use("/Devolucao", routerDevolucao);
 app.use("/Reserva", routerReserva);

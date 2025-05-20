@@ -132,13 +132,17 @@ export const getProductsByPurchaseIdRepository = async (param) => {
                         p."idProduto" as "productId",
                         p."descricao" as "productDescription",
                         p.valor_venda as "saleValue",
-                        cp.quantidade as "quantity"
+                        cp.quantidade as "quantity",
+                        p.valor_custo as "purchaseValue",
+                        f.razao_social as "supplierName"
                 from
                         "SuperShop"."Compra" c 
                 inner join 
                         "SuperShop"."Compra_Produto" cp on c.id_compra = cp.id_compra
                 inner join 
                         "SuperShop"."Produto" p on p."idProduto" = cp.id_produto
+                inner join
+                        "SuperShop"."Fornecedor" f on p."Fornecedor_idFornecedor" = f."idFornecedor"
                 where c.id_compra = $1
         `;
 
@@ -165,6 +169,8 @@ export const getProductsByPurchaseIdRepository = async (param) => {
         productDescription: row.productDescription,
         saleValue: row.saleValue,
         quantity: row.quantity,
+        purchaseValue: row.purchaseValue,
+        supplierName: row.supplierName,
       });
 
       return acc;
@@ -214,6 +220,7 @@ export const getAllProductsWithSuppliersRepository = async () => {
                 SELECT 
                         p."idProduto" AS "productId",
                         p."descricao" AS "productDescription",
+                        p."valor_custo" AS "purchaseValue",
                         p."valor_venda" AS "saleValue",
                         f."idFornecedor" AS "supplierId",
                         f."razao_social" AS "supplierName"
@@ -229,6 +236,7 @@ export const getAllProductsWithSuppliersRepository = async () => {
     return rows.map((product) => ({
       productId: product.productId,
       productDescription: product.productDescription,
+      purchaseValue: product.purchaseValue,
       saleValue: product.saleValue,
       supplierId: product.supplierId,
       supplierName: product.supplierName,
@@ -236,5 +244,55 @@ export const getAllProductsWithSuppliersRepository = async () => {
   } catch (err) {
     console.error("Erro ao buscar todos os produtos com fornecedores:", err);
     return [];
+  }
+};
+
+export const deletePurchaseRepository = async (purchaseId) => {
+  const client = await db.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    // Check if the purchase exists
+    const checkPurchaseQuery = `
+                SELECT COUNT(*) AS count
+                FROM "SuperShop"."Compra"
+                WHERE "id_compra" = $1
+        `;
+
+    const { rows: checkRows } = await client.query(checkPurchaseQuery, [
+      purchaseId,
+    ]);
+    const purchaseCount = parseInt(checkRows[0].count, 10);
+    if (purchaseCount === 0) {
+      console.log("Compra não encontrada");
+      return false;
+    }
+
+    // Delete from "Compra_Produto" table
+    const deletePurchaseProductQuery = `
+                DELETE FROM "SuperShop"."Compra_Produto"
+                WHERE "id_compra" = $1
+        `;
+    await client.query(deletePurchaseProductQuery, [purchaseId]);
+
+    // Delete from "Compra" table
+    const deletePurchaseQuery = `
+                DELETE FROM "SuperShop"."Compra"
+                WHERE "id_compra" = $1
+        `;
+    await client.query(deletePurchaseQuery, [purchaseId]);
+
+    await client.query("COMMIT");
+
+    return true;
+  } catch (err) {
+    console.log("Erro ao deletar compra:", err);
+    await client.query("ROLLBACK");
+    console.error("Erro ao deletar compra:", err);
+
+    return false;
+  } finally {
+    client.release();
   }
 };

@@ -1,5 +1,7 @@
+import { deletePurchase } from "../controllers/purchaseController.js";
 import {
   createPurchaseRepository,
+  deletePurchaseRepository,
   getAllProductsWithSuppliersRepository,
   getAllPurchasesRepository,
   getProductsByPurchaseIdRepository,
@@ -76,7 +78,7 @@ const validate = (data) => {
 
 export const createPurchaseService = async (data) => {
   if (!validate(data)) {
-    console.log("Dados inválidos para criar compra");
+    console.log("Dados inválidos para criar compra: ", data);
     return false;
   }
 
@@ -119,4 +121,18 @@ export const getAllProductsWithSuppliersService = async () => {
   }
 
   return products;
+};
+
+export const deletePurchaseService = async (purchaseId) => {
+  if (!purchaseId || isNaN(purchaseId)) {
+    console.log("ID da compra inválido");
+    return false;
+  }
+
+  const result = await deletePurchaseRepository(purchaseId);
+  if (!result) {
+    return false;
+  }
+
+  return true;
 };
