@@ -69,7 +69,7 @@ const Relatorios = () => {
           active={relatorioSelecionado === "purchase"}
           onClick={() => setRelatorioSelecionado("purchase")}
         >
-          Relatório de Compras
+          Relatório de Despesas
         </SidebarItem>
       </Sidebar>
       <Content>{renderConteudo()}</Content>
