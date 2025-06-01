@@ -92,3 +92,16 @@ INSERT INTO "SuperShop"."Produto" (
 ('SKU-1005', 'HD Externo 1TB USB 3.0', 300.00, 350.00, 3, 10, 'ativo', 6, 1, 1),
 ('SKU-1006', 'Headset com microfone', 100.00, 200.00, 3, 12, 'ativo', 6, 1, 1),
 ('SKU-1007', 'Webcam HD 720p', 100.00, 150.00, 2, 9, 'ativo', 5, 1, 1);
+
+
+-- Maria updates
+
+ALTER TABLE "SuperShop"."Contas_a_Receber" DROP CONSTRAINT "fk_Contas_a_Receber_Quitacao";
+
+Drop table "Quitacao_Venda" 
+
+CREATE TABLE "SuperShop"."Recebimentos" (
+  Venda_idVenda INTEGER NOT NULL,
+  metodo_pagamento VARCHAR(50) NOT NULL,
+  valor_pago NUMERIC(10, 2) NOT NULL
+);

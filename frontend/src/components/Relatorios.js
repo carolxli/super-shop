@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import RelatorioVendas from "../pages/RelatorioVendas.js";
 import RelatorioPerfilCliente from "../pages/RelatorioPerfilCliente.js";
+import ExpenseReportComponent from "./ExpenseReportComponent.js";
 
 const Container = styled.div`
   display: flex;
@@ -42,6 +43,8 @@ const Relatorios = () => {
         return <RelatorioVendas />;
       case "perfilClientes":
         return <RelatorioPerfilCliente />;
+      case "purchase":
+        return <ExpenseReportComponent />;
       default:
         return <p>Selecione um relatório no menu.</p>;
     }
@@ -61,6 +64,12 @@ const Relatorios = () => {
           onClick={() => setRelatorioSelecionado("perfilClientes")}
         >
           Relatório de Perfil de Clientes
+        </SidebarItem>
+        <SidebarItem
+          active={relatorioSelecionado === "purchase"}
+          onClick={() => setRelatorioSelecionado("purchase")}
+        >
+          Relatório de Compras
         </SidebarItem>
       </Sidebar>
       <Content>{renderConteudo()}</Content>
