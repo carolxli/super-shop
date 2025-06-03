@@ -43,8 +43,10 @@ const Relatorios = () => {
         return <RelatorioVendas />;
       case "perfilClientes":
         return <RelatorioPerfilCliente />;
-      case "purchase":
+      case "expense":
         return <ExpenseReportComponent />;
+      case "purchase":
+        return <p>building....</p>;
       default:
         return <p>Selecione um relatório no menu.</p>;
     }
@@ -66,10 +68,16 @@ const Relatorios = () => {
           Relatório de Perfil de Clientes
         </SidebarItem>
         <SidebarItem
+          active={relatorioSelecionado === "expense"}
+          onClick={() => setRelatorioSelecionado("expense")}
+        >
+          Relatório de Despesas
+        </SidebarItem>
+        <SidebarItem
           active={relatorioSelecionado === "purchase"}
           onClick={() => setRelatorioSelecionado("purchase")}
         >
-          Relatório de Despesas
+          Relatório de Compras
         </SidebarItem>
       </Sidebar>
       <Content>{renderConteudo()}</Content>

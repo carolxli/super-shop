@@ -385,7 +385,7 @@ const ExpenseReport = () => {
       despesa.metodo_pgmto || "-",
       despesa.descricao || "-",
       despesa.status || "-",
-      despesa.Tipo_idTipo || "-",
+      despesa.nome_tipo || "-",
     ]);
 
     autoTable(doc, {
@@ -474,7 +474,7 @@ const ExpenseReport = () => {
         `"${despesa.metodo_pgmto || ""}"`,
         `"${despesa.descricao || ""}"`,
         `"${despesa.status || ""}"`,
-        despesa.Tipo_idTipo || "",
+        despesa.nome_tipo || "",
       ];
       csvRows.push(row.join(","));
     });
@@ -611,7 +611,7 @@ const ExpenseReport = () => {
                       {despesa.status || "-"}
                     </StatusBadge>
                   </TableCell>
-                  <TableCell>{despesa.Tipo_idTipo || "-"}</TableCell>
+                  <TableCell>{despesa.nome_tipo || "-"}</TableCell>
                 </tr>
               ))
             )}
