@@ -192,7 +192,8 @@ const StatusBadge = styled.span`
         return "background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;";
       case "pendente":
         return "background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7;";
-      case "vencido":
+      case "parcial":
+      case "parcialmente pago":
         return "background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;";
       default:
         return "background-color: #e2e3e5; color: #6c757d; border: 1px solid #ced4da;";
@@ -240,11 +241,21 @@ const ExpenseReport = () => {
     }
   };
 
+  // Função melhorada para normalizar datas (baseada no primeiro código)
   const normalizarData = (dateString) => {
     if (!dateString) return null;
+    // Se for uma string de data no formato YYYY-MM-DD (filtro), criar data local
+    if (
+      typeof dateString === "string" &&
+      dateString.includes("-") &&
+      dateString.length === 10
+    ) {
+      const [ano, mes, dia] = dateString.split("-");
+      return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    }
+    // Para datas vindas da API, usar o formato ISO
     const date = new Date(dateString);
-    date.setHours(0, 0, 0, 0);
-    return date;
+    return isNaN(date.getTime()) ? null : date;
   };
 
   const aplicarFiltros = () => {
@@ -253,20 +264,34 @@ const ExpenseReport = () => {
     console.log("Filtros aplicados:", filtros);
     console.log("Total de despesas antes do filtro:", despesasTemp.length);
 
+    // Filtro por data de início (baseado no primeiro código)
     if (filtros.dataInicio) {
       const dataInicioNormalizada = normalizarData(filtros.dataInicio);
       console.log("Data início normalizada:", dataInicioNormalizada);
 
       despesasTemp = despesasTemp.filter((despesa) => {
         const dataVencimento = normalizarData(despesa.dt_vencimento);
-        const resultado =
-          dataVencimento && dataVencimento >= dataInicioNormalizada;
+        if (!dataVencimento) return false;
 
-        if (despesa.dt_vencimento) {
-          console.log(
-            `Despesa ${despesa.id}: ${despesa.dt_vencimento} -> ${dataVencimento} >= ${dataInicioNormalizada} = ${resultado}`
-          );
-        }
+        // Comparar apenas as datas (sem horário)
+        const dataVencimentoOnly = new Date(
+          dataVencimento.getFullYear(),
+          dataVencimento.getMonth(),
+          dataVencimento.getDate()
+        );
+        const dataInicioOnly = new Date(
+          dataInicioNormalizada.getFullYear(),
+          dataInicioNormalizada.getMonth(),
+          dataInicioNormalizada.getDate()
+        );
+
+        const resultado = dataVencimentoOnly >= dataInicioOnly;
+
+        console.log(
+          `Despesa ${despesa.id}: ${
+            despesa.dt_vencimento
+          } -> ${dataVencimentoOnly.toDateString()} >= ${dataInicioOnly.toDateString()} = ${resultado}`
+        );
 
         return resultado;
       });
@@ -274,20 +299,34 @@ const ExpenseReport = () => {
       console.log("Após filtro data início:", despesasTemp.length);
     }
 
+    // Filtro por data de fim (baseado no primeiro código)
     if (filtros.dataFim) {
       const dataFimNormalizada = normalizarData(filtros.dataFim);
       console.log("Data fim normalizada:", dataFimNormalizada);
 
       despesasTemp = despesasTemp.filter((despesa) => {
         const dataVencimento = normalizarData(despesa.dt_vencimento);
-        const resultado =
-          dataVencimento && dataVencimento <= dataFimNormalizada;
+        if (!dataVencimento) return false;
 
-        if (despesa.dt_vencimento) {
-          console.log(
-            `Despesa ${despesa.id}: ${despesa.dt_vencimento} -> ${dataVencimento} <= ${dataFimNormalizada} = ${resultado}`
-          );
-        }
+        // Comparar apenas as datas (sem horário)
+        const dataVencimentoOnly = new Date(
+          dataVencimento.getFullYear(),
+          dataVencimento.getMonth(),
+          dataVencimento.getDate()
+        );
+        const dataFimOnly = new Date(
+          dataFimNormalizada.getFullYear(),
+          dataFimNormalizada.getMonth(),
+          dataFimNormalizada.getDate()
+        );
+
+        const resultado = dataVencimentoOnly <= dataFimOnly;
+
+        console.log(
+          `Despesa ${despesa.id}: ${
+            despesa.dt_vencimento
+          } -> ${dataVencimentoOnly.toDateString()} <= ${dataFimOnly.toDateString()} = ${resultado}`
+        );
 
         return resultado;
       });
@@ -310,10 +349,19 @@ const ExpenseReport = () => {
     }
 
     if (filtros.status) {
-      despesasTemp = despesasTemp.filter(
-        (despesa) =>
-          despesa.status?.toLowerCase() === filtros.status.toLowerCase()
-      );
+      despesasTemp = despesasTemp.filter((despesa) => {
+        const statusDespesa = despesa.status?.toLowerCase() || "";
+        const filtroStatus = filtros.status.toLowerCase();
+
+        // Tratamento especial para "parcial"
+        if (filtroStatus === "parcial") {
+          return (
+            statusDespesa === "parcial" || statusDespesa === "parcialmente pago"
+          );
+        }
+
+        return statusDespesa === filtroStatus;
+      });
       console.log("Após filtro status:", despesasTemp.length);
     }
 
@@ -364,6 +412,15 @@ const ExpenseReport = () => {
   const calcularTotalPendentes = () =>
     despesasFiltradas
       .filter((despesa) => despesa.status?.toLowerCase() === "pendente")
+      .reduce((total, despesa) => total + Number(despesa.valor || 0), 0);
+
+  const calcularTotalParciais = () =>
+    despesasFiltradas
+      .filter(
+        (despesa) =>
+          despesa.status?.toLowerCase() === "parcial" ||
+          despesa.status?.toLowerCase() === "parcialmente pago"
+      )
       .reduce((total, despesa) => total + Number(despesa.valor || 0), 0);
 
   const exportarPDF = () => {
@@ -433,6 +490,11 @@ const ExpenseReport = () => {
       `Total Pendentes: ${formatCurrency(calcularTotalPendentes())}`,
       20,
       80
+    );
+    doc.text(
+      `Total Parcialmente Pagas: ${formatCurrency(calcularTotalParciais())}`,
+      20,
+      95
     );
 
     doc.save("relatorio_despesas.pdf");
@@ -551,7 +613,7 @@ const ExpenseReport = () => {
               <option value="">Todos</option>
               <option value="pago">Pago</option>
               <option value="pendente">Pendente</option>
-              <option value="vencido">Vencido</option>
+              <option value="parcial">Parcialmente Pago</option>
             </FilterSelect>
           </FilterGroup>
 
@@ -631,6 +693,10 @@ const ExpenseReport = () => {
           <br />
           <TotalText>
             Total Pendentes: {formatCurrency(calcularTotalPendentes())}
+          </TotalText>
+          <br />
+          <TotalText>
+            Total Parcialmente Pagas: {formatCurrency(calcularTotalParciais())}
           </TotalText>
         </TotalsContainer>
       )}

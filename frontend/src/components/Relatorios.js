@@ -3,6 +3,7 @@ import styled from "styled-components";
 import RelatorioVendas from "../pages/RelatorioVendas.js";
 import RelatorioPerfilCliente from "../pages/RelatorioPerfilCliente.js";
 import ExpenseReportComponent from "./ExpenseReportComponent.js";
+import PurchaseReport from "./PurchaseReportComponent.js";
 
 const Container = styled.div`
   display: flex;
@@ -46,7 +47,7 @@ const Relatorios = () => {
       case "expense":
         return <ExpenseReportComponent />;
       case "purchase":
-        return <p>building....</p>;
+        return <PurchaseReport />;
       default:
         return <p>Selecione um relatório no menu.</p>;
     }
