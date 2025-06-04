@@ -302,7 +302,7 @@ const RelatorioPerfilCliente = () => {
 
   return (
     <Container>
-      <h2>Relatório de Perfil de Clientes</h2>
+      <h2>Relatório de Clientes</h2>
       <FiltrosContainer>
         <FiltroGroup>
           <label>Data Inicial</label>
