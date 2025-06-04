@@ -4,6 +4,7 @@ import RelatorioVendas from "../pages/RelatorioVendas.js";
 import RelatorioPerfilCliente from "../pages/RelatorioPerfilCliente.js";
 import RelatorioPerfilFornecedor from "../pages/RelatorioPerfilFornecedor.js";
 import ExpenseReportComponent from "./ExpenseReportComponent.js";
+import PurchaseReport from "./PurchaseReportComponent.js";
 
 const Container = styled.div`
   display: flex;
@@ -48,6 +49,8 @@ const Relatorios = () => {
         return <RelatorioPerfilFornecedor/>;
       case "purchase":
         return <ExpenseReportComponent />;
+      case "purchase":
+        return <PurchaseReport />;
       default:
         return <p>Selecione um relatório no menu.</p>;
     }
@@ -78,7 +81,7 @@ const Relatorios = () => {
           active={relatorioSelecionado === "purchase"}
           onClick={() => setRelatorioSelecionado("purchase")}
         >
-          Relatório de Despesas
+          Relatório de Compras
         </SidebarItem>
       </Sidebar>
       <Content>{renderConteudo()}</Content>
