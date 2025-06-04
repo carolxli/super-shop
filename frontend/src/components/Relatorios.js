@@ -3,6 +3,7 @@ import styled from "styled-components";
 import RelatorioVendas from "../pages/RelatorioVendas.js";
 import RelatorioPerfilCliente from "../pages/RelatorioPerfilCliente.js";
 import RelatorioPerfilFornecedor from "../pages/RelatorioPerfilFornecedor.js";
+import RelatorioAcertoEstoque from "../pages/RelatorioAcertoEstoque.js";
 import ExpenseReportComponent from "./ExpenseReportComponent.js";
 import PurchaseReport from "./PurchaseReportComponent.js";
 
@@ -12,11 +13,11 @@ const Container = styled.div`
 `;
 
 const Sidebar = styled.div`
-  width: 150px;
+  width: 155px;
   background-color: #f4f4f4;
-  padding: 10px;
+  padding: 20px;
   border-right: 1px solid #ccc;
-  padding-top: 40px;
+  padding-top: 65px;
 `;
 
 const SidebarItem = styled.div`
@@ -51,6 +52,8 @@ const Relatorios = () => {
         return <ExpenseReportComponent />;
       case "purchase":
         return <PurchaseReport />;
+      case "acertoEstoque":
+        return <RelatorioAcertoEstoque/>;
       default:
         return <p>Selecione um relatório no menu.</p>;
     }
@@ -81,7 +84,14 @@ const Relatorios = () => {
           active={relatorioSelecionado === "purchase"}
           onClick={() => setRelatorioSelecionado("purchase")}
         >
-          Relatório de Compras
+          Relatório de Despesas
+        </SidebarItem>
+
+        <SidebarItem
+          active={relatorioSelecionado === "acertoEstoque"}
+          onClick={() => setRelatorioSelecionado("acertoEstoque")}
+        >
+          Relatório de Acerto de Estoque
         </SidebarItem>
       </Sidebar>
       <Content>{renderConteudo()}</Content>

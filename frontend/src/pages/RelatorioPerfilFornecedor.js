@@ -283,7 +283,7 @@ const RelatorioPerfilFornecedor = () => {
                                     {fornecedorSelecionadoDetalhes.historico_compras.map((compra) =>
                                         compra.itens?.map((item, index) => (
                                             <tr key={`${compra.id_compra}-${index}`}>
-                                                <td>{new Date(compra.dt_compra).toLocaleDateString()}</td>
+                                                <td>{new Date(compra.dt_compra).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                                                 <td>{item.quantidade}</td>
                                                 <td>{item.produto}</td>
                                                 <td>{item.marca}</td>
