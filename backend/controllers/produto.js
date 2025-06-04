@@ -110,3 +110,92 @@ export const getProduto = (req, res) => {
         return res.status(200).json(result.rows[0]);
     });
 };
+
+// GET /produtos/buscar?nome=calca
+export const buscarProdutoPorNome = (req, res) => {
+    const { nome } = req.query;
+    const q = `
+        SELECT "idProduto", "descricao"
+        FROM "SuperShop"."Produto"
+        WHERE "descricao" ILIKE $1
+        ORDER BY "descricao" ASC
+        LIMIT 10
+    `;
+    db.query(q, [`%${nome}%`], (err, result) => {
+        if (err) return res.status(500).json(err);
+        return res.status(200).json(result.rows);
+    });
+};
+
+// GET /relatorios/estoque
+export const relatorioEstoque = (_, res) => {
+    const q = `
+        SELECT 
+            p."idProduto",
+            p."descricao",
+            p."estoque_atual",
+            p."estoque_min",
+            p."valor_venda",
+            p."valor_custo",
+            p."status",
+            c.nome as categoria,
+            m.nome as marca
+        FROM "SuperShop"."Produto" p
+        LEFT JOIN "SuperShop"."Categoria" c ON p."Categoria_idCategoria" = c."idCategoria"
+        LEFT JOIN "SuperShop"."Marca" m ON p."Marca_idMarca" = m."idMarca"
+        ORDER BY p."descricao" ASC
+    `;
+    db.query(q, (err, data) => {
+        if (err) return res.status(500).json(err);
+        return res.status(200).json(data.rows);
+    });
+};
+
+export const relatorioGiroEstoque = (req, res) => {
+  const { produtoId, dataInicio, dataFim } = req.query;
+
+  const filtros = [];
+  const valores = [];
+
+  if (dataInicio && dataFim) {
+    filtros.push(`v."data" BETWEEN $${valores.length + 1} AND $${valores.length + 2}`);
+    valores.push(dataInicio, dataFim);
+  }
+
+  if (produtoId) {
+    filtros.push(`p."idProduto" = $${valores.length + 1}`);
+    valores.push(produtoId);
+  }
+
+  const whereClause = filtros.length ? `WHERE ${filtros.join(" AND ")}` : "";
+
+  const q = `
+    SELECT 
+        p."idProduto",
+        p."descricao",
+        p."sku",
+        p."estoque_atual",
+        SUM(iv.qtde) AS quantidade_vendida
+    FROM "SuperShop"."Itens_Vendas" iv
+    JOIN "SuperShop"."Produto" p ON iv."Produto_idProduto" = p."idProduto"
+    JOIN "SuperShop"."Venda" v ON iv."Venda_idVenda" = v."idVenda"
+    ${whereClause}
+    GROUP BY p."idProduto"
+    ORDER BY quantidade_vendida DESC
+  `;
+
+  db.query(q, valores, (err, data) => {
+    if (err) return res.status(500).json(err);
+
+    const relatorio = data.rows.map(row => ({
+      idProduto: row.idProduto,
+      descricao: row.descricao,
+      sku: row.sku,
+      estoque_atual: row.estoque_atual,
+      quantidade_vendida: row.quantidade_vendida,
+      giro_estoque: row.quantidade_vendida / (row.estoque_atual > 0 ? row.estoque_atual : 1),
+    }));
+
+    return res.status(200).json(relatorio);
+  });
+};

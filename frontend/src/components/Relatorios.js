@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState } from "react"; 
 import styled from "styled-components";
+
+// Importar os relatórios
 import RelatorioVendas from "../pages/RelatorioVendas.js";
 import RelatorioPerfilCliente from "../pages/RelatorioPerfilCliente.js";
-import RelatorioPerfilFornecedor from "../pages/RelatorioPerfilFornecedor.js";
+import RelatorioEstoque from "../pages/RelatorioEstoque.js";
 import RelatorioAcertoEstoque from "../pages/RelatorioAcertoEstoque.js";
-import ExpenseReportComponent from "./ExpenseReportComponent.js";
-import PurchaseReport from "./PurchaseReportComponent.js";
+import RelatorioGiroEstoque from "../pages/RelatorioGiroEstoque.js";
+import RelatorioDevolucoes from "../pages/RelatorioDevolucoes.js"; // 👈 Novo import
 
 const Container = styled.div`
   display: flex;
@@ -13,7 +15,7 @@ const Container = styled.div`
 `;
 
 const Sidebar = styled.div`
-  width: 155px;
+  width: 150px;
   background-color: #f4f4f4;
   padding: 20px;
   border-right: 1px solid #ccc;
@@ -52,8 +54,6 @@ const Relatorios = () => {
         return <ExpenseReportComponent />;
       case "purchase":
         return <PurchaseReport />;
-      case "acertoEstoque":
-        return <RelatorioAcertoEstoque/>;
       default:
         return <p>Selecione um relatório no menu.</p>;
     }
@@ -75,23 +75,22 @@ const Relatorios = () => {
           Relatório de Perfil de Clientes
         </SidebarItem>
         <SidebarItem
-          active={relatorioSelecionado === "perfilFornecedores"}
-          onClick={() => setRelatorioSelecionado("perfilFornecedores")}
+          active={relatorioSelecionado === "estoque"}
+          onClick={() => setRelatorioSelecionado("estoque")}
         >
-          Relatório de Perfil de Fornecedores
+          Relatório de Estoque
         </SidebarItem>
         <SidebarItem
-          active={relatorioSelecionado === "purchase"}
-          onClick={() => setRelatorioSelecionado("purchase")}
+          active={relatorioSelecionado === "giroEstoque"}
+          onClick={() => setRelatorioSelecionado("giroEstoque")}
         >
-          Relatório de Despesas
+          Giro de Estoque
         </SidebarItem>
-
         <SidebarItem
-          active={relatorioSelecionado === "acertoEstoque"}
-          onClick={() => setRelatorioSelecionado("acertoEstoque")}
+          active={relatorioSelecionado === "devolucoes"}
+          onClick={() => setRelatorioSelecionado("devolucoes")}
         >
-          Relatório de Acerto de Estoque
+          Relatório de Compras
         </SidebarItem>
       </Sidebar>
       <Content>{renderConteudo()}</Content>
