@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import RelatorioVendas from "../pages/RelatorioVendas.js";
 import RelatorioPerfilCliente from "../pages/RelatorioPerfilCliente.js";
+import RelatorioPerfilFornecedor from "../pages/RelatorioPerfilFornecedor.js";
 import ExpenseReportComponent from "./ExpenseReportComponent.js";
 
 const Container = styled.div`
@@ -43,6 +44,8 @@ const Relatorios = () => {
         return <RelatorioVendas />;
       case "perfilClientes":
         return <RelatorioPerfilCliente />;
+      case "perfilFornecedores":
+        return <RelatorioPerfilFornecedor/>;
       case "purchase":
         return <ExpenseReportComponent />;
       default:
@@ -64,6 +67,12 @@ const Relatorios = () => {
           onClick={() => setRelatorioSelecionado("perfilClientes")}
         >
           Relatório de Perfil de Clientes
+        </SidebarItem>
+        <SidebarItem
+          active={relatorioSelecionado === "perfilFornecedores"}
+          onClick={() => setRelatorioSelecionado("perfilFornecedores")}
+        >
+          Relatório de Perfil de Fornecedores
         </SidebarItem>
         <SidebarItem
           active={relatorioSelecionado === "purchase"}

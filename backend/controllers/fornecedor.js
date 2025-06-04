@@ -173,3 +173,93 @@ export const getFornecedores = (req, res) => {
         return res.status(200).json(data.rows);
     });
 };
+
+export const getRelatorioPerfilFornecedor = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const query = `
+      WITH produto_top1 AS (
+        SELECT
+          p."descricao" AS produto_nome,
+          cat."nome" AS categoria_nome,
+          m."nome" AS marca_nome,
+          SUM(cp."quantidade") AS total_vendido
+        FROM "SuperShop"."Compra_Produto" cp
+        JOIN "SuperShop"."Produto" p ON cp."id_produto" = p."idProduto"
+        JOIN "SuperShop"."Categoria" cat ON p."Categoria_idCategoria" = cat."idCategoria"
+        JOIN "SuperShop"."Marca" m ON p."Marca_idMarca" = m."idMarca"
+        WHERE p."Fornecedor_idFornecedor" = $1
+        GROUP BY p."descricao", cat."nome", m."nome"
+        ORDER BY total_vendido DESC
+        LIMIT 1
+      ),
+      compras_distintas AS (
+        SELECT DISTINCT c."id_compra", c."dt_compra", c."total_compra"
+        FROM "SuperShop"."Compra" c
+        JOIN "SuperShop"."Compra_Produto" cp ON c."id_compra" = cp."id_compra"
+        JOIN "SuperShop"."Produto" p ON cp."id_produto" = p."idProduto"
+        WHERE p."Fornecedor_idFornecedor" = $1
+      ),
+      resumo AS (
+        SELECT 
+          f."idFornecedor",
+          p."nome" AS nome_fornecedor,
+          p."telefone_1",
+          p."email",
+          f."observacao",
+          COUNT(DISTINCT cd."id_compra") AS total_compras,
+          COALESCE(SUM(cd."total_compra"), 0) AS valor_total_comprado,
+          MAX(cd."dt_compra") AS data_ultima_compra,
+          MIN(cd."dt_compra") AS data_primeira_compra,
+          COALESCE(SUM(cp."quantidade"), 0) AS total_produtos_comprados,
+          CASE WHEN COUNT(DISTINCT cd."id_compra") > 0 
+            THEN ROUND(SUM(cd."total_compra")::numeric / COUNT(DISTINCT cd."id_compra"), 2) 
+            ELSE 0 
+          END AS ticket_medio
+        FROM "SuperShop"."Fornecedor" f
+        JOIN "SuperShop"."Pessoa" p ON f."Pessoa_idPessoa" = p."idPessoa"
+        LEFT JOIN compras_distintas cd ON TRUE
+        LEFT JOIN "SuperShop"."Compra_Produto" cp ON cp."id_compra" = cd."id_compra"
+        LEFT JOIN "SuperShop"."Produto" pr ON cp."id_produto" = pr."idProduto" AND pr."Fornecedor_idFornecedor" = f."idFornecedor"
+        WHERE f."idFornecedor" = $1
+        GROUP BY f."idFornecedor", p."nome", p."telefone_1", p."email", f."observacao"
+      ),
+      historico AS (
+        SELECT 
+          c."id_compra",
+          c."dt_compra",
+          c."total_compra",
+          JSON_AGG(
+            JSON_BUILD_OBJECT(
+              'produto', p."descricao",
+              'quantidade', cp."quantidade",
+              'marca', m."nome",
+              'categoria', cat."nome"
+            )
+          ) AS itens
+        FROM "SuperShop"."Compra" c
+        JOIN "SuperShop"."Compra_Produto" cp ON cp."id_compra" = c."id_compra"
+        JOIN "SuperShop"."Produto" p ON cp."id_produto" = p."idProduto"
+        JOIN "SuperShop"."Marca" m ON p."Marca_idMarca" = m."idMarca"
+        JOIN "SuperShop"."Categoria" cat ON p."Categoria_idCategoria" = cat."idCategoria"
+        WHERE p."Fornecedor_idFornecedor" = $1
+        GROUP BY c."id_compra", c."dt_compra", c."total_compra"
+        ORDER BY c."dt_compra" DESC
+      )
+      SELECT 
+        r.*,
+        pt.produto_nome AS produto_mais_vendido,
+        pt.categoria_nome AS categoria_mais_vendida,
+        pt.marca_nome AS marca_mais_vendida,
+        (SELECT JSON_AGG(h) FROM historico h) AS historico_compras
+      FROM resumo r
+      LEFT JOIN produto_top1 pt ON TRUE;
+    `;
+
+    const { rows } = await db.query(query, [id]);
+    res.status(200).json(rows[0] || {});
+  } catch (error) {
+    console.error("Erro ao buscar perfil do fornecedor:", error);
+    res.status(500).json({ message: "Erro ao buscar perfil do fornecedor." });
+  }
+};
