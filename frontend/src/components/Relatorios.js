@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useState } from "react"; 
 import styled from "styled-components";
+
+// Importar os relatórios
 import RelatorioVendas from "../pages/RelatorioVendas.js";
 import RelatorioPerfilCliente from "../pages/RelatorioPerfilCliente.js";
+import RelatorioEstoque from "../pages/RelatorioEstoque.js";
+import RelatorioGiroEstoque from "../pages/RelatorioGiroEstoque.js";
+import RelatorioDevolucoes from "../pages/RelatorioDevolucoes.js"; // 👈 Novo import
 
 const Container = styled.div`
   display: flex;
@@ -9,7 +14,7 @@ const Container = styled.div`
 `;
 
 const Sidebar = styled.div`
-  width: 150px;
+  width: 180px;
   background-color: #f4f4f4;
   padding: 10px;
   border-right: 1px solid #ccc;
@@ -42,6 +47,12 @@ const Relatorios = () => {
         return <RelatorioVendas />;
       case "perfilClientes":
         return <RelatorioPerfilCliente />;
+      case "estoque":
+        return <RelatorioEstoque />;
+      case "giroEstoque":
+        return <RelatorioGiroEstoque />;
+      case "devolucoes":
+        return <RelatorioDevolucoes />; // 👈 Novo caso
       default:
         return <p>Selecione um relatório no menu.</p>;
     }
@@ -61,6 +72,24 @@ const Relatorios = () => {
           onClick={() => setRelatorioSelecionado("perfilClientes")}
         >
           Relatório de Perfil de Clientes
+        </SidebarItem>
+        <SidebarItem
+          active={relatorioSelecionado === "estoque"}
+          onClick={() => setRelatorioSelecionado("estoque")}
+        >
+          Relatório de Estoque
+        </SidebarItem>
+        <SidebarItem
+          active={relatorioSelecionado === "giroEstoque"}
+          onClick={() => setRelatorioSelecionado("giroEstoque")}
+        >
+          Giro de Estoque
+        </SidebarItem>
+        <SidebarItem
+          active={relatorioSelecionado === "devolucoes"}
+          onClick={() => setRelatorioSelecionado("devolucoes")}
+        >
+          Relatório de Devoluções
         </SidebarItem>
       </Sidebar>
       <Content>{renderConteudo()}</Content>

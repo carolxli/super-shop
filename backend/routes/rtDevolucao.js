@@ -9,11 +9,14 @@ import { deleteDevolucao,
 const routerDevolucao = express.Router();
 
 routerDevolucao.post("/", postDevolucao);
-routerDevolucao.get("/:idCliente", getDevolucoesByCliente);
-routerDevolucao.delete("/:id", deleteDevolucao);
+
+// 🔁 PRIMEIRO as rotas específicas:
 routerDevolucao.get("/cliente/:idCliente", getDevolucoesByCliente);
 routerDevolucao.get("/por-periodo", getDevolucoesPorPeriodo);
 routerDevolucao.get("/por-produto/:idProduto", getDevolucoesPorProduto);
 routerDevolucao.get("/detalhe/:id", getDetalheDevolucao);
+
+// 🔁 POR ÚLTIMO a rota genérica:
+routerDevolucao.get("/:idCliente", getDevolucoesByCliente);
 
 export default routerDevolucao;
