@@ -121,6 +121,12 @@ const Relatorios = () => {
         >
           Relatório de Compras
         </SidebarItem>
+        <SidebarItem
+          active={relatorioSelecionado === "purchase"}
+          onClick={() => setRelatorioSelecionado("purchase")}
+        >
+          Relatório de Despesas
+        </SidebarItem>
       </Sidebar>
       <Content>{renderConteudo()}</Content>
     </Container>
