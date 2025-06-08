@@ -24,9 +24,15 @@ const EditarPessoa = () => {
   useEffect(() => {
     const fetchPessoa = async () => {
       try {
-        const response = await axios.get(`http://localhost:8800/Pessoa/${idPessoa}`);
-        setPessoa(response.data);
+        const response = await axios.get(`http://localhost:8800/Pessoa/id/${idPessoa}`);
+        const dados = response.data;
 
+        // Conversão da data para o formato "yyyy-MM-dd"
+        if (dados.data_nasc) {
+          dados.data_nasc = dados.data_nasc.split('T')[0];
+        }
+
+        setPessoa(dados);
       } catch (error) {
         console.error("Erro ao buscar pessoa:", error);
         alert("Erro ao carregar dados da pessoa.");
@@ -35,6 +41,7 @@ const EditarPessoa = () => {
 
     fetchPessoa();
   }, [idPessoa]);
+
 
   const fetchAddress = async (cep) => {
     try {
@@ -110,6 +117,7 @@ const EditarPessoa = () => {
         <label>
           Telefone 1
           <InputMask
+            type="text"
             mask="(99) 99999-9999"
             name="telefone_1"
             value={pessoa.telefone_1}
@@ -121,6 +129,7 @@ const EditarPessoa = () => {
         <label>
           Telefone 2
           <InputMask
+            type="text"
             mask="(99) 99999-9999"
             name="telefone_2"
             value={pessoa.telefone_2}
@@ -136,6 +145,7 @@ const EditarPessoa = () => {
         <label>
           CEP
           <InputMask
+            type="text"
             mask="99999-999"
             name="cep"
             value={pessoa.cep}

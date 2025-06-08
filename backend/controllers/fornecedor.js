@@ -1,8 +1,8 @@
 import { db } from "../db.js";
 
 export const getFornecedor = async (req, res) => {
-    const { razao_social } = req.query;
-    let query = `
+  const { razao_social } = req.query;
+  let query = `
         SELECT 
             f."idFornecedor",
             f."cnpj",
@@ -19,10 +19,10 @@ export const getFornecedor = async (req, res) => {
         GROUP BY f."idFornecedor", f."cnpj", f."razao_social", f."qtd_min_pedido", f."prazo_entrega", f."dt_inicio_fornecimento", f."observacao", p."nome"
         ORDER BY f."razao_social" ASC
     `;
-    let values = [];
+  let values = [];
 
-    if (razao_social) {
-        query = `
+  if (razao_social) {
+    query = `
             SELECT 
                 f."idFornecedor",
                 f."cnpj",
@@ -40,81 +40,100 @@ export const getFornecedor = async (req, res) => {
             GROUP BY f."idFornecedor", f."cnpj", f."razao_social", f."qtd_min_pedido", f."prazo_entrega", f."dt_inicio_fornecimento", f."observacao", p."nome"
             ORDER BY f."razao_social" ASC
         `;
-        values = [`%${razao_social}%`];
-    }
+    values = [`%${razao_social}%`];
+  }
 
-    try {
-        const result = await db.query(query, values);
-        return res.status(200).json(result.rows);
-    } catch (err) {
-        return res.status(500).json({ error: "Erro ao buscar Fornecedor", details: err });
-    }
+  try {
+    const result = await db.query(query, values);
+    return res.status(200).json(result.rows);
+  } catch (err) {
+    return res.status(500).json({ error: "Erro ao buscar Fornecedor", details: err });
+  }
 };
 
 export const postFornecedor = (req, res) => {
-    const q = `INSERT INTO "SuperShop"."Fornecedor" (
-        "cnpj",
-        "razao_social",
-        "qtd_min_pedido",
-        "prazo_entrega",
-        "dt_inicio_fornecimento",
-        "observacao",
-        "Pessoa_idPessoa",
-        "marcas_fornecedor"
-    ) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`;
+  const dataInicio = new Date(req.body.dt_inicio_fornecimento);
+  const dataMinima = new Date('2024-01-01');
+  const hoje = new Date();
+  const dataMaxima = new Date();
+  dataMaxima.setDate(hoje.getDate() + 7);
 
-    const values = [
-        req.body.cnpj,
-        req.body.razao_social,
-        req.body.qtd_min_pedido,
-        req.body.prazo_entrega,
-        req.body.dt_inicio_fornecimento,
-        req.body.observacao,
-        req.body.Pessoa_idPessoa,
-        req.body.marcas_fornecedor,
-    ];
+  // Zerar horas para comparação exata
+  dataInicio.setHours(0, 0, 0, 0);
+  dataMinima.setHours(0, 0, 0, 0);
+  dataMaxima.setHours(0, 0, 0, 0);
 
-    db.query(q, values, (insertErr) => {
-        if (insertErr) {
-            console.error("Erro ao inserir Fornecedor:", insertErr);
-            return res.status(500).json("Erro ao inserir fornecedor");
-        }
+  if (dataInicio < dataMinima || dataInicio > dataMaxima) {
+    return res
+      .status(400)
+      .json("Insira uma data de início de fornecimento válida.");
+  }
 
-        return res.status(200).json("Fornecedor inserido com sucesso");
-    });
+  const q = `INSERT INTO "SuperShop"."Fornecedor" (
+      "cnpj",
+      "razao_social",
+      "qtd_min_pedido",
+      "prazo_entrega",
+      "dt_inicio_fornecimento",
+      "observacao",
+      "Pessoa_idPessoa",
+      "marcas_fornecedor"
+  ) VALUES($1,$2,$3,$4,$5,$6,$7,$8)`;
+
+  const values = [
+    req.body.cnpj,
+    req.body.razao_social,
+    req.body.qtd_min_pedido,
+    req.body.prazo_entrega,
+    req.body.dt_inicio_fornecimento,
+    req.body.observacao,
+    req.body.Pessoa_idPessoa,
+    req.body.marcas_fornecedor,
+  ];
+
+  db.query(q, values, (insertErr) => {
+    if (insertErr) {
+      console.error("Erro ao inserir Fornecedor:", insertErr);
+      return res.status(500).json("Erro ao inserir fornecedor");
+    }
+
+    return res.status(200).json("Fornecedor inserido com sucesso");
+  });
 };
 
+
 export const getFornecedorById = async (req, res) => {
-    const idFornecedor = req.params.idFornecedor;
-    const q = `
-        SELECT 
-            f."idFornecedor",
-            f."cnpj",
-            f."razao_social",
-            f."qtd_min_pedido",
-            f."prazo_entrega",
-            f."dt_inicio_fornecimento",
-            f."observacao",
-            p."nome" AS pessoa_nome,
-            string_agg(m."nome", ', ') AS marcas_nome
-        FROM "SuperShop"."Fornecedor" f
-        JOIN "SuperShop"."Pessoa" p ON f."Pessoa_idPessoa" = p."idPessoa"
-        LEFT JOIN "SuperShop"."Marca" m ON m."idMarca" = ANY(f."marcas_fornecedor")
-        WHERE f."idFornecedor" = $1
-        GROUP BY f."idFornecedor", f."cnpj", f."razao_social", f."qtd_min_pedido", f."prazo_entrega", f."dt_inicio_fornecimento", f."observacao", p."nome";
+  const idFornecedor = req.params.idFornecedor;
+  const q = `
+       SELECT 
+    f."idFornecedor",
+    f."cnpj",
+    f."razao_social",
+    f."qtd_min_pedido",
+    f."prazo_entrega",
+    f."dt_inicio_fornecimento",
+    f."observacao",
+    p."idPessoa" AS "Pessoa_idPessoa", -- adicionado
+    p."nome" AS pessoa_nome,
+    string_agg(m."nome", ', ') AS marcas_nome
+FROM "SuperShop"."Fornecedor" f
+JOIN "SuperShop"."Pessoa" p ON f."Pessoa_idPessoa" = p."idPessoa"
+LEFT JOIN "SuperShop"."Marca" m ON m."idMarca" = ANY(f."marcas_fornecedor")
+WHERE f."idFornecedor" = $1
+GROUP BY f."idFornecedor", f."cnpj", f."razao_social", f."qtd_min_pedido", f."prazo_entrega", f."dt_inicio_fornecimento", f."observacao", p."idPessoa", p."nome"
     `;
 
-    try {
-        const result = await db.query(q, [idFornecedor]);
-        return res.status(200).json(result.rows[0]);
-    } catch (err) {
-        console.error("Erro ao buscar fornecedor:", err);
-        return res.status(500).json({ error: "Erro ao buscar fornecedor", details: err });
-    }
+  try {
+    const result = await db.query(q, [idFornecedor]);
+    return res.status(200).json(result.rows[0]);
+  } catch (err) {
+    console.error("Erro ao buscar fornecedor:", err);
+    return res.status(500).json({ error: "Erro ao buscar fornecedor", details: err });
+  }
 };
 
 export const updateFornecedor = async (req, res) => {
-    const q = `
+  const q = `
         UPDATE "SuperShop"."Fornecedor" SET
         "cnpj" = $1,
         "razao_social" = $2,
@@ -127,51 +146,50 @@ export const updateFornecedor = async (req, res) => {
         WHERE "idFornecedor" = $9;
     `;
 
-    const values = [
-        req.body.cnpj,
-        req.body.razao_social,
-        req.body.qtd_min_pedido,
-        req.body.prazo_entrega,
-        req.body.dt_inicio_fornecimento,
-        req.body.observacao,
-        req.body.Pessoa_idPessoa,
-        req.body.marcas,
-        req.params.idFornecedor
-    ];
+  const values = [
+    req.body.cnpj,
+    req.body.razao_social,
+    req.body.qtd_min_pedido,
+    req.body.prazo_entrega,
+    req.body.dt_inicio_fornecimento,
+    req.body.observacao,
+    req.body.Pessoa_idPessoa,
+    req.body.marcas,
+    req.params.idFornecedor
+  ];
 
-    try {
-        await db.query(q, values);
-        return res.status(200).json("Fornecedor atualizado com sucesso.");
-    } catch (err) {
-        console.error("Erro ao atualizar fornecedor:", err);
-        return res.status(500).json({ error: "Erro ao atualizar fornecedor", details: err });
-    }
+  try {
+    await db.query(q, values);
+    return res.status(200).json("Fornecedor atualizado com sucesso.");
+  } catch (err) {
+    console.error("Erro ao atualizar fornecedor:", err);
+    return res.status(500).json({ error: "Erro ao atualizar fornecedor", details: err });
+  }
 };
 
-
 export const deleteFornecedor = (req, res) => {
-    const q = `DELETE FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1`;
+  const q = `DELETE FROM "SuperShop"."Fornecedor" WHERE "idFornecedor" = $1`;
 
-    db.query(q, [req.params.idFornecedor], (err) => {
-        if (err) {
-            console.error("Erro ao deletar fornecedor:", err);
-            return res.status(500).json(err);
-        }
-        return res.status(200).json("Fornecedor deletado com sucesso");
-    });
+  db.query(q, [req.params.idFornecedor], (err) => {
+    if (err) {
+      console.error("Erro ao deletar fornecedor:", err);
+      return res.status(500).json(err);
+    }
+    return res.status(200).json("Fornecedor deletado com sucesso");
+  });
 };
 
 export const getFornecedores = (req, res) => {
-    const razao_social = req.query.razao_social || '';
-    const q = `SELECT "idFornecedor", "Pessoa_idPessoa", "razao_social" FROM "SuperShop"."Fornecedor" WHERE "razao_social" ILIKE $1 LIMIT 10`;
+  const razao_social = req.query.razao_social || '';
+  const q = `SELECT "idFornecedor", "Pessoa_idPessoa", "razao_social" FROM "SuperShop"."Fornecedor" WHERE "razao_social" ILIKE $1 LIMIT 10`;
 
-    db.query(q, [`%${razao_social}%`], (err, data) => {
-        if (err) {
-            console.error("Erro ao buscar fornecedor:", err);
-            return res.status(500).json(err);
-        }
-        return res.status(200).json(data.rows);
-    });
+  db.query(q, [`%${razao_social}%`], (err, data) => {
+    if (err) {
+      console.error("Erro ao buscar fornecedor:", err);
+      return res.status(500).json(err);
+    }
+    return res.status(200).json(data.rows);
+  });
 };
 
 export const getRelatorioPerfilFornecedor = async (req, res) => {

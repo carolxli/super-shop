@@ -59,12 +59,28 @@ const VendaFinanceiro = () => {
     if (vendaTemp) {
       const vendaParse = JSON.parse(vendaTemp);
       setDadosVenda(vendaParse);
-      setTotalFinal(vendaParse.total);
+      setTotalFinal(vendaParse.total || 0);
+      setPagamentos(vendaParse.pagamentos || []);
+      setDesconto(vendaParse.desconto || "");
+      setTipoDesconto(vendaParse.tipoDesconto || "");
     } else {
       alert("Nenhuma venda em aberto encontrada.");
       navigate("/venda");
     }
   }, [navigate]);
+
+  useEffect(() => {
+    const vendaTemp = localStorage.getItem("venda_em_aberto");
+    if (vendaTemp) {
+      const atualizada = {
+        ...JSON.parse(vendaTemp),
+        pagamentos,
+        desconto,
+        tipoDesconto
+      };
+      localStorage.setItem("venda_em_aberto", JSON.stringify(atualizada));
+    }
+  }, [pagamentos, desconto, tipoDesconto]);
 
   useEffect(() => {
     const fetchVoucherDoCliente = async () => {

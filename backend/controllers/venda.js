@@ -16,14 +16,14 @@ export const getClienteVenda2 = async (req, res) => {
 export const getVendasByCliente = (req, res) => {
     const { idCliente } = req.params;
     const q = `SELECT "idVenda", data, valor_total AS total FROM "SuperShop"."Venda" WHERE "Cliente_idCliente" = $1`;
-  
+
     db.query(q, [idCliente], (err, data) => {
-      if (err) return res.status(500).json(err);
-      return res.status(200).json(data.rows);
+        if (err) return res.status(500).json(err);
+        return res.status(200).json(data.rows);
     });
-  };
-  
-  export const getItensVenda = (req, res) => {
+};
+
+export const getItensVenda = (req, res) => {
     const { idVenda } = req.params;
     const q = `
       SELECT 
@@ -36,12 +36,12 @@ export const getVendasByCliente = (req, res) => {
       JOIN "SuperShop"."Produto" p ON iv."Produto_idProduto" = p."idProduto"
       WHERE iv."Venda_idVenda" = $1
     `;
-  
+
     db.query(q, [idVenda], (err, data) => {
-      if (err) return res.status(500).json(err);
-      return res.status(200).json(data.rows);
+        if (err) return res.status(500).json(err);
+        return res.status(200).json(data.rows);
     });
-  };
+};
 
 export const getClienteVenda = async (req, res) => {
     const nome = req.query.nome;
@@ -424,4 +424,76 @@ ORDER BY v."data" DESC;
         console.error("Erro ao gerar relatório de vendas:", error);
         res.status(500).json({ message: "Erro ao gerar relatório de vendas." });
     }
+};
+
+export const deleteVenda = (req, res) => {
+    const { idVenda } = req.params;
+    console.log(`Iniciando exclusão da venda com id: ${idVenda}`);
+
+    db.query("BEGIN", async (err) => {
+        if (err) {
+            console.error("Erro ao iniciar transação:", err);
+            return res.status(500).json({ message: "Erro ao iniciar transação." });
+        }
+
+        try {
+            console.log("Recuperando itens da venda...");
+            const { rows: itens } = await db.query(
+                `SELECT * FROM "SuperShop"."Itens_Vendas" WHERE "Venda_idVenda" = $1`,
+                [idVenda]
+            );
+            console.log(`Itens encontrados: ${itens.length}`);
+
+            // Atualiza o estoque para cada item
+            for (const item of itens) {
+                await db.query(
+                    `UPDATE "SuperShop"."Produto" SET "estoque_atual" = "estoque_atual" + $1 WHERE "idProduto" = $2`,
+                    [item.qtde, item.Produto_idProduto]
+                );
+            }
+
+            // Recupera pagamentos (recebimentos)
+            const { rows: pagamentos } = await db.query(
+                `SELECT * FROM "SuperShop"."Recebimentos" WHERE "Venda_idVenda" = $1`,
+                [idVenda]
+            );
+
+            // Se houver pagamentos por voucher, devolve o valor ao saldo do cliente
+            for (const pg of pagamentos) {
+                if (pg.metodo_pagamento === "voucher") {
+                    // Supondo que o cliente está ligado à venda, recupera cliente da venda
+                    const clienteResult = await db.query(
+                        `SELECT "Cliente_idCliente" FROM "SuperShop"."Venda" WHERE "idVenda" = $1`,
+                        [idVenda]
+                    );
+
+                    if (clienteResult.rows.length > 0) {
+                        const clienteId = clienteResult.rows[0].Cliente_idCliente;
+                        await db.query(
+                            `UPDATE "SuperShop"."Cliente" SET "voucher" = "voucher" + $1 WHERE "idCliente" = $2`,
+                            [pg.valor_pago, clienteId]
+                        );
+                    }
+                }
+            }
+
+            // Exclui recebimentos, itens e venda
+            await db.query(`DELETE FROM "SuperShop"."Recebimentos" WHERE "Venda_idVenda" = $1`, [idVenda]);
+            await db.query(`DELETE FROM "SuperShop"."Itens_Vendas" WHERE "Venda_idVenda" = $1`, [idVenda]);
+            await db.query(`DELETE FROM "SuperShop"."Venda" WHERE "idVenda" = $1`, [idVenda]);
+
+            db.query("COMMIT", (err) => {
+                if (err) {
+                    console.error("Erro ao finalizar transação:", err);
+                    return res.status(500).json({ message: "Erro ao finalizar transação." });
+                }
+                res.status(200).json({ message: "Venda excluída com sucesso." });
+            });
+        } catch (e) {
+            console.error("Erro durante a transação:", e);
+            db.query("ROLLBACK", () => {
+                res.status(500).json({ message: "Erro ao excluir venda." });
+            });
+        }
+    });
 };

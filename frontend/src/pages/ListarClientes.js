@@ -43,7 +43,7 @@ const ListarClientes = () => {
 
     return (
         <>
-            <h2>Lista de Clientes</h2>
+            <h2>Clientes</h2>
             <table>
                 <thead>
                     <tr>

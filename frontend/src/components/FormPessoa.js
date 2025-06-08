@@ -4,6 +4,9 @@ import axios from 'axios';
 import InputMask from 'react-input-mask';
 
 const FormPessoa = () => {
+    const [isRuaEditable, setIsRuaEditable] = useState(false);
+    const [isBairroEditable, setIsBairroEditable] = useState(false);
+
     const [formData, setFormData] = useState({
         email: '',
         nome: '',
@@ -54,7 +57,17 @@ const FormPessoa = () => {
                 return;
             }
 
-            const { logradouro: end_rua, bairro: end_bairro, localidade: cidade, uf: estado } = response.data;
+            const {
+                logradouro: end_rua,
+                bairro: end_bairro,
+                localidade: cidade,
+                uf: estado,
+            } = response.data;
+
+            // Verifica se veio rua ou bairro; se não veio, libera a edição
+            setIsRuaEditable(!end_rua);
+            setIsBairroEditable(!end_bairro);
+
             setFormData((prevData) => ({
                 ...prevData,
                 end_rua,
@@ -68,6 +81,7 @@ const FormPessoa = () => {
         }
     };
 
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -79,16 +93,20 @@ const FormPessoa = () => {
                 body: JSON.stringify(formData),
             });
 
+            const responseBody = await response.json();
+
             if (response.ok) {
                 alert('Pessoa cadastrada com sucesso!');
                 navigate('/listar-pessoas');
             } else {
-                alert('Erro ao cadastrar pessoa');
+                alert(responseBody); // Mostra a mensagem de erro enviada pelo backend (ex: idade inválida)
             }
         } catch (error) {
             console.error('Erro ao cadastrar pessoa:', error);
+            alert('Erro ao cadastrar pessoa. Tente novamente mais tarde.');
         }
     };
+
 
     return (
         <>
@@ -96,8 +114,19 @@ const FormPessoa = () => {
             <form onSubmit={handleSubmit}>
                 <label>
                     Nome
-                    <input type="text" name="nome" onChange={handleChange} required />
+                    <input
+                        type="text"
+                        name="nome"
+                        onChange={handleChange}
+                        onKeyDown={(e) => {
+                            if (/\d/.test(e.key)) {
+                                e.preventDefault(); // Bloqueia teclas numéricas
+                            }
+                        }}
+                        required
+                    />
                 </label>
+
 
                 <label>
                     Email
@@ -146,9 +175,15 @@ const FormPessoa = () => {
 
                 <label>
                     Rua
-                    <input type="text" name="end_rua" value={formData.end_rua} onChange={handleChange} required readOnly />
+                    <input
+                        type="text"
+                        name="end_rua"
+                        value={formData.end_rua}
+                        onChange={handleChange}
+                        required
+                        readOnly={!isRuaEditable}
+                    />
                 </label>
-
                 <label>
                     Número
                     <input type="text" name="end_numero" onChange={handleChange} required />
@@ -156,8 +191,16 @@ const FormPessoa = () => {
 
                 <label>
                     Bairro
-                    <input type="text" name="end_bairro" value={formData.end_bairro} onChange={handleChange} required readOnly />
+                    <input
+                        type="text"
+                        name="end_bairro"
+                        value={formData.end_bairro}
+                        onChange={handleChange}
+                        required
+                        readOnly={!isBairroEditable}
+                    />
                 </label>
+
 
                 <label>
                     Complemento

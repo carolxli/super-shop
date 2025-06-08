@@ -7,7 +7,8 @@ import {
     getRelatorioVendas,
     postRegistrarVenda,
     getVendasByCliente,
-    getItensVenda
+    getItensVenda,
+    deleteVenda,
 } from "../controllers/venda.js";
 
 const routerVenda = express.Router();
@@ -20,6 +21,7 @@ routerVenda.get("/listarVendasUsuario/:idUsuario", getListarVendasUsuario);
 routerVenda.get("/relatorioVendas", getRelatorioVendas);
 routerVenda.get("/cliente/:idCliente", getVendasByCliente);
 routerVenda.get("/itens/:idVenda", getItensVenda);
+routerVenda.delete("/:idVenda", deleteVenda);
 
 // Rota de registro de venda
 routerVenda.post("/", postRegistrarVenda);

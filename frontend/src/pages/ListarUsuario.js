@@ -28,22 +28,25 @@ const ListarUsuarios = () => {
         fetchUsuarios();
     }, [search]);
 
-    const handleDelete = async (id) => {
-        const confirmDelete = window.confirm("Você tem certeza que deseja deletar este Usuario?");
-        if (confirmDelete) {
-            try {
-                await axios.delete(`http://localhost:8800/Usuario/${id}`);
-                setUsuarios(usuarios.filter(usuarios => usuarios.idUsuario !== id));
-            } catch (err) {
-                console.error("Erro ao deletar Usuario", err);
-                alert("Erro ao deletar Usuario. Tente novamente.");
-            }
+   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Você tem certeza que deseja deletar este Usuario?");
+    if (confirmDelete) {
+        try {
+            await axios.delete(`http://localhost:8800/Usuario/${id}`);
+            setUsuarios(usuarios.filter(usuarios => usuarios.idUsuario !== id));
+        } catch (err) {
+            console.error("Erro ao deletar Usuario", err);
+            const msg = err.response?.data?.error || "Erro ao deletar Usuario. Tente novamente.";
+            alert(msg);  // EXIBE A MENSAGEM DE ERRO VINDO DO BACKEND
         }
-    };
+    }
+};
+
+
 
     return (
         <>
-            <h2>Lista de Usuarios</h2>
+            <h2>Usuários</h2>
             <table>
                 <thead>
                     <tr>

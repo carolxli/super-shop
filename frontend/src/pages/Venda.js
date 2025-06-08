@@ -66,6 +66,32 @@ const Venda = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const vendaTemp = localStorage.getItem("venda_em_aberto");
+    if (vendaTemp) {
+      const dados = JSON.parse(vendaTemp);
+      setNomeCliente(dados.cliente || "");
+      setNomeUsuario(dados.usuario || "");
+      setItens(dados.itens || []);
+
+      // Recarrega os dados do usuário (para garantir que o idUsuario exista)
+      const fetchUsuario = async () => {
+        try {
+          const res = await axios.get(`http://localhost:8800/Venda/usuario/${dados.usuario}`);
+          const usuarioEncontrado = res.data.find(u => u.nome === dados.usuario);
+          if (usuarioEncontrado) {
+            setUsuarios([usuarioEncontrado]); // Recarrega a lista com o usuário atual
+          }
+        } catch (err) {
+          console.error("Erro ao recarregar usuário:", err);
+        }
+      };
+
+      fetchUsuario();
+    }
+  }, []);
+
+
+  useEffect(() => {
     const fetchDados = async () => {
       try {
         const produtosResponse = await axios.get("http://localhost:8800/Produto");
@@ -140,7 +166,7 @@ const Venda = () => {
     setNomeCliente(nome);
     if (nome.length >= 2) {
       try {
-        const response = await axios.get(`http://localhost:8800/Pessoa?nome=${nome}`);
+        const response = await axios.get(`http://localhost:8800/venda?nome=${nome}`);
         setClientes(response.data);
         setAutocompleteClienteVisible(true);
       } catch (error) {
@@ -174,14 +200,14 @@ const Venda = () => {
       alert("Preencha todos os campos obrigatórios e adicione ao menos um produto.");
       return;
     }
-  
+
     const usuario = usuarios.find(u => u.nome === nomeUsuario);
-  
+
     if (!usuario) {
       alert("Usuário inválido ou não selecionado corretamente.");
       return;
     }
-  
+
     const dadosVenda = {
       Usuario_Pessoa_idPessoa: usuario.Pessoa_idPessoa,
       Usuario_idUsuario: usuario.idUsuario,
@@ -191,13 +217,13 @@ const Venda = () => {
       totalItens: totalItens,
       usuario: usuario.nome
     };
-  
+
     localStorage.setItem("venda_em_aberto", JSON.stringify(dadosVenda));
     console.log("Dados salvos no localStorage:", JSON.parse(localStorage.getItem("venda_em_aberto")));
-  
+
     navigate("/venda-financeiro");
   };
-  
+
 
   return (
     <>
@@ -250,7 +276,7 @@ const Venda = () => {
                     const dadosVenda = {
                       Usuario_Pessoa_idPessoa: usuario.Pessoa_idPessoa,
                       Usuario_idUsuario: usuario.idUsuario,
-                      cliente: nomeCliente,                    
+                      cliente: nomeCliente,
                       itens: itens,
                       total: total,
                       totalItens: totalItens,
@@ -353,9 +379,29 @@ const Venda = () => {
 
 
         <Button onClick={registrarVenda}>Registrar Venda</Button>
-        <Button onClick={() => {
-          navigate("/");
-        }}>Cancelar</Button>
+        <Button
+          onClick={() => {
+            // Limpa localStorage e estados locais
+            localStorage.removeItem("venda_em_aberto");
+            localStorage.removeItem("voucher_cliente");
+
+            // Opcional: Zerar estados locais
+            setNomeCliente("");
+            setNomeUsuario("");
+            setProduto("");
+            setProdutoSelecionado(null);
+            setQuantidade(1);
+            setItens([]);
+            setValorVoucher(0);
+            setUsuarios([]);
+            setClientes([]);
+
+            navigate("/"); // Redireciona
+          }}
+        >
+          Cancelar
+        </Button>
+
       </FormRow>
     </>
   );
