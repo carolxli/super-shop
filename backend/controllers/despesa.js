@@ -60,7 +60,8 @@ export const getDespesaById = async (req, res) => {
       "dt_despesa", 
       "dt_vencimento", 
       "metodo_pgmto", 
-      "status"
+      "status",
+      "valor_pgmto"
     FROM 
       "SuperShop"."Despesa"
     WHERE 

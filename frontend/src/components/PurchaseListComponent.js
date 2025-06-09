@@ -701,6 +701,7 @@ const PurchaseListComponent = () => {
                     <th style={cellStyle}>Valor Venda</th>
                     <th style={cellStyle}>Fornecedor</th>
                     <th style={cellStyle}>Quantidade</th>
+                    <th style={cellStyle}>Estoque Atual</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -724,6 +725,7 @@ const PurchaseListComponent = () => {
                         {product.supplierName || "Não informado"}
                       </td>
                       <td style={cellStyle}>{product.quantity}</td>
+                      <td style={cellStyle}>{product.currentStock}</td>
                     </tr>
                   ))}
                 </tbody>

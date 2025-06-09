@@ -64,7 +64,8 @@ const PurchaseComponent = () => {
         productId: selectedProduct.productId,
         productDescription: selectedProduct.productDescription,
         saleValue: selectedProduct.saleValue,
-        purchaseValue: selectedProduct.purchaseValue, // novo campo
+        currentStock: selectedProduct.currentStock,
+        purchaseValue: selectedProduct.purchaseValue,
         quantity: "",
       });
     }
@@ -79,7 +80,6 @@ const PurchaseComponent = () => {
 
   const addProduct = () => {
     if (currentProduct.productId && currentProduct.quantity) {
-      // Check if product already exists in the list
       const isDuplicate = products.some(
         (product) => product.productId === currentProduct.productId
       );
@@ -95,6 +95,7 @@ const PurchaseComponent = () => {
         productDescription: "",
         purchaseValue: "",
         saleValue: "",
+        currentStock: "",
         quantity: "",
       });
     } else {
@@ -355,6 +356,7 @@ const PurchaseComponent = () => {
                   <th style={cellStyle}>Descrição</th>
                   <th style={cellStyle}>Valor Compra</th>
                   <th style={cellStyle}>Valor Venda</th>
+                  <th style={cellStyle}>Estoque Atual</th>
                   <th style={cellStyle}>Valor Total</th>
                   <th style={cellStyle}>Quantidade</th>
                   <th style={cellStyle}>Ações</th>
@@ -377,6 +379,7 @@ const PurchaseComponent = () => {
                         currency: "BRL",
                       }).format(product.saleValue)}
                     </td>
+                    <td style={cellStyle}>{product.currentStock}</td>
                     <td style={cellStyle}>
                       {new Intl.NumberFormat("pt-BR", {
                         style: "currency",
