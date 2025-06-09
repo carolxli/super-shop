@@ -91,10 +91,8 @@ const PurchaseListComponent = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Função melhorada para normalizar datas (baseada no código fornecido)
   const normalizarData = (dateString) => {
     if (!dateString) return null;
-    // Se for uma string de data no formato YYYY-MM-DD (filtro), criar data local
     if (
       typeof dateString === "string" &&
       dateString.includes("-") &&
@@ -103,7 +101,6 @@ const PurchaseListComponent = () => {
       const [ano, mes, dia] = dateString.split("-");
       return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
     }
-    // Para datas vindas da API, usar o formato ISO
     const date = new Date(dateString);
     return isNaN(date.getTime()) ? null : date;
   };
@@ -114,7 +111,6 @@ const PurchaseListComponent = () => {
     console.log("Filtros aplicados:", filters);
     console.log("Total de compras antes do filtro:", filtered.length);
 
-    // Filtro por data de início (baseado no código fornecido)
     if (filters.startDate) {
       const dataInicioNormalizada = normalizarData(filters.startDate);
       console.log("Data início normalizada:", dataInicioNormalizada);
@@ -123,7 +119,6 @@ const PurchaseListComponent = () => {
         const dataPurchase = normalizarData(purchase.purchaseDate);
         if (!dataPurchase) return false;
 
-        // Comparar apenas as datas (sem horário)
         const dataPurchaseOnly = new Date(
           dataPurchase.getFullYear(),
           dataPurchase.getMonth(),
@@ -149,7 +144,6 @@ const PurchaseListComponent = () => {
       console.log("Após filtro data início:", filtered.length);
     }
 
-    // Filtro por data de fim (baseado no código fornecido)
     if (filters.endDate) {
       const dataFimNormalizada = normalizarData(filters.endDate);
       console.log("Data fim normalizada:", dataFimNormalizada);
@@ -158,7 +152,6 @@ const PurchaseListComponent = () => {
         const dataPurchase = normalizarData(purchase.purchaseDate);
         if (!dataPurchase) return false;
 
-        // Comparar apenas as datas (sem horário)
         const dataPurchaseOnly = new Date(
           dataPurchase.getFullYear(),
           dataPurchase.getMonth(),
@@ -184,7 +177,6 @@ const PurchaseListComponent = () => {
       console.log("Após filtro data fim:", filtered.length);
     }
 
-    // Filtro por método de pagamento (ignora se for "Todos")
     if (filters.paymentMethod && filters.paymentMethod !== "Todos") {
       filtered = filtered.filter(
         (p) => p.paymentMethod === filters.paymentMethod
@@ -192,7 +184,6 @@ const PurchaseListComponent = () => {
       console.log("Após filtro método de pagamento:", filtered.length);
     }
 
-    // Filtro por valor máximo
     if (
       filters.maxValue &&
       !isNaN(parseFloat(filters.maxValue)) &&
@@ -215,7 +206,6 @@ const PurchaseListComponent = () => {
     setFilteredPurchases(filtered);
   };
 
-  // Calcular os somatórios
   const calculateTotals = () => {
     let totalValue = 0;
     let totalWithDiscount = 0;
@@ -240,7 +230,6 @@ const PurchaseListComponent = () => {
     padding: "10px",
   };
 
-  // Estilos comuns para containers
   const containerStyle = {
     backgroundColor: "white",
     borderRadius: "12px",
@@ -248,7 +237,6 @@ const PurchaseListComponent = () => {
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
   };
 
-  // Estilos comuns para títulos de seção
   const sectionTitleStyle = {
     textAlign: "center",
     margin: "0 0 20px 0",
