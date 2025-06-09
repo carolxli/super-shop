@@ -45,6 +45,7 @@ import PurchasePage from "./pages/purchasePage.js";
 import RelatorioDevolucoes from "./pages/RelatorioDevolucoes.js";
 import Reserva from "./pages/reserva.js";
 import Relatorios from "./components/Relatorios.js";
+import Caixa from "./pages/caixa.js";
 import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
@@ -113,6 +114,9 @@ const App = () => {
           <Route path="/venda" element={<PrivateRoute><Venda /></PrivateRoute>} />
           <Route path="/venda-financeiro" element={<PrivateRoute><VendaFinanceiro /></PrivateRoute>} />
 
+          {/* Caixa */}
+          <Route path="/caixa" element={<PrivateRoute><Caixa /></PrivateRoute>} />
+          
           {/* Devolução */}
           <Route path="/devolucao" element={<PrivateRoute><Devolucao /></PrivateRoute>} />
           <Route path="/relatorios/devolucoes" element={<PrivateRoute><RelatorioDevolucoes /></PrivateRoute>} />

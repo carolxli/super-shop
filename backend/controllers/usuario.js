@@ -92,6 +92,25 @@ export const getUsuario = async (req, res) => {
 };
 
 export const postUsuario = (req, res) => {
+  const { dt_contratacao } = req.body;
+
+  const dataContratacao = new Date(dt_contratacao);
+  const dataMinima = new Date('2024-01-01');
+  const hoje = new Date();
+  const dataMaxima = new Date();
+  dataMaxima.setDate(hoje.getDate() + 7);
+
+  // Zerando hora para comparar apenas datas
+  dataContratacao.setHours(0, 0, 0, 0);
+  dataMinima.setHours(0, 0, 0, 0);
+  dataMaxima.setHours(0, 0, 0, 0);
+
+  if (dataContratacao < dataMinima || dataContratacao > dataMaxima) {
+    return res.status(400).json({
+      error: 'Insira uma data de contratação válida.'
+    });
+  }
+
   const q = `INSERT INTO "SuperShop"."Usuario" (
         "Pessoa_idPessoa",
         "senha",
@@ -122,6 +141,7 @@ export const postUsuario = (req, res) => {
     return res.status(200).json("Usuário inserido com sucesso");
   });
 };
+
 
 export const updateUsuario = (req, res) => {
   const q = `UPDATE "SuperShop"."Usuario" SET
@@ -155,15 +175,67 @@ export const updateUsuario = (req, res) => {
 };
 
 export const deleteUsuario = (req, res) => {
-  const q = `DELETE FROM "SuperShop"."Usuario" WHERE \"idUsuario\" = $1`;
+  const idUsuario = req.params.idUsuario;
 
-  db.query(q, [req.params.idUsuario], (err) => {
+  const checkAdminQuery = `
+    SELECT "cargo" FROM "SuperShop"."Usuario" WHERE "idUsuario" = $1
+  `;
+
+  db.query(checkAdminQuery, [idUsuario], (err, result) => {
     if (err) {
-      return res.json(err);
+      console.error("Erro ao verificar cargo:", err);
+      return res.status(500).json({ error: "Erro ao verificar o cargo do usuário." });
     }
-    return res.status(200).json("Usuario deletado com sucesso");
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
+    }
+
+    const cargo = result.rows[0].cargo;
+
+    if (cargo === "Admin") {
+      const countAdminsQuery = `
+        SELECT COUNT(*) FROM "SuperShop"."Usuario" WHERE "cargo" = 'Admin'
+      `;
+
+      db.query(countAdminsQuery, (err, countResult) => {
+        if (err) {
+          console.error("Erro ao contar Admins:", err);
+          return res.status(500).json({ error: "Erro ao contar usuários Admin." });
+        }
+
+        const totalAdmins = parseInt(countResult.rows[0].count);
+
+        if (totalAdmins <= 1) {
+          return res.status(403).json({ error: "Não é possível excluir o último usuário Admin." });
+        }
+
+        // OK para deletar
+        const deleteQuery = `DELETE FROM "SuperShop"."Usuario" WHERE "idUsuario" = $1`;
+        db.query(deleteQuery, [idUsuario], (err) => {
+          if (err) {
+            console.error("Erro ao deletar:", err);
+            return res.status(500).json({ error: "Erro ao deletar o usuário." });
+          }
+
+          return res.status(200).json({ message: "Usuário deletado com sucesso." });
+        });
+      });
+    } else {
+      // Não é admin, pode excluir direto
+      const deleteQuery = `DELETE FROM "SuperShop"."Usuario" WHERE "idUsuario" = $1`;
+      db.query(deleteQuery, [idUsuario], (err) => {
+        if (err) {
+          console.error("Erro ao deletar:", err);
+          return res.status(500).json({ error: "Erro ao deletar o usuário." });
+        }
+
+        return res.status(200).json({ message: "Usuário deletado com sucesso." });
+      });
+    }
   });
 };
+
 
 export const updateUserPassword = (req, res) => {
   const { login, senha } = req.body;

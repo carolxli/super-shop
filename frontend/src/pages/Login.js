@@ -74,6 +74,7 @@ const Login = () => {
 
       updateAuth();
       navigate("/");
+      localStorage.setItem("justLoggedIn", "true");
     } catch (error) {
       setError("Credenciais incorretas.");
     }

@@ -53,28 +53,44 @@ export const getCliente = async (req, res) => {
 };
 
 export const postCliente = (req, res) => {
-    const q = `INSERT INTO "SuperShop"."Cliente" (
+  const { Pessoa_idPessoa, cpf, rg, voucher } = req.body;
+
+  // Verifica se o CPF já existe
+  const checkCpfQuery = `SELECT * FROM "SuperShop"."Cliente" WHERE cpf = $1`;
+
+  db.query(checkCpfQuery, [cpf], (checkErr, result) => {
+    if (checkErr) {
+      console.error("Erro ao verificar CPF", checkErr);
+      return res.status(500).json("Erro ao verificar CPF");
+    }
+
+    if (result.rows.length > 0) {
+      // CPF já existe
+      return res.status(400).json("CPF já cadastrado");
+    }
+
+    // Se o CPF não existe, insere o cliente
+    const insertQuery = `
+      INSERT INTO "SuperShop"."Cliente" (
         "Pessoa_idPessoa",
         "cpf",
         "rg",
         "voucher"
-    ) VALUES($1,$2,$3,$4)`;
+      ) VALUES ($1, $2, $3, $4)
+    `;
 
-    const values = [
-        req.body.Pessoa_idPessoa,
-        req.body.cpf,
-        req.body.rg,
-        req.body.voucher,
-    ];
+    const values = [Pessoa_idPessoa, cpf, rg, voucher];
 
-    db.query(q, values, (insertErr) => {
-        if (insertErr) {
-            console.error("Erro ao inserir Cliente", insertErr);
-            return res.status(500).json("Erro ao inserir cliente");
-        }
-        return res.status(200).json("Cliente inserida com sucesso");
+    db.query(insertQuery, values, (insertErr) => {
+      if (insertErr) {
+        console.error("Erro ao inserir Cliente", insertErr);
+        return res.status(500).json("Erro ao inserir cliente");
+      }
+      return res.status(200).json("Cliente inserida com sucesso");
     });
+  });
 };
+
 
 export const updateCliente = (req, res) => {
     const q = `UPDATE "SuperShop"."Cliente" SET

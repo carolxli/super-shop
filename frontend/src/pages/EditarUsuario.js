@@ -125,6 +125,7 @@ const EditarUsuario = () => {
                         name="nomePessoa"
                         value={nomePessoa}
                         onChange={handleNomePessoaChange}
+                        disabled
                         required
                     />
                     {autocompleteVisible && pessoas.length > 0 && (

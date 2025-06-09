@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import InputMask from 'react-input-mask';
+import { useNavigate } from 'react-router-dom';
 import { NumericFormat } from 'react-number-format';
 
 const FormFornecedor = () => {
+    const navigate = useNavigate();
     const [fornecedor, setFornecedor] = useState({
         cnpj: '',
         razao_social: '',
@@ -123,6 +125,24 @@ const FormFornecedor = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validação da data de início de fornecimento
+        const dataInicio = new Date(fornecedor.dt_inicio_fornecimento);
+        const dataMinima = new Date('2024-01-01');
+        const hoje = new Date();
+        const dataMaxima = new Date();
+        dataMaxima.setDate(hoje.getDate() + 7);
+
+        // Zera hora para comparar só datas
+        dataInicio.setHours(0, 0, 0, 0);
+        dataMinima.setHours(0, 0, 0, 0);
+        dataMaxima.setHours(0, 0, 0, 0);
+
+        if (dataInicio < dataMinima || dataInicio > dataMaxima) {
+            alert("Insira uma data de início de fornecimento válida.");
+            return;
+        }
+
         try {
             const fornecedorData = {
                 ...fornecedor,
@@ -131,6 +151,8 @@ const FormFornecedor = () => {
 
             await axios.post(`http://localhost:8800/fornecedor`, fornecedorData);
             alert('Fornecedor cadastrado com sucesso!');
+            navigate('/listar-fornecedores');
+
             setFornecedor({
                 cnpj: '',
                 razao_social: '',
@@ -147,8 +169,6 @@ const FormFornecedor = () => {
             alert('Erro ao cadastrar fornecedor');
         }
     };
-
-
 
     return (
         <>

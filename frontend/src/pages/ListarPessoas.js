@@ -54,7 +54,7 @@ const ListarPessoas = () => {
     return (
         <>
             <div>
-                <h2>Lista de Pessoas</h2>
+                <h2>Pessoas</h2>
 
                 <table>
                     <thead>

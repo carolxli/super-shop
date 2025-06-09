@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import InputMask from 'react-input-mask';
 
@@ -9,14 +10,13 @@ const FormCliente = () => {
         rg: '',
         voucher: ''
     });
-
+    const navigate = useNavigate();
     const [nomePessoa, setNomePessoa] = useState('');
     const [pessoas, setPessoas] = useState([]);
     const [autocompleteVisible, setAutocompleteVisible] = useState(false);
+    const [cpfError, setCpfError] = useState('');
 
-    useEffect(() => {
-
-    }, []);
+    useEffect(() => {}, []);
 
     const handleNomePessoaChange = async (e) => {
         const nome = e.target.value;
@@ -41,8 +41,10 @@ const FormCliente = () => {
             ...prevState,
             [name]: value,
         }));
+        if (name === "cpf") {
+            setCpfError(''); // Limpa o erro ao digitar novo CPF
+        }
     };
-
 
     const handlePessoaSelect = (pessoa) => {
         setNomePessoa(pessoa.nome);
@@ -56,12 +58,11 @@ const FormCliente = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const clienteData = {
-                ...cliente,
-            };
+            const clienteData = { ...cliente };
 
             await axios.post(`http://localhost:8800/cliente`, clienteData);
             alert('Cliente cadastrado com sucesso!');
+            navigate('/listar-clientes');
             setCliente({
                 Pessoa_idPessoa: '',
                 cpf: '',
@@ -69,13 +70,17 @@ const FormCliente = () => {
                 voucher: ''
             });
             setNomePessoa('');
+            setCpfError('');
         } catch (err) {
-            console.error(err);
-            alert('Erro ao cadastrar cliente');
+            if (err.response && err.response.status === 400) {
+                setCpfError("CPF já cadastrado. Por favor, verifique.");
+                alert("CPF já cadastrado. Por favor, verifique.");
+            } else {
+                console.error(err);
+                alert('Erro ao cadastrar cliente');
+            }
         }
     };
-
-
 
     return (
         <>
@@ -115,6 +120,7 @@ const FormCliente = () => {
                         required
                         className="input-mask"
                     />
+                    {cpfError && <span style={{ color: 'red' }}>{cpfError}</span>}
                 </label>
 
                 <label>

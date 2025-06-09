@@ -14,7 +14,7 @@ const Container = styled.div`
 const WelcomeMessage = styled.div`
   font-size: 2.5rem;
   font-weight: bold;
-  color: #1976d2; /* Azul personalizado */
+  color: #1976d2;
   opacity: ${(props) => (props.show ? 1 : 0)};
   transition: opacity 1s ease-out;
   text-align: center;
@@ -28,6 +28,7 @@ const ButtonGrid = styled.div`
   max-width: 400px;
   margin-top: -180px;
 `;
+
 const Button = styled.button`
   background: linear-gradient(135deg, rgb(17, 123, 230), #87ceeb);
   color: white;
@@ -53,40 +54,50 @@ const Home = () => {
   useEffect(() => {
     const nomeUsuario = localStorage.getItem("nome");
     const cargoUsuario = localStorage.getItem("cargo");
+    const justLoggedIn = localStorage.getItem("justLoggedIn");
 
     if (nomeUsuario) {
       setNome(nomeUsuario);
-      setShowWelcome(true);
 
-      setTimeout(() => {
-        setShowWelcome(false);
-      }, 4000);
+      if (justLoggedIn === "true") {
+        setShowWelcome(true);
+        localStorage.removeItem("justLoggedIn");
+
+        setTimeout(() => {
+          setShowWelcome(false);
+        }, 4000);
+      }
     }
 
     console.log("Cargo do usuário:", cargoUsuario);
   }, []);
 
   return (
-    <Container>
+    <>
       <WelcomeMessage show={showWelcome}>Bem-vindo(a), {nome}!</WelcomeMessage>
-      <ButtonGrid>
-        <Button type="button" onClick={() => navigate("/venda")}>
-          Caixa
-        </Button>
-        <Button type="button" onClick={() => navigate("/purchasePage")}>
-          Compra
-        </Button>
-        <Button type="button" onClick={() => navigate("/relatorios")}>
-          Relatórios
-        </Button>
-        <Button type="button" onClick={() => navigate("/devolucao")}>
-          Devolução
-        </Button>
-        <Button type="button" onClick={() => navigate("/reserva")}>
-          Reserva
-        </Button>
-      </ButtonGrid>
-    </Container>
+      <Container>
+        <ButtonGrid>
+          <Button type="button" onClick={() => navigate("/venda")}>
+            Venda
+          </Button>
+           <Button type="button" onClick={() => navigate("/caixa")}>
+            Caixa
+          </Button>
+          <Button type="button" onClick={() => navigate("/purchasePage")}>
+            Compra
+          </Button>
+          <Button type="button" onClick={() => navigate("/relatorios")}>
+            Relatórios
+          </Button>
+          <Button type="button" onClick={() => navigate("/devolucao")}>
+            Devolução
+          </Button>
+          <Button type="button" onClick={() => navigate("/reserva")}>
+            Reserva
+          </Button>
+        </ButtonGrid>
+      </Container>
+    </>
   );
 };
 

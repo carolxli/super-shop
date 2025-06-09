@@ -72,13 +72,28 @@ const FormUsuario = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const dataContratacao = new Date(usuario.dt_contratacao);
+        const dataMinima = new Date('2024-01-01');
+        const hoje = new Date();
+        const dataMaxima = new Date();
+        dataMaxima.setDate(hoje.getDate() + 7);
+
+        // Zerando horas para comparar só a data
+        dataContratacao.setHours(0, 0, 0, 0);
+        dataMinima.setHours(0, 0, 0, 0);
+        dataMaxima.setHours(0, 0, 0, 0);
+
+        if (dataContratacao < dataMinima || dataContratacao > dataMaxima) {
+            alert('Insira uma data de contratação válida.');
+            return; // interrompe o envio
+        }
+
         try {
-            const usuarioData = {
-                ...usuario,
-            };
+            const usuarioData = { ...usuario };
 
             await axios.post(`http://localhost:8800/usuario`, usuarioData);
-            alert('Usuario cadastrado com sucesso!');
+            alert('Usuário cadastrado com sucesso!');
             setUsuario({
                 Pessoa_idPessoa: '',
                 senha: '',
@@ -92,15 +107,14 @@ const FormUsuario = () => {
             setNomePessoa('');
         } catch (err) {
             console.error(err);
-            alert('Erro ao cadastrar usuario');
+            alert('Erro ao cadastrar usuário');
         }
     };
 
 
-
     return (
         <>
-            <h3>Cadastrar Usuario</h3>
+            <h3>Cadastrar Usuário</h3>
             <form onSubmit={handleSubmit}>
                 <label>
                     Nome da Pessoa

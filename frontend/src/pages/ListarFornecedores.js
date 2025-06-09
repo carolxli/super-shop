@@ -53,7 +53,7 @@ const ListarFornecedores = () => {
 
     return (
         <>
-            <h2>Lista de Fornecedores</h2>
+            <h2>Fornecedores</h2>
             <table>
                 <thead>
                     <tr>

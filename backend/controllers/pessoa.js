@@ -20,6 +20,25 @@ export const getPessoa = async (req, res) => {
   }
 };
 
+export const getPessoaById = async (req, res) => {
+  const { idPessoa } = req.params;
+
+  const q = `SELECT * FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
+
+  try {
+    const result = await db.query(q, [idPessoa]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Pessoa não encontrada" });
+    }
+    return res.status(200).json(result.rows[0]);
+  } catch (err) {
+    console.error("Erro ao buscar pessoa por ID:", err);
+    return res.status(500).json({ error: "Erro ao buscar pessoa por ID", details: err });
+  }
+};
+
+
+
 export const getPessoaByNome = async (req, res) => {
   const nome = req.params.nome || "";
   const q = ` SELECT p."idPessoa", p."nome", p."email", u."idUsuario"
@@ -36,38 +55,35 @@ export const getPessoaByNome = async (req, res) => {
   });
 };
 
-export const getPessoaById = async (req, res) => {
-  const { idPessoa } = req.params;
-
-  const q = `SELECT * FROM "SuperShop"."Pessoa" WHERE "idPessoa" = $1`;
-
-  try {
-    const result = await db.query(query, [idPessoa]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Pessoa não encontrada" });
-    }
-    return res.status(200).json(result.rows[0]);
-  } catch (err) {
-    console.error("Erro ao buscar pessoa por ID:", err);
-    return res.status(500).json({ error: "Erro ao buscar pessoa por ID", details: err });
-  }
-};
-
 export const postPessoa = (req, res) => {
+  const dataNasc = new Date(req.body.data_nasc);
+  const hoje = new Date();
+
+  const idade = hoje.getFullYear() - dataNasc.getFullYear();
+  const mes = hoje.getMonth() - dataNasc.getMonth();
+  const dia = hoje.getDate() - dataNasc.getDate();
+
+  // Ajuste de idade se a data de aniversário ainda não chegou no ano atual
+  const idadeFinal = mes < 0 || (mes === 0 && dia < 0) ? idade - 1 : idade;
+
+  if (idadeFinal < 16 || idadeFinal > 60) {
+    return res.status(400).json("Insira uma data de nascimento válida!.");
+  }
+
   const q = `INSERT INTO "SuperShop"."Pessoa" (
-        "email",
-        "nome",
-        "end_rua",
-        "end_numero",
-        "end_bairro",
-        "end_complemento",
-        "cidade",
-        "estado",
-        "cep",
-        "telefone_1",
-        "telefone_2",
-        "data_nasc"
-    ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`;
+      "email",
+      "nome",
+      "end_rua",
+      "end_numero",
+      "end_bairro",
+      "end_complemento",
+      "cidade",
+      "estado",
+      "cep",
+      "telefone_1",
+      "telefone_2",
+      "data_nasc"
+  ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`;
 
   const values = [
     req.body.email,
@@ -92,6 +108,7 @@ export const postPessoa = (req, res) => {
     return res.status(200).json("Pessoa inserida com sucesso");
   });
 };
+
 
 export const updatePessoa = (req, res) => {
   const q = `UPDATE "SuperShop"."Pessoa" SET

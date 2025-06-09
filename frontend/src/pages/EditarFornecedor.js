@@ -14,7 +14,7 @@ const EditarFornecedor = () => {
         prazo_entrega: '',
         dt_inicio_fornecimento: '',
         observacao: '',
-        Pessoa_idPessoa: '', 
+        Pessoa_idPessoa: '',
         marcas: []
     });
     const [nomePessoa, setNomePessoa] = useState('');
@@ -47,8 +47,12 @@ const EditarFornecedor = () => {
                         fornecedorData.marcas = [];
                     }
 
-                    setFornecedor(fornecedorData);
-                    setNomePessoa(fornecedorData.pessoa_nome || ''); // Preenche o nome da pessoa
+                    setFornecedor({
+                        ...fornecedorData,
+                        Pessoa_idPessoa: fornecedorData.Pessoa_idPessoa
+                    });
+                    setNomePessoa(fornecedorData.pessoa_nome || '');
+
                 }
             } catch (err) {
                 console.error("Erro ao carregar dados:", err);
@@ -100,7 +104,7 @@ const EditarFornecedor = () => {
     };
 
     const handleCnpjChange = (e) => {
-        const cnpj = e.target.value.replace(/[^\d]/g, ''); 
+        const cnpj = e.target.value.replace(/[^\d]/g, '');
         setFornecedor((prevFornecedor) => ({
             ...prevFornecedor,
             cnpj
@@ -108,7 +112,7 @@ const EditarFornecedor = () => {
 
         setFornecedor((prevFornecedor) => ({
             ...prevFornecedor,
-            razao_social: '' 
+            razao_social: ''
         }));
         if (cnpj.length === 14) {
             fetchRazaoSocial(cnpj);
@@ -137,10 +141,10 @@ const EditarFornecedor = () => {
     };
 
     const handlePessoaSelect = (pessoa) => {
-        setNomePessoa(pessoa.nome); 
+        setNomePessoa(pessoa.nome);
         setFornecedor({
             ...fornecedor,
-            Pessoa_idPessoa: pessoa.idPessoa 
+            Pessoa_idPessoa: pessoa.idPessoa
         });
         setAutocompleteVisible(false);
     };
@@ -156,7 +160,7 @@ const EditarFornecedor = () => {
         }
 
         try {
-            console.log(fornecedor); // Verifique se o idPessoa está correto no objeto fornecedor
+            console.log(fornecedor);
             await axios.put(`http://localhost:8800/Fornecedor/${idFornecedor}`, fornecedor);
             alert('Fornecedor atualizado com sucesso!');
             navigate('/listar-fornecedores');
@@ -178,8 +182,8 @@ const EditarFornecedor = () => {
                             name="cnpj"
                             value={fornecedor.cnpj || ''}
                             onChange={(e) => {
-                                handleCnpjChange(e); 
-                                handleMaskedCnpjChange(e); 
+                                handleCnpjChange(e);
+                                handleMaskedCnpjChange(e);
                             }}
                             required
                             maskChar={null}
@@ -274,7 +278,7 @@ const EditarFornecedor = () => {
                                                 type="checkbox"
                                                 name="marcaSelecionada"
                                                 value={marca.idMarca}
-                                                checked={fornecedor.marcas && fornecedor.marcas.includes(marca.idMarca)} 
+                                                checked={fornecedor.marcas && fornecedor.marcas.includes(marca.idMarca)}
                                                 onChange={handleChange}
                                             />
                                         </td>
