@@ -91,65 +91,97 @@ const PurchaseListComponent = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Função melhorada para normalizar datas (baseada no código fornecido)
+  const normalizarData = (dateString) => {
+    if (!dateString) return null;
+    // Se for uma string de data no formato YYYY-MM-DD (filtro), criar data local
+    if (
+      typeof dateString === "string" &&
+      dateString.includes("-") &&
+      dateString.length === 10
+    ) {
+      const [ano, mes, dia] = dateString.split("-");
+      return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+    }
+    // Para datas vindas da API, usar o formato ISO
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? null : date;
+  };
+
   const applyFilters = () => {
     let filtered = [...purchases];
 
-    if (filters.startDate || filters.endDate) {
-      filtered = filtered.filter((p) => {
-        // Convertendo a data da compra para objeto Date
-        // Assumindo que p.purchaseDate está no formato 'YYYY-MM-DD'
-        let purchaseDate;
+    console.log("Filtros aplicados:", filters);
+    console.log("Total de compras antes do filtro:", filtered.length);
 
-        // Verifica como a data está formatada no objeto de compra
-        if (typeof p.purchaseDate === "string") {
-          // Se o formato é 'YYYY-MM-DD'
-          if (p.purchaseDate.includes("-")) {
-            const [year, month, day] = p.purchaseDate.split("-");
-            purchaseDate = new Date(
-              parseInt(year),
-              parseInt(month) - 1,
-              parseInt(day)
-            );
-          }
-          // Se o formato é 'DD/MM/YYYY' como mostrado nas imagens
-          else if (p.purchaseDate.includes("/")) {
-            const [day, month, year] = p.purchaseDate.split("/");
-            purchaseDate = new Date(
-              parseInt(year),
-              parseInt(month) - 1,
-              parseInt(day)
-            );
-          }
-          // Caso seja um timestamp ou outro formato
-          else {
-            purchaseDate = new Date(p.purchaseDate);
-          }
-        } else {
-          // Se já for um objeto Date
-          purchaseDate = new Date(p.purchaseDate);
-        }
+    // Filtro por data de início (baseado no código fornecido)
+    if (filters.startDate) {
+      const dataInicioNormalizada = normalizarData(filters.startDate);
+      console.log("Data início normalizada:", dataInicioNormalizada);
 
-        // Zerando as horas da data de compra para comparação adequada
-        purchaseDate.setHours(0, 0, 0, 0);
+      filtered = filtered.filter((purchase) => {
+        const dataPurchase = normalizarData(purchase.purchaseDate);
+        if (!dataPurchase) return false;
 
-        // Aplicando filtros de data
-        let passesStartDateFilter = true;
-        let passesEndDateFilter = true;
+        // Comparar apenas as datas (sem horário)
+        const dataPurchaseOnly = new Date(
+          dataPurchase.getFullYear(),
+          dataPurchase.getMonth(),
+          dataPurchase.getDate()
+        );
+        const dataInicioOnly = new Date(
+          dataInicioNormalizada.getFullYear(),
+          dataInicioNormalizada.getMonth(),
+          dataInicioNormalizada.getDate()
+        );
 
-        if (filters.startDate) {
-          const startDate = new Date(filters.startDate);
-          startDate.setHours(0, 0, 0, 0);
-          passesStartDateFilter = purchaseDate >= startDate;
-        }
+        const resultado = dataPurchaseOnly >= dataInicioOnly;
 
-        if (filters.endDate) {
-          const endDate = new Date(filters.endDate);
-          endDate.setHours(23, 59, 59, 999);
-          passesEndDateFilter = purchaseDate <= endDate;
-        }
+        console.log(
+          `Compra ${purchase.purchaseId}: ${
+            purchase.purchaseDate
+          } -> ${dataPurchaseOnly.toDateString()} >= ${dataInicioOnly.toDateString()} = ${resultado}`
+        );
 
-        return passesStartDateFilter && passesEndDateFilter;
+        return resultado;
       });
+
+      console.log("Após filtro data início:", filtered.length);
+    }
+
+    // Filtro por data de fim (baseado no código fornecido)
+    if (filters.endDate) {
+      const dataFimNormalizada = normalizarData(filters.endDate);
+      console.log("Data fim normalizada:", dataFimNormalizada);
+
+      filtered = filtered.filter((purchase) => {
+        const dataPurchase = normalizarData(purchase.purchaseDate);
+        if (!dataPurchase) return false;
+
+        // Comparar apenas as datas (sem horário)
+        const dataPurchaseOnly = new Date(
+          dataPurchase.getFullYear(),
+          dataPurchase.getMonth(),
+          dataPurchase.getDate()
+        );
+        const dataFimOnly = new Date(
+          dataFimNormalizada.getFullYear(),
+          dataFimNormalizada.getMonth(),
+          dataFimNormalizada.getDate()
+        );
+
+        const resultado = dataPurchaseOnly <= dataFimOnly;
+
+        console.log(
+          `Compra ${purchase.purchaseId}: ${
+            purchase.purchaseDate
+          } -> ${dataPurchaseOnly.toDateString()} <= ${dataFimOnly.toDateString()} = ${resultado}`
+        );
+
+        return resultado;
+      });
+
+      console.log("Após filtro data fim:", filtered.length);
     }
 
     // Filtro por método de pagamento (ignora se for "Todos")
@@ -157,6 +189,7 @@ const PurchaseListComponent = () => {
       filtered = filtered.filter(
         (p) => p.paymentMethod === filters.paymentMethod
       );
+      console.log("Após filtro método de pagamento:", filtered.length);
     }
 
     // Filtro por valor máximo
@@ -175,8 +208,10 @@ const PurchaseListComponent = () => {
             : parseFloat(p.totalValue);
         return !isNaN(purchaseValue) && purchaseValue <= maxValue;
       });
+      console.log("Após filtro valor máximo:", filtered.length);
     }
 
+    console.log("Total final após todos os filtros:", filtered.length);
     setFilteredPurchases(filtered);
   };
 
@@ -300,7 +335,7 @@ const PurchaseListComponent = () => {
                 color: "#555",
               }}
             >
-              Valor Máximo
+              Valor Máximo Com Desconto
             </label>
             <input
               type="number"
