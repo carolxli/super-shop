@@ -105,3 +105,7 @@ CREATE TABLE "SuperShop"."Recebimentos" (
   metodo_pagamento VARCHAR(50) NOT NULL,
   valor_pago NUMERIC(10, 2) NOT NULL
 );
+
+-- Adicionando valor do pagamento na tabela Despesa
+ALTER TABLE IF EXISTS "Despesa"
+ADD COLUMN valor_pgmto NUMERIC(10,2) DEFAULT 0.00;

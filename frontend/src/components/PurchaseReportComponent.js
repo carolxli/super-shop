@@ -558,7 +558,7 @@ const PurchaseReport = () => {
           </FilterGroup>
 
           <FilterGroup>
-            <FilterLabel>Valor Mín.</FilterLabel>
+            <FilterLabel> Valor Mínimo com Desconto</FilterLabel>
             <FilterInput
               type="number"
               placeholder="0,00"
@@ -568,7 +568,7 @@ const PurchaseReport = () => {
           </FilterGroup>
 
           <FilterGroup>
-            <FilterLabel>Valor Máx.</FilterLabel>
+            <FilterLabel>Valor Máximo com Desconto</FilterLabel>
             <FilterInput
               type="number"
               placeholder="0,00"

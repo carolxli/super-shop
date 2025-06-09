@@ -7,6 +7,7 @@ const ListarTipoDespesa = () => {
   const [tiposDespesa, setTiposDespesa] = useState([]);
   const [filteredTiposDespesa, setFilteredTiposDespesa] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("nome"); // 'nome' ou 'id'
 
   useEffect(() => {
     const fetchTiposDespesa = async () => {
@@ -30,17 +31,35 @@ const ListarTipoDespesa = () => {
   useEffect(() => {
     const handleSearch = () => {
       if (searchTerm.trim() === "") {
-        setFilteredTiposDespesa(tiposDespesa);
-      } else {
-        const filtered = tiposDespesa.filter((tipo) =>
-          tipo.nome_tipo.toLowerCase().includes(searchTerm.toLowerCase())
+        // Se não há termo de busca, ordena alfabeticamente por nome
+        const sorted = [...tiposDespesa].sort((a, b) =>
+          a.nome_tipo.localeCompare(b.nome_tipo)
         );
-        setFilteredTiposDespesa(filtered);
+        setFilteredTiposDespesa(sorted);
+      } else {
+        let filtered = [];
+
+        if (filterType === "nome") {
+          filtered = tiposDespesa.filter((tipo) =>
+            tipo.nome_tipo.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        } else if (filterType === "id") {
+          filtered = tiposDespesa.filter((tipo) =>
+            tipo.idTipo.toString().includes(searchTerm)
+          );
+        }
+
+        // Ordena os resultados filtrados alfabeticamente por nome
+        const sortedFiltered = filtered.sort((a, b) =>
+          a.nome_tipo.localeCompare(b.nome_tipo)
+        );
+
+        setFilteredTiposDespesa(sortedFiltered);
       }
     };
 
     handleSearch();
-  }, [searchTerm, tiposDespesa]);
+  }, [searchTerm, tiposDespesa, filterType]);
 
   const handleDelete = async (idTipo) => {
     if (!window.confirm("Tem certeza que deseja deletar este tipo de despesa?"))
@@ -54,7 +73,11 @@ const ListarTipoDespesa = () => {
         (tipo) => tipo.idTipo !== idTipo
       );
       setTiposDespesa(updatedTiposDespesa);
-      setFilteredTiposDespesa(updatedTiposDespesa);
+      // Reaplica ordenação alfabética após remoção
+      const sortedUpdated = updatedTiposDespesa.sort((a, b) =>
+        a.nome_tipo.localeCompare(b.nome_tipo)
+      );
+      setFilteredTiposDespesa(sortedUpdated);
     } catch (err) {
       if (err.response && err.response.status === 400) {
         toast.error(err.response.data.message);
@@ -79,17 +102,32 @@ const ListarTipoDespesa = () => {
               justifyContent: "center",
               alignItems: "center",
               gap: "10px",
+              marginBottom: "10px",
             }}
           >
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              style={{
+                padding: "8px",
+                marginRight: "5px",
+              }}
+            >
+              <option value="nome">Filtrar por Nome</option>
+              <option value="id">Filtrar por ID</option>
+            </select>
             <input
               type="text"
-              placeholder="Tipo de Despesa..."
+              placeholder={
+                filterType === "nome"
+                  ? "Digite o nome do tipo de despesa..."
+                  : "Digite o ID..."
+              }
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 padding: "8px",
                 width: "300px",
-                marginBottom: "10px",
               }}
             />
           </div>
@@ -108,7 +146,7 @@ const ListarTipoDespesa = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Tipo de Despesa</th>
+              <th>Tipo de Despesa ↑</th>
               <th>Descrição</th>
               <th>Ações</th>
             </tr>
@@ -125,9 +163,11 @@ const ListarTipoDespesa = () => {
                       <button
                         style={{
                           padding: "6px 12px",
+                          backgroundColor: "#4CAF50",
                           color: "#fff",
                           border: "none",
                           borderRadius: "4px",
+                          marginRight: "5px",
                         }}
                       >
                         Editar
@@ -150,11 +190,19 @@ const ListarTipoDespesa = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="4">Nenhum tipo de despesa encontrado.</td>
+                <td colSpan="4">
+                  {searchTerm.trim() === ""
+                    ? "Nenhum tipo de despesa encontrado."
+                    : `Nenhum resultado encontrado para "${searchTerm}".`}
+                </td>
               </tr>
             )}
           </tbody>
         </table>
+        <div style={{ marginTop: "10px", fontSize: "14px", color: "#666" }}>
+          Mostrando {filteredTiposDespesa.length} de {tiposDespesa.length} tipos
+          de despesa
+        </div>
       </div>
     </div>
   );

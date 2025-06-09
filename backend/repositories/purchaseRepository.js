@@ -8,14 +8,14 @@ export const createPurchaseRepository = async (data) => {
 
     // Insert into "Compra" table
     const queryPurchase = `
-                INSERT INTO "SuperShop"."Compra" (
-                        "dt_compra",
-                        "total_compra",
-                        "desconto",
-                        "metodo_pgmto"
-                ) VALUES ($1, $2, $3, $4)
-                RETURNING "id_compra"
-        `;
+      INSERT INTO "SuperShop"."Compra" (
+        "dt_compra",
+        "total_compra",
+        "desconto",
+        "metodo_pgmto"
+      ) VALUES ($1, $2, $3, $4)
+      RETURNING "id_compra"
+    `;
     const valuesPurchase = [
       data.purchaseDate,
       data.totalValue,
@@ -25,37 +25,46 @@ export const createPurchaseRepository = async (data) => {
     const { rows } = await client.query(queryPurchase, valuesPurchase);
     const compraId = rows[0].id_compra;
 
-    // Insert into "Compra_Produto" table
+    // Insert into "Compra_Produto" table and update product stock
     const purchaseProductQuery = `
-                INSERT INTO "SuperShop"."Compra_Produto" (
-                        "id_compra",
-                        "id_produto",
-                        "quantidade"
-                ) VALUES ($1, $2, $3)
-        `;
+      INSERT INTO "SuperShop"."Compra_Produto" (
+        "id_compra",
+        "id_produto",
+        "quantidade"
+      ) VALUES ($1, $2, $3)
+    `;
+
+    // Query to update product stock
+    const updateStockQuery = `
+      UPDATE "SuperShop"."Produto" 
+      SET estoque_atual = estoque_atual + $1 
+      WHERE "idProduto" = $2
+    `;
+
     for (const product of data.products) {
+      // Insert into Compra_Produto
       const purchaseProductValues = [
         compraId,
         product.productId,
         product.quantity,
       ];
-
       await client.query(purchaseProductQuery, purchaseProductValues);
+
+      // Update product stock (add quantity to current stock)
+      const updateStockValues = [product.quantity, product.productId];
+      await client.query(updateStockQuery, updateStockValues);
     }
 
     await client.query("COMMIT");
-
     return true;
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("Erro ao criar compra e inserir produtos:", err);
-
+    console.error("Erro ao criar compra e atualizar estoque:", err);
     return false;
   } finally {
     client.release();
   }
 };
-
 export const getAllPurchasesRepository = async () => {
   const query = `
                 SELECT DISTINCT 
@@ -134,7 +143,8 @@ export const getProductsByPurchaseIdRepository = async (param) => {
                         p.valor_venda as "saleValue",
                         cp.quantidade as "quantity",
                         p.valor_custo as "purchaseValue",
-                        f.razao_social as "supplierName"
+                        f.razao_social as "supplierName",
+                        p.estoque_atual as "currentStock"
                 from
                         "SuperShop"."Compra" c 
                 inner join 
@@ -171,7 +181,10 @@ export const getProductsByPurchaseIdRepository = async (param) => {
         quantity: row.quantity,
         purchaseValue: row.purchaseValue,
         supplierName: row.supplierName,
+        currentStock: row.currentStock,
       });
+
+      console.log("Products: ", purchase.products);
 
       return acc;
     }, []);
@@ -222,6 +235,7 @@ export const getAllProductsWithSuppliersRepository = async () => {
                         p."descricao" AS "productDescription",
                         p."valor_custo" AS "purchaseValue",
                         p."valor_venda" AS "saleValue",
+                        p.estoque_atual AS "currentStock",
                         f."idFornecedor" AS "supplierId",
                         f."razao_social" AS "supplierName"
                 FROM 
@@ -238,6 +252,7 @@ export const getAllProductsWithSuppliersRepository = async () => {
       productDescription: product.productDescription,
       purchaseValue: product.purchaseValue,
       saleValue: product.saleValue,
+      currentStock: product.currentStock,
       supplierId: product.supplierId,
       supplierName: product.supplierName,
     }));
