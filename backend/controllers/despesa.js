@@ -136,8 +136,8 @@ export const postDespesa = (req, res) => {
 
   const q = `
     INSERT INTO "SuperShop"."Despesa" 
-    ("descricao", "Tipo_idTipo", "valor", "dt_despesa", "dt_vencimento", "metodo_pgmto", "status")
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    ("descricao", "Tipo_idTipo", "valor", "dt_despesa", "dt_vencimento", "metodo_pgmto", "status", "valor_pgmto")
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *
   `;
 
@@ -149,6 +149,7 @@ export const postDespesa = (req, res) => {
     dt_vencimento || null,
     metodo_pgmto,
     status,
+    0.0, // valor_pgmto inicial é 0
   ];
 
   db.query(q, values, (err, data) => {
@@ -235,16 +236,17 @@ export const updateQuitarDespesa = (req, res) => {
     return res.status(400).json({ error: "Data de pagamento é obrigatória." });
   }
 
+  // Buscar dados atuais da despesa
   const query = `
-    SELECT "valor", "metodo_pgmto"
+    SELECT "valor", "metodo_pgmto", "valor_pgmto"
     FROM "SuperShop"."Despesa"
     WHERE "idDespesa" = $1  
   `;
 
   db.query(query, [idDespesa], (err, data) => {
     if (err) {
-      console.error("Erro ao obter valor da despesa:", err);
-      return res.status(500).json({ error: "Erro ao obter valor da despesa" });
+      console.error("Erro ao obter dados da despesa:", err);
+      return res.status(500).json({ error: "Erro ao obter dados da despesa" });
     }
 
     if (data.rows.length === 0) {
@@ -253,24 +255,49 @@ export const updateQuitarDespesa = (req, res) => {
 
     const despesaValor = parseFloat(data.rows[0].valor);
     const despesaMetodo = data.rows[0].metodo_pgmto;
-    const valorPago = parseFloat(valor);
+    const valorPgmtoAtual = parseFloat(data.rows[0].valor_pgmto) || 0;
 
-    let novoValor = 0;
+    let valorPagamento;
+    let novoValorPgmto;
+    let novoStatus;
 
-    if (!isNaN(valorPago)) {
-      if (valorPago > despesaValor) {
-        return res
-          .status(400)
-          .json({ error: "O valor pago excede o valor da despesa." });
+    // Se valor for "valor_total", quitar completamente
+    if (valor === "valor_total") {
+      valorPagamento = despesaValor;
+      novoValorPgmto = despesaValor;
+      novoStatus = "Pago";
+    } else {
+      valorPagamento = parseFloat(valor);
+
+      if (isNaN(valorPagamento) || valorPagamento <= 0) {
+        return res.status(400).json({ error: "Valor de pagamento inválido." });
       }
-      novoValor = despesaValor - valorPago;
+
+      // Somar ao valor já pago
+      novoValorPgmto = valorPgmtoAtual + valorPagamento;
+
+      if (novoValorPgmto > despesaValor) {
+        return res.status(400).json({
+          error: "O valor total pago excede o valor da despesa.",
+        });
+      }
+
+      // Determinar status baseado no valor pago
+      if (novoValorPgmto >= despesaValor) {
+        novoStatus = "Pago";
+      } else if (novoValorPgmto > 0) {
+        novoStatus = "Parcialmente Pago";
+      } else {
+        novoStatus = "Pendente";
+      }
     }
 
     updateDespesaValor(
       idDespesa,
-      novoValor,
+      novoValorPgmto,
       data_pagamento,
       despesaMetodo,
+      novoStatus,
       res
     );
   });
@@ -278,23 +305,25 @@ export const updateQuitarDespesa = (req, res) => {
 
 const updateDespesaValor = (
   idDespesa,
-  novoValor,
+  novoValorPgmto,
   data_pagamento,
   metodo_pgmto,
+  novoStatus,
   res
 ) => {
   const q = `
     UPDATE "SuperShop"."Despesa"
-    SET "valor" = $1::DECIMAL(10,2),  -- Converte explicitamente para DECIMAL
-        "status" = CASE WHEN $1 = 0 THEN 'Pago' ELSE 'Parcialmente Pago' END,
-        "data_pagamento" = $2,
-        "metodo_pgmto" = $3
-    WHERE "idDespesa" = $4
+    SET "valor_pgmto" = $1::DECIMAL(10,2),
+        "status" = $2,
+        "data_pagamento" = $3,
+        "metodo_pgmto" = $4
+    WHERE "idDespesa" = $5
     RETURNING *
   `;
 
   const values = [
-    parseFloat(novoValor).toFixed(2),
+    parseFloat(novoValorPgmto).toFixed(2),
+    novoStatus,
     data_pagamento,
     metodo_pgmto,
     idDespesa,
@@ -302,16 +331,14 @@ const updateDespesaValor = (
 
   db.query(q, values, (err, data) => {
     if (err) {
-      console.error("Erro ao atualizar valor da despesa:", err);
-      return res
-        .status(500)
-        .json({ error: "Erro ao atualizar valor da despesa." });
+      console.error("Erro ao atualizar despesa:", err);
+      return res.status(500).json({ error: "Erro ao atualizar despesa." });
     }
     if (data.rows.length === 0) {
       return res.status(404).json({ error: "Despesa não encontrada." });
     }
     return res.status(200).json({
-      message: "Despesa atualizada com sucesso!",
+      message: "Despesa quitada com sucesso!",
       despesa: data.rows[0],
     });
   });

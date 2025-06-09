@@ -96,22 +96,26 @@ const ListarDespesa = () => {
 
       return matchDescricao && matchData && matchStatus && matchValor;
     })
-    .sort((a, b) => new Date(a.dt_despesa) - new Date(b.dt_despesa)); // Ordena por data
+    .sort((a, b) => new Date(a.dt_despesa) - new Date(b.dt_despesa));
 
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
-      <div style={{ maxWidth: "800px", width: "100%" }}>
-        <h2>Gerenciamento de Despesas</h2>
+      <div style={{ maxWidth: "1200px", width: "100%" }}>
+        <h2
+          style={{ textAlign: "center", color: "#555", marginBottom: "30px" }}
+        >
+          Gerenciamento de Despesas
+        </h2>
         <div
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: "20px",
-            marginBottom: "20px",
-            padding: "10px",
-            backgroundColor: "#f9f9f9",
+            gap: "15px",
+            marginBottom: "25px",
+            padding: "15px",
+            backgroundColor: "#f8f9fa",
             borderRadius: "8px",
-            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           }}
         >
           <input
@@ -120,11 +124,11 @@ const ListarDespesa = () => {
             value={filtroDescricao}
             onChange={handleFilterDescricao}
             style={{
-              display: "block",
-              padding: "8px",
+              padding: "10px",
               border: "1px solid #ddd",
               borderRadius: "4px",
               flex: "1",
+              minWidth: "200px",
             }}
           />
           <input
@@ -134,7 +138,7 @@ const ListarDespesa = () => {
             value={filtroPeriodo.inicio}
             onChange={handleFilterPeriodo}
             style={{
-              padding: "8px",
+              padding: "10px",
               border: "1px solid #ddd",
               borderRadius: "4px",
             }}
@@ -146,7 +150,7 @@ const ListarDespesa = () => {
             value={filtroPeriodo.fim}
             onChange={handleFilterPeriodo}
             style={{
-              padding: "8px",
+              padding: "10px",
               border: "1px solid #ddd",
               borderRadius: "4px",
             }}
@@ -155,10 +159,10 @@ const ListarDespesa = () => {
             value={filtroStatus}
             onChange={handleFilterStatus}
             style={{
-              padding: "8px",
+              padding: "10px",
               border: "1px solid #ddd",
               borderRadius: "4px",
-              flex: "1",
+              minWidth: "150px",
             }}
           >
             <option value="">Status</option>
@@ -173,16 +177,16 @@ const ListarDespesa = () => {
             value={filtroValor}
             onChange={handleFilterValor}
             style={{
-              padding: "8px",
+              padding: "10px",
               border: "1px solid #ddd",
               borderRadius: "4px",
-              flex: "1",
+              minWidth: "150px",
             }}
           />
           <Link to="/cadastrarDespesa">
             <button
               style={{
-                padding: "8px 16px",
+                padding: "10px 16px",
                 backgroundColor: "#87CEEB",
                 color: "#fff",
                 border: "none",
@@ -196,130 +200,367 @@ const ListarDespesa = () => {
           </Link>
         </div>
         <table
-          border="1"
           style={{
             width: "100%",
             borderCollapse: "collapse",
             marginBottom: "20px",
+            backgroundColor: "#fff",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+            borderRadius: "8px",
+            overflow: "hidden",
           }}
         >
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Descrição</th>
-              <th>Tipo de Despesa</th>
-              <th>Valor</th>
-              <th>Data de Registro</th>
-              <th>Data de Pagamento</th>
-              <th>Status</th>
-              <th>Ações</th>
+            <tr style={{ backgroundColor: "#87CEEB" }}>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                ID
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Descrição
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Tipo de Despesa
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Valor Total
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Valor Pago
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Valor Restante
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Data de Registro
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Data de Pagamento
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Status
+              </th>
+              <th
+                style={{
+                  padding: "12px",
+                  color: "#fff",
+                  textAlign: "center",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Ações
+              </th>
             </tr>
           </thead>
           <tbody>
             {despesasFiltradas.length > 0 ? (
-              despesasFiltradas.map((despesa) => (
-                <tr key={despesa.idDespesa}>
-                  <td>{despesa.idDespesa}</td>
-                  <td>{despesa.descricao}</td>
-                  <td>{despesa.nome_tipo || "N/A"}</td>
-                  <td>
-                    {despesa.valor
-                      ? despesa.valor.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })
-                      : "R$ 0,00"}
-                  </td>
-                  <td>
-                    {new Date(despesa.dt_despesa).toLocaleDateString("pt-BR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td>
-                    {despesa.data_pagamento
-                      ? new Date(despesa.data_pagamento).toLocaleDateString(
-                          "pt-BR",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          }
-                        )
-                      : "N/A"}
-                  </td>
-                  <td>{despesa.status}</td>
-                  <td>
-                    <Link
-                      to={`/editarDespesa/${despesa.idDespesa}`}
-                      state={{ status: despesa.status }}
-                    >
-                      <button
-                        style={{
-                          padding: "6px 12px",
-                          marginRight: "5px",
-                          backgroundColor:
-                            despesa.status === "Pago" ? "#ccc" : "#87CEEB",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor:
-                            despesa.status === "Pago"
-                              ? "not-allowed"
-                              : "pointer",
-                        }}
-                        disabled={despesa.status === "Pago"}
-                      >
-                        Editar
-                      </button>
-                    </Link>
-                    <Link
-                      to={`/quitarDespesa/${despesa.idDespesa}`}
-                      state={{ status: despesa.status }} // VERIFICAR SE ESTÁ CORRETO
-                    >
-                      <button
-                        style={{
-                          padding: "6px 12px",
-                          marginRight: "5px",
-                          backgroundColor:
-                            despesa.status === "Pago" ? "#ccc" : "#87CEEB",
-                          color: "#fff",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor:
-                            despesa.status === "Pago"
-                              ? "not-allowed"
-                              : "pointer",
-                        }}
-                      >
-                        Quitar
-                      </button>
-                    </Link>
-                    <button
-                      onClick={() =>
-                        handleDelete(despesa.idDespesa, despesa.status)
-                      }
+              despesasFiltradas.map((despesa) => {
+                const valorTotal = parseFloat(despesa.valor) || 0;
+                const valorPago = parseFloat(despesa.valor_pgmto) || 0;
+
+                return (
+                  <tr
+                    key={despesa.idDespesa}
+                    style={{ borderBottom: "1px solid #eee" }}
+                  >
+                    <td
                       style={{
-                        padding: "6px 12px",
-                        backgroundColor:
-                          despesa.status === "Pago" ? "#ccc" : "#FF6347",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor:
-                          despesa.status === "Pago" ? "not-allowed" : "pointer",
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
                       }}
-                      disabled={despesa.status === "Pago"}
                     >
-                      Deletar
-                    </button>
-                  </td>
-                </tr>
-              ))
+                      {despesa.idDespesa}
+                    </td>
+                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                      {despesa.descricao}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      {despesa.nome_tipo || "N/A"}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {valorTotal.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {valorPago.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {(valorTotal - valorPago).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      {new Date(despesa.dt_despesa).toLocaleDateString(
+                        "pt-BR",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        }
+                      )}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      {despesa.data_pagamento
+                        ? new Date(despesa.data_pagamento).toLocaleDateString(
+                            "pt-BR",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            }
+                          )
+                        : "N/A"}
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      <span
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: "12px",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          backgroundColor:
+                            despesa.status === "PAGO" ||
+                            despesa.status === "Pago"
+                              ? "#d4edda"
+                              : despesa.status === "PENDENTE" ||
+                                despesa.status === "Pendente"
+                              ? "#fff3cd"
+                              : despesa.status === "Parcialmente Pago"
+                              ? "#ffeaa7"
+                              : "#f8d7da",
+                          color:
+                            despesa.status === "PAGO" ||
+                            despesa.status === "Pago"
+                              ? "#155724"
+                              : despesa.status === "PENDENTE" ||
+                                despesa.status === "Pendente"
+                              ? "#856404"
+                              : despesa.status === "Parcialmente Pago"
+                              ? "#b8860b"
+                              : "#721c24",
+                        }}
+                      >
+                        {despesa.status.toUpperCase()}
+                      </span>
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                        border: "1px solid #ddd",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "5px",
+                          justifyContent: "center",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <Link
+                          to={`/editarDespesa/${despesa.idDespesa}`}
+                          state={{ status: despesa.status }}
+                        >
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              backgroundColor:
+                                despesa.status === "Pago" ? "#ccc" : "#87CEEB",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor:
+                                despesa.status === "Pago"
+                                  ? "not-allowed"
+                                  : "pointer",
+                              fontSize: "12px",
+                            }}
+                            disabled={despesa.status === "Pago"}
+                          >
+                            Editar
+                          </button>
+                        </Link>
+                        <Link
+                          to={`/quitarDespesa/${despesa.idDespesa}`}
+                          state={{
+                            status: despesa.status,
+                            valorTotal: valorTotal,
+                            valorPago: valorPago,
+                            valorRestante: valorTotal - valorPago,
+                          }}
+                        >
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              backgroundColor:
+                                despesa.status === "Pago" ? "#ccc" : "#28a745",
+                              color: "#fff",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor:
+                                despesa.status === "Pago"
+                                  ? "not-allowed"
+                                  : "pointer",
+                              fontSize: "12px",
+                            }}
+                            disabled={despesa.status === "Pago"}
+                          >
+                            Quitar
+                          </button>
+                        </Link>
+                        <button
+                          onClick={() =>
+                            handleDelete(despesa.idDespesa, despesa.status)
+                          }
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor:
+                              despesa.status === "Pago" ? "#ccc" : "#dc3545",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "4px",
+                            cursor:
+                              despesa.status === "Pago"
+                                ? "not-allowed"
+                                : "pointer",
+                            fontSize: "12px",
+                          }}
+                          disabled={despesa.status === "Pago"}
+                        >
+                          Deletar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan="8">Nenhuma despesa encontrada.</td>
+                <td
+                  colSpan="10"
+                  style={{
+                    padding: "20px",
+                    textAlign: "center",
+                    color: "#666",
+                  }}
+                >
+                  Nenhuma despesa encontrada.
+                </td>
               </tr>
             )}
           </tbody>
